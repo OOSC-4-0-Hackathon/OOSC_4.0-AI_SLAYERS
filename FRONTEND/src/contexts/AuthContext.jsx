@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
       if (err.response && err.response.status === 404) {
         try {
           const token = fbUser.uid === 'mock-uid' ? 'mock-token' : await fbUser.getIdToken();
-          const profile = await authService.syncUserProfile(token, fbUser.displayName || fbUser.email, 'CITIZEN');
+          const profile = await authService.syncUserProfile(token, fbUser.displayName || fbUser.email, 'citizen');
           setUserProfile(profile);
           setError(null);
         } catch (syncErr) {

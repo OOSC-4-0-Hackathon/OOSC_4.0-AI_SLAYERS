@@ -39,11 +39,12 @@ class User(Base):
     @validates("role")
     def validate_role(self, key, value):
         valid_roles = {"citizen", "student", "lawyer"}
-        if value not in valid_roles:
+        norm_val = str(value).strip().lower() if value else "citizen"
+        if norm_val not in valid_roles:
             raise ValueError(
                 f"Invalid role '{value}'. Must be one of: {', '.join(sorted(valid_roles))}"
             )
-        return value
+        return norm_val
 
     def __repr__(self):
         return f"<User firebase_uid={self.firebase_uid!r} email={self.email!r} role={self.role!r}>"
