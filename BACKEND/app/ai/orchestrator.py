@@ -41,7 +41,7 @@ Output ONLY the expanded search query, nothing else."""
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-1.5-flash',
                         contents=user_prompt,
                         config=types.GenerateContentConfig(system_instruction=sys_prompt)
                     )
@@ -85,7 +85,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-1.5-flash',
                         contents=user_prompt,
                         config=types.GenerateContentConfig(
                             system_instruction=sys_prompt,
