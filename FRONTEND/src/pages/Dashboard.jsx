@@ -105,21 +105,17 @@ export default function Dashboard() {
                 >
                   <Link
                     to={tool.path}
-                    className={`flex flex-col justify-between p-5 border rounded-[4px] h-[160px] group transition-all duration-200 shadow-2xs ${
-                      tool.accent
-                        ? 'bg-[#121820] text-white border-[#2B3542] hover:border-[#C84B31]'
-                        : 'bg-white/90 border-[#E4DFD5] hover:border-[#121820]'
-                    }`}
+                    className="flex flex-col justify-between p-5 bg-white/90 border border-[#E4DFD5] rounded-[4px] h-[160px] group transition-all duration-200 shadow-2xs hover:border-[#C84B31] hover:shadow-card hover:-translate-y-0.5"
                   >
                     <div className="flex items-start justify-between">
-                      <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
-                        tool.accent ? 'border-[#C84B31] text-[#C84B31] bg-[#C84B31]/10' : 'border-[#E4DFD5] text-[#7A8699]'
-                      }`}>{tool.tag}</span>
-                      <span className={tool.accent ? 'text-[#C84B31] group-hover:translate-x-1 transition-transform' : 'text-[#7A8699] group-hover:text-[#121820] group-hover:translate-x-1 transition-all'}>→</span>
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border border-[#C84B31]/25 text-[#C84B31] bg-[#C84B31]/10">
+                        {tool.tag}
+                      </span>
+                      <span className="text-[#7A8699] group-hover:text-[#C84B31] group-hover:translate-x-1 transition-all font-mono">→</span>
                     </div>
                     <div>
-                      <h3 className={`font-sans text-[15px] font-bold mb-1 ${tool.accent ? 'text-white' : 'text-[#121820]'}`}>{tool.name}</h3>
-                      <p className={`text-[12px] leading-relaxed ${tool.accent ? 'text-[#A2B1C6]' : 'text-[#475467]'}`}>{tool.desc}</p>
+                      <h3 className="font-sans text-[15px] font-bold text-[#121820] mb-1 group-hover:text-[#C84B31] transition-colors">{tool.name}</h3>
+                      <p className="text-[12px] leading-relaxed text-[#475467]">{tool.desc}</p>
                     </div>
                   </Link>
                 </motion.div>
