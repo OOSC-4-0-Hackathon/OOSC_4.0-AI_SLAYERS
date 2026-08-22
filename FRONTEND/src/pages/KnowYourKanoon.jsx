@@ -87,37 +87,41 @@ const KanoonChatArea = ({ refreshConversations }) => {
       onSelectConversation={handleSelectConversation}
       onMessagesLoaded={handleMessagesLoaded}
     >
-      <div className="flex flex-col h-full bg-surface relative">
+      <div className="flex flex-col h-full bg-paper relative">
         {/* Header */}
-        <header className="h-16 flex items-center px-6 border-b border-border bg-surface/80 backdrop-blur-sm z-10 shrink-0">
+        <header className="h-14 flex items-center px-6 border-b border-paper-rule bg-paper z-10 shrink-0">
           <div className="flex items-center gap-3 md:ml-12">
-            <div className="p-1.5 bg-primary/10 rounded-button border border-primary/20">
-              <BookOpen className="w-5 h-5 text-primary" />
+            <div className="p-1.5 bg-amber-light border border-amber/30 rounded-stamp flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-amber" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-text-primary tracking-tight leading-tight">Know Your Kanoon</h1>
-              <p className="text-xs text-text-secondary">Your AI-powered Indian legal assistant</p>
+              <span className="label-stamp text-ink-fog block">LEGAL RESEARCH</span>
+              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>Know Your Kanoon</h1>
             </div>
           </div>
         </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto bg-background relative scroll-smooth scrollbar-thin scrollbar-thumb-border">
+        <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto p-6">
-              <div className="w-16 h-16 bg-surface rounded-2xl shadow-sm border border-border flex items-center justify-center mb-6">
-                <BookOpen className="w-8 h-8 text-primary" />
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-8">
+              <div className="w-14 h-14 bg-paper border border-paper-rule rounded-stamp flex items-center justify-center mb-6 shadow-stamp">
+                <span className="font-display italic text-[22px] font-bold text-amber" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>
               </div>
-              <h2 className="text-xl font-semibold text-text-primary mb-2">Ask Any Legal Question</h2>
-              <p className="text-text-secondary text-sm mb-8">
-                Get clear, simple answers about Indian law, fundamental rights, legal procedures, and civil matters.
+              <span className="label-stamp text-ink-fog mb-3">KANOON Q&amp;A</span>
+              <h2 className="text-[26px] font-bold text-ink mb-3 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                Ask any legal question.
+                <br /><span className="italic font-normal">Get a statute-grounded answer.</span>
+              </h2>
+              <p className="text-[13px] text-ink-muted mb-8 leading-relaxed">
+                Clear answers about Indian law, fundamental rights, procedures, and civil matters — grounded in 93 Bare Acts.
               </p>
               <div className="flex flex-col gap-2 w-full max-w-sm">
                 {EXAMPLE_QUESTIONS.map((q, idx) => (
-                  <button 
+                  <button
                     key={idx}
-                    onClick={() => setInputValue(q)} 
-                    className="text-sm bg-surface hover:bg-secondary border border-border px-4 py-3 rounded-xl text-text-primary text-left transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    onClick={() => setInputValue(q)}
+                    className="text-[13px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-3 rounded-card text-ink-muted hover:text-ink text-left transition-colors shadow-stamp focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
                   >
                     {q}
                   </button>
@@ -135,13 +139,14 @@ const KanoonChatArea = ({ refreshConversations }) => {
               ))}
               
               {isGenerating && (
-                <MessageBubble 
-                  message={{ role: 'assistant', content: 'Thinking...' }} 
+                <MessageBubble
+                  message={{ role: 'assistant', content: '' }}
                   renderContent={() => (
-                    <div className="flex items-center gap-2 text-primary font-medium">
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
                     </div>
                   )}
                 />
@@ -152,11 +157,11 @@ const KanoonChatArea = ({ refreshConversations }) => {
         </div>
 
         {/* Input Area */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-10 pb-6 px-4 md:px-8 z-10 pointer-events-none">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-paper via-paper/90 to-transparent pt-10 pb-6 px-4 md:px-8 z-10 pointer-events-none">
           <div className="max-w-4xl mx-auto w-full pointer-events-auto">
             {error && (
-              <div className="mb-4 p-3 bg-error-bg border border-error/50 rounded-lg flex items-center gap-2 text-error text-sm shadow-sm">
-                <AlertCircle className="w-4 h-4" />
+              <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-card flex items-center gap-2 text-error text-[13px] shadow-stamp">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
             )}

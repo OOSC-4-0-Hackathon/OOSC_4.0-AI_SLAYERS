@@ -1,0 +1,6 @@
+{
+  "name": "NYAAY AI — Civic Legal Navigator",
+  "description": "Transforms civic & legal disputes into grounded, structured case files and action plans across 93 Indian Bare Acts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

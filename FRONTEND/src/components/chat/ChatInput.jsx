@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 
-const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Message NYAAY AI..." }) => {
+const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Describe your legal situation..." }) => {
   const textareaRef = useRef(null);
 
   // Auto-resize textarea
@@ -24,7 +24,7 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Messag
 
   return (
     <div className="relative max-w-4xl mx-auto w-full">
-      <div className="relative flex items-end shadow-sm border border-border bg-surface rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+      <div className="relative flex items-end border border-paper-rule bg-paper rounded-card overflow-hidden focus-within:ring-1 focus-within:ring-amber focus-within:border-amber transition-all shadow-stamp">
         <textarea
           ref={textareaRef}
           value={value}
@@ -33,25 +33,25 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Messag
           placeholder={placeholder}
           disabled={isLoading}
           rows={1}
-          className="w-full max-h-[200px] py-4 pl-4 pr-12 bg-transparent text-text-primary placeholder-text-secondary focus:outline-none resize-none scrollbar-thin scrollbar-thumb-border"
+          className="w-full max-h-[200px] py-3.5 pl-4 pr-14 bg-transparent text-ink text-[14px] placeholder-ink-fog focus:outline-none resize-none"
         />
-        <div className="absolute right-2 bottom-2">
+        <div className="absolute right-2.5 bottom-2.5">
           <button
             onClick={onSubmit}
             disabled={!value.trim() || isLoading}
-            className={`p-2 rounded-xl flex items-center justify-center transition-all ${
-              value.trim() && !isLoading 
-                ? 'bg-primary text-white hover:bg-primary-hover shadow-md' 
-                : 'bg-secondary text-text-secondary cursor-not-allowed border border-border'
+            className={`p-2 rounded-button flex items-center justify-center transition-all ${
+              value.trim() && !isLoading
+                ? 'bg-ink text-paper hover:bg-ink-soft shadow-stamp'
+                : 'bg-paper-warm text-ink-fog cursor-not-allowed border border-paper-rule'
             }`}
           >
-            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
+            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>
         </div>
       </div>
       <div className="text-center mt-2">
-        <p className="text-[11px] text-text-secondary">
-          NYAAY AI can make mistakes. Consider verifying important information.
+        <p className="font-mono text-[10px] text-ink-fog uppercase tracking-wider">
+          NYAAY AI · Grounded in 93 Indian Bare Acts · Verify before filing
         </p>
       </div>
     </div>

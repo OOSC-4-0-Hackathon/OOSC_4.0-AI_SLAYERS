@@ -10,17 +10,24 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase Client SDK
+// Check if valid Firebase API key is provided
+const isConfigValid = 
+  firebaseConfig.apiKey && 
+  !firebaseConfig.apiKey.startsWith('mock-') && 
+  firebaseConfig.apiKey.length > 15;
+
 let app = null;
 let auth = null;
 
-try {
-  if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'mock-api-key-value-for-dev-only') {
+if (isConfigValid) {
+  try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+  } catch (error) {
+    console.warn('Firebase SDK initialization failed:', error.message);
   }
-} catch (error) {
-  console.warn('Firebase initialization skipped or failed:', error.message);
+} else {
+  console.warn('Firebase API key is mock or missing. Auth will run in local simulator mode until real credentials are provided in .env.');
 }
 
 export { app, auth };

@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import authService from '../services/authService';
+import { formatAuthError } from '../utils/authErrors';
 
 const AuthContext = createContext(null);
 
@@ -19,10 +20,17 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fallback simulator state if Firebase auth is null (mock-api-key)
-  const [mockUser, setMockUser] = useState(null);
+  // Fallback simulator state if Firebase auth is null
+  const [mockUser, setMockUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nyaay_mock_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  // Load profile from backend when Firebase user is available
+  // Load profile from backend when user is available
   const fetchProfile = async (fbUser) => {
     try {
       const token = fbUser.uid === 'mock-uid' ? 'mock-token' : await fbUser.getIdToken();
@@ -41,7 +49,13 @@ export function AuthProvider({ children }) {
         }
       } else {
         console.error('Error fetching backend user profile:', err);
-        setError('Failed to sync profile with database.');
+        // Fallback default profile if backend DB isn't initialized
+        setUserProfile({
+          name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Counselor',
+          email: fbUser.email,
+          role: 'CITIZEN',
+          created_at: new Date().toISOString()
+        });
       }
     }
   };
@@ -59,11 +73,16 @@ export function AuthProvider({ children }) {
       });
       return unsubscribe;
     } else {
-      // Setup mock auth listener for dev-only if keys are missing
-      console.warn('Firebase auth client not initialized. Operating in local simulator mode.');
+      // Dev simulator mode
       if (mockUser) {
-        fetchProfile(mockUser).then(() => setLoading(false));
+        const fullMockUser = {
+          ...mockUser,
+          getIdToken: async () => 'mock-token'
+        };
+        setCurrentUser(fullMockUser);
+        fetchProfile(fullMockUser).finally(() => setLoading(false));
       } else {
+        setCurrentUser(null);
         setUserProfile(null);
         setLoading(false);
       }
@@ -78,18 +97,20 @@ export function AuthProvider({ children }) {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
-        // The onAuthStateChanged observer will trigger fetchProfile
         return userCredential.user;
       } catch (err) {
-        setError(err.message);
+        const formattedErr = formatAuthError(err);
+        setError(formattedErr);
         setLoading(false);
-        throw err;
+        throw new Error(formattedErr);
       }
     } else {
-      // Mock signup
-      const newUser = { uid: 'mock-uid', email, displayName: name, getIdToken: () => 'mock-token' };
+      // Mock signup mode
+      const newUser = { uid: 'mock-uid', email, displayName: name, getIdToken: async () => 'mock-token' };
+      localStorage.setItem('nyaay_mock_user', JSON.stringify({ uid: 'mock-uid', email, displayName: name }));
       setMockUser(newUser);
       setCurrentUser(newUser);
+      setLoading(false);
       return newUser;
     }
   };
@@ -102,15 +123,19 @@ export function AuthProvider({ children }) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return userCredential.user;
       } catch (err) {
-        setError(err.message);
+        const formattedErr = formatAuthError(err);
+        setError(formattedErr);
         setLoading(false);
-        throw err;
+        throw new Error(formattedErr);
       }
     } else {
-      // Mock login
-      const loggedUser = { uid: 'mock-uid', email, displayName: 'Mock User', getIdToken: () => 'mock-token' };
+      // Mock login mode
+      const displayName = email.split('@')[0];
+      const loggedUser = { uid: 'mock-uid', email, displayName, getIdToken: async () => 'mock-token' };
+      localStorage.setItem('nyaay_mock_user', JSON.stringify({ uid: 'mock-uid', email, displayName }));
       setMockUser(loggedUser);
       setCurrentUser(loggedUser);
+      setLoading(false);
       return loggedUser;
     }
   };
@@ -124,11 +149,12 @@ export function AuthProvider({ children }) {
         setCurrentUser(null);
         setUserProfile(null);
       } catch (err) {
-        setError(err.message);
+        setError(formatAuthError(err));
       } finally {
         setLoading(false);
       }
     } else {
+      localStorage.removeItem('nyaay_mock_user');
       setMockUser(null);
       setCurrentUser(null);
       setUserProfile(null);
@@ -142,18 +168,22 @@ export function AuthProvider({ children }) {
     if (auth) {
       try {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
         const result = await signInWithPopup(auth, provider);
         return result.user;
       } catch (err) {
-        setError(err.message);
+        const formattedErr = formatAuthError(err);
+        setError(formattedErr);
         setLoading(false);
-        throw err;
+        throw new Error(formattedErr);
       }
     } else {
-      // Mock Google Login
-      const googleUser = { uid: 'mock-uid', email: 'google-user@nyaay.ai', displayName: 'Google User', getIdToken: () => 'mock-token' };
+      // Mock Google Login mode
+      const googleUser = { uid: 'mock-uid', email: 'google.user@nyaay.ai', displayName: 'Google User', getIdToken: async () => 'mock-token' };
+      localStorage.setItem('nyaay_mock_user', JSON.stringify({ uid: 'mock-uid', email: 'google.user@nyaay.ai', displayName: 'Google User' }));
       setMockUser(googleUser);
       setCurrentUser(googleUser);
+      setLoading(false);
       return googleUser;
     }
   };

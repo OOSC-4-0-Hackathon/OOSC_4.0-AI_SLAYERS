@@ -1,176 +1,165 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import PageContainer from '../components/common/PageContainer';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
+import Navbar from '../components/common/Navbar';
+import Footer from '../components/common/Footer';
+
+const TOOLS = [
+  {
+    tag: 'CORE',
+    name: 'Civic Navigator',
+    desc: 'RTI, Consumer, Tenant — 5-part structured answers grounded in 93 Bare Acts.',
+    path: '/civic',
+    accent: true,
+  },
+  {
+    tag: 'RESEARCH',
+    name: 'Kanoon Q&A',
+    desc: 'Grounded Q&A over Indian statutes, constitutional clauses, landmark judgments.',
+    path: '/know-your-kanoon',
+    accent: false,
+  },
+  {
+    tag: 'DRAFTING',
+    name: 'Legal Drafting',
+    desc: 'Generate Affidavits, Legal Notices, RTI Applications — with highlighted placeholders.',
+    path: '/dochub',
+    accent: false,
+  },
+  {
+    tag: 'ANALYSIS',
+    name: 'Document Chat',
+    desc: 'Upload a contract or court order, extract clauses, identify red flags.',
+    path: '/upload-chat',
+    accent: false,
+  },
+  {
+    tag: 'STRATEGY',
+    name: 'Legal Reasoning',
+    desc: 'Construct arguments for both sides of a dispute, evaluate litigation risk.',
+    path: '/reasoning',
+    accent: false,
+  },
+];
+
+const ROLE_LABEL = { citizen: 'CITIZEN', student: 'LAW STUDENT', lawyer: 'LEGAL PROFESSIONAL' };
+
+function DashboardField({ label, value }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="label-stamp text-ink-fog">{label}</span>
+      <span className="text-[13px] font-medium text-ink truncate">{value || '—'}</span>
+    </div>
+  );
+}
+
+function formatDate(ds) {
+  if (!ds) return null;
+  try { return new Date(ds).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }); }
+  catch { return ds; }
+}
 
 export default function Dashboard() {
   const { currentUser, userProfile } = useAuth();
-
-  // Helper to format role name for display
-  const getRoleDisplayName = (role) => {
-    if (!role) return '';
-    if (role === 'citizen') return 'Citizen';
-    if (role === 'student') return 'Law Student';
-    if (role === 'lawyer') return 'Legal Professional';
-    return role;
-  };
-
-  const getRoleBadgeColor = (role) => {
-    if (role === 'lawyer') return 'bg-amber-500/10 text-amber-800 border-amber-500/20';
-    if (role === 'student') return 'bg-blue-500/10 text-blue-800 border-blue-500/20';
-    return 'bg-emerald-500/10 text-emerald-800 border-emerald-500/20';
-  };
-
-  const features = [
-    {
-      title: 'Know Your Kanoon',
-      description: 'Interact with Indian statutes, codes, and precedents using our grounded Q&A intelligence agent.',
-      icon: 'gavel',
-      path: '/know-your-kanoon',
-      gradient: 'from-emerald-500/5 to-teal-500/5',
-    },
-    {
-      title: 'Upload & Chat',
-      description: 'Upload legal case documents or contracts to synthesize key clauses and identify liabilities.',
-      icon: 'upload_file',
-      path: '/upload-chat',
-      gradient: 'from-blue-500/5 to-indigo-500/5',
-    },
-    {
-      title: 'Legal Drafting',
-      description: 'Generate legally grounded documents and notices.',
-      icon: 'description',
-      path: '/dochub',
-      gradient: 'from-indigo-500/5 to-purple-500/5',
-    },
-    {
-      title: 'Legal Reasoning',
-      description: 'Analyze legal scenarios, construct objective arguments for both sides, and evaluate risks grounded in law.',
-      icon: 'balance',
-      path: '/reasoning',
-      gradient: 'from-amber-500/5 to-orange-500/5',
-    },
-  ];
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      const d = new Date(dateString);
-      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-    } catch {
-      return dateString;
-    }
-  };
+  const displayName = userProfile?.name || currentUser?.displayName || 'Counselor';
 
   return (
-    <PageContainer>
-      <div className="flex flex-col gap-10 text-left">
-        {/* Welcome Banner */}
-        <section className="bg-secondary rounded-3xl p-8 md:p-10 border border-border relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-            <div className="w-[200px] h-[200px] rounded-full bg-gradient-to-tr from-emerald-300 to-teal-200 blur-3xl absolute -left-10"></div>
-          </div>
-          
-          <div className="z-10 flex flex-col gap-2">
-            <span className={`self-start px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wider ${getRoleBadgeColor(userProfile?.role)}`}>
-              {getRoleDisplayName(userProfile?.role)}
-            </span>
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter text-primary mt-2">
-              Welcome back, {userProfile?.name || currentUser?.displayName || 'User'}
+    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820] flex flex-col font-sans">
+      <Navbar />
+      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 pt-24 pb-20 flex-grow">
+
+        {/* Welcome header */}
+        <div className="border-b border-[#E4DFD5] pb-8 pt-4">
+          <span className="stamp-badge px-2 py-0.5 text-[10px]">
+            DASHBOARD // {new Date().getFullYear()}
+          </span>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
+            <h1
+              className="font-serif text-4xl md:text-5xl font-extrabold text-[#121820] leading-tight"
+            >
+              Welcome back,<br />
+              <span className="text-[#C84B31] italic font-normal">{displayName}.</span>
             </h1>
-            <p className="text-sm text-text-secondary max-w-md">
-              Access your workspace below. Your grounded legal model version v2.0 is verified and online.
-            </p>
+            {userProfile?.role && (
+              <span className="self-start md:self-end stamp-badge px-3 py-1 text-[#C84B31] border-[#C84B31]">
+                {ROLE_LABEL[userProfile.role] || userProfile.role.toUpperCase()}
+              </span>
+            )}
           </div>
+        </div>
 
-          <div className="z-10 flex gap-3">
-            <Link to="/know-your-kanoon">
-              <Button variant="primary" className="py-2.5 px-5 text-xs">
-                <span className="material-symbols-outlined text-[16px]">chat</span>
-                Start Chat
-              </Button>
-            </Link>
-          </div>
-        </section>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
 
-        {/* Core Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Main workspace (Features Cards) */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
-            <h2 className="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">
-              Your Legal Workspaces
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {features.map((feature, idx) => (
-                <Link to={feature.path} key={idx}>
-                  <Card className="h-[240px] justify-between p-6 hover:scale-[1.01] bg-background">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-50`}></div>
-                    <div className="flex justify-between items-start z-10">
-                      <span className="material-symbols-outlined text-[28px] text-primary">
-                        {feature.icon}
-                      </span>
-                      <span className="material-symbols-outlined text-text-secondary text-[18px] group-hover:translate-x-1 transition-transform">
-                        arrow_forward
-                      </span>
+          {/* Tools */}
+          <div className="lg:col-span-8">
+            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">CIVIC &amp; LEGAL TOOLS</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {TOOLS.map((tool, i) => (
+                <motion.div
+                  key={tool.name}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Link
+                    to={tool.path}
+                    className={`flex flex-col justify-between p-5 border rounded-[4px] h-[160px] group transition-all duration-200 shadow-2xs ${
+                      tool.accent
+                        ? 'bg-[#121820] text-white border-[#2B3542] hover:border-[#C84B31]'
+                        : 'bg-white/90 border-[#E4DFD5] hover:border-[#121820]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
+                        tool.accent ? 'border-[#C84B31] text-[#C84B31] bg-[#C84B31]/10' : 'border-[#E4DFD5] text-[#7A8699]'
+                      }`}>{tool.tag}</span>
+                      <span className={tool.accent ? 'text-[#C84B31] group-hover:translate-x-1 transition-transform' : 'text-[#7A8699] group-hover:text-[#121820] group-hover:translate-x-1 transition-all'}>→</span>
                     </div>
-                    <div className="z-10 text-left">
-                      <h4 className="text-base font-bold tracking-tight text-primary mb-1">
-                        {feature.title}
-                      </h4>
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        {feature.description}
-                      </p>
+                    <div>
+                      <h3 className={`font-sans text-[15px] font-bold mb-1 ${tool.accent ? 'text-white' : 'text-[#121820]'}`}>{tool.name}</h3>
+                      <p className={`text-[12px] leading-relaxed ${tool.accent ? 'text-[#A2B1C6]' : 'text-[#475467]'}`}>{tool.desc}</p>
                     </div>
-                  </Card>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
 
-          {/* Sidebar Account details */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            <h2 className="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">
-              Account Profile
-            </h2>
-            <Card className="p-6 justify-start text-left gap-4 bg-background" hoverEffect={false}>
-              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100">
-                <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center border border-zinc-200">
-                  <span className="material-symbols-outlined text-primary">person</span>
+          {/* Account sidebar */}
+          <div className="lg:col-span-4">
+            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">CASE FILE ACCOUNT</span>
+            <div className="bg-white/90 border border-[#E4DFD5] rounded-[4px] p-6 flex flex-col gap-4 shadow-2xs">
+              {/* Avatar */}
+              <div className="flex items-center gap-3 pb-4 border-b border-[#E4DFD5]">
+                <div className="w-10 h-10 bg-[#121820] rounded-[4px] border border-[#2B3542] flex items-center justify-center flex-shrink-0 text-white font-serif font-bold italic text-lg">
+                  {(displayName[0] || 'N').toUpperCase()}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold tracking-tight text-primary">
-                    {userProfile?.name}
-                  </span>
-                  <span className="text-[10px] font-mono text-text-secondary">
-                    {currentUser?.uid}
-                  </span>
+                <div>
+                  <p className="text-[14px] font-bold text-[#121820]">{displayName}</p>
+                  <p className="font-mono text-[10px] text-[#7A8699] truncate max-w-[160px]">{currentUser?.uid || 'mock-uid'}</p>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Email</span>
-                  <span className="text-xs font-medium text-primary truncate">{userProfile?.email}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Role Setting</span>
-                  <span className="text-xs font-medium text-primary">{getRoleDisplayName(userProfile?.role)}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Joined</span>
-                  <span className="text-xs font-medium text-primary">{formatDate(userProfile?.created_at)}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Last Sync</span>
-                  <span className="text-xs font-medium text-primary">{formatDate(userProfile?.last_login)}</span>
+              <div className="flex flex-col gap-3 font-mono">
+                <DashboardField label="EMAIL" value={userProfile?.email || currentUser?.email} />
+                <DashboardField label="ROLE" value={ROLE_LABEL[userProfile?.role] || userProfile?.role} />
+                <DashboardField label="JOINED" value={formatDate(userProfile?.created_at)} />
+                <DashboardField label="LAST SYNC" value={formatDate(userProfile?.last_login)} />
+              </div>
+
+              <div className="pt-3 border-t border-[#E4DFD5]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0" />
+                  <span className="text-[12px] font-mono text-[#7A8699]">NYAAY RAG Engine · Connected</span>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
-      </div>
-    </PageContainer>
+      </main>
+      <Footer />
+    </div>
   );
 }

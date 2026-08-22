@@ -37,21 +37,12 @@ const ChatSidebar = ({
     const sevenDaysAgo = today - 86400000 * 7;
 
     filteredConversations.forEach(c => {
-      if (c.is_pinned) {
-        groups.pinned.push(c);
-        return;
-      }
-      
+      if (c.is_pinned) { groups.pinned.push(c); return; }
       const updatedTime = new Date(c.updated_at).getTime();
-      if (updatedTime >= today) {
-        groups.today.push(c);
-      } else if (updatedTime >= yesterday) {
-        groups.yesterday.push(c);
-      } else if (updatedTime >= sevenDaysAgo) {
-        groups.previous7Days.push(c);
-      } else {
-        groups.older.push(c);
-      }
+      if (updatedTime >= today) groups.today.push(c);
+      else if (updatedTime >= yesterday) groups.yesterday.push(c);
+      else if (updatedTime >= sevenDaysAgo) groups.previous7Days.push(c);
+      else groups.older.push(c);
     });
     return groups;
   }, [filteredConversations]);
@@ -64,24 +55,18 @@ const ChatSidebar = ({
       await renameConversation(token, id, editTitle);
       setEditingId(null);
       if (onConversationsChanged) onConversationsChanged();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this conversation?")) return;
+    if (!window.confirm("Delete this conversation?")) return;
     try {
       const token = await currentUser.getIdToken();
       await deleteConversation(token, id);
       setMenuOpenId(null);
       if (onConversationsChanged) onConversationsChanged();
-      if (activeConversationId === id) {
-        onNewChat(); // reset view
-      }
-    } catch (err) {
-      console.error(err);
-    }
+      if (activeConversationId === id) onNewChat();
+    } catch (err) { console.error(err); }
   };
 
   const handleTogglePin = async (c) => {
@@ -90,29 +75,27 @@ const ChatSidebar = ({
       await pinConversation(token, c.id, !c.is_pinned);
       setMenuOpenId(null);
       if (onConversationsChanged) onConversationsChanged();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const renderGroup = (title, items) => {
     if (items.length === 0) return null;
     return (
-      <div className="mb-6">
-        <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2 px-3">{title}</h3>
-        <div className="space-y-1">
+      <div className="mb-5">
+        <h3 className="label-stamp text-ink-fog mb-2 px-3">{title}</h3>
+        <div className="space-y-0.5">
           {items.map(c => (
-            <div 
+            <div
               key={c.id}
-              className={`group relative flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                activeConversationId === c.id ? 'bg-primary/10 text-primary' : 'hover:bg-secondary text-text-primary'
+              className={`group relative flex items-center gap-2.5 px-3 py-2.5 cursor-pointer transition-colors rounded-card ${
+                activeConversationId === c.id
+                  ? 'bg-amber-light border border-amber/30 text-ink'
+                  : 'hover:bg-paper-warm text-ink-muted hover:text-ink border border-transparent'
               }`}
-              onClick={() => {
-                if (editingId !== c.id) onSelectConversation(c);
-              }}
+              onClick={() => { if (editingId !== c.id) onSelectConversation(c); }}
             >
-              <MessageSquare size={16} className={activeConversationId === c.id ? 'text-primary' : 'text-text-secondary'} />
-              
+              <MessageSquare size={14} className={activeConversationId === c.id ? 'text-amber' : 'text-ink-fog'} />
+
               {editingId === c.id ? (
                 <form onSubmit={(e) => handleRenameSubmit(c.id, e)} className="flex-1 min-w-0" onClick={e => e.stopPropagation()}>
                   <input
@@ -120,60 +103,44 @@ const ChatSidebar = ({
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                     onBlur={(e) => handleRenameSubmit(c.id, e)}
-                    className="w-full bg-surface border border-primary rounded px-2 py-0.5 text-sm outline-none focus:ring-2 ring-primary/20 text-text-primary"
+                    className="w-full bg-paper border border-amber rounded-stamp px-2 py-0.5 text-[13px] outline-none focus:ring-1 ring-amber/30 text-ink"
                     autoFocus
                   />
                 </form>
               ) : (
-                <span className="flex-1 min-w-0 truncate text-sm font-medium">
+                <span className="flex-1 min-w-0 truncate text-[13px] font-medium">
                   {c.title || "New Conversation"}
                 </span>
               )}
 
-              {/* Context Menu Button */}
               {editingId !== c.id && (
                 <div className={`relative ${menuOpenId === c.id ? 'block' : 'hidden group-hover:block'}`}>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMenuOpenId(menuOpenId === c.id ? null : c.id);
-                    }}
-                    className="p-1 text-text-secondary hover:text-text-primary hover:bg-border rounded"
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === c.id ? null : c.id); }}
+                    className="p-1 text-ink-fog hover:text-ink hover:bg-paper-rule rounded-stamp transition-colors"
                   >
-                    <MoreHorizontal size={16} />
+                    <MoreHorizontal size={14} />
                   </button>
-                  
-                  {/* Dropdown Menu */}
+
                   {menuOpenId === c.id && (
-                    <div className="absolute right-0 top-full mt-1 w-32 bg-surface rounded-md shadow-lg border border-border z-50 py-1">
+                    <div className="absolute right-0 top-full mt-1 w-36 bg-paper border border-paper-rule rounded-card shadow-card z-50 py-1">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTogglePin(c);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-sm text-text-primary hover:bg-secondary flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); handleTogglePin(c); }}
+                        className="w-full text-left px-3 py-1.5 text-[12px] text-ink hover:bg-paper-warm flex items-center gap-2 transition-colors"
                       >
-                        <Pin size={14} /> {c.is_pinned ? 'Unpin' : 'Pin'}
+                        <Pin size={12} /> {c.is_pinned ? 'Unpin' : 'Pin'}
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditTitle(c.title);
-                          setEditingId(c.id);
-                          setMenuOpenId(null);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-sm text-text-primary hover:bg-secondary flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); setEditTitle(c.title); setEditingId(c.id); setMenuOpenId(null); }}
+                        className="w-full text-left px-3 py-1.5 text-[12px] text-ink hover:bg-paper-warm flex items-center gap-2 transition-colors"
                       >
-                        <Pencil size={14} /> Rename
+                        <Pencil size={12} /> Rename
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(c.id);
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
+                        className="w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-error-bg flex items-center gap-2 transition-colors"
                       >
-                        <Trash2 size={14} /> Delete
+                        <Trash2 size={12} /> Delete
                       </button>
                     </div>
                   )}
@@ -187,50 +154,54 @@ const ChatSidebar = ({
   };
 
   return (
-    <div className="w-80 flex-shrink-0 bg-background border-r border-border flex flex-col h-full" onClick={() => setMenuOpenId(null)}>
+    <div className="w-72 flex-shrink-0 bg-paper-warm border-r border-paper-rule flex flex-col h-full" onClick={() => setMenuOpenId(null)}>
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between">
-        <h2 className="font-semibold text-text-primary">History</h2>
+      <div className="px-4 py-4 border-b border-paper-rule flex items-center justify-between bg-paper">
+        <div>
+          <span className="label-stamp text-ink-fog block">CASE HISTORY</span>
+          <span className="text-[13px] font-semibold text-ink">Past Sessions</span>
+        </div>
         <button
           onClick={onNewChat}
-          className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center justify-center border border-primary/20"
-          title="New Chat"
+          className="p-2 text-ink hover:bg-paper-warm border border-paper-rule rounded-button transition-colors shadow-stamp flex items-center justify-center"
+          title="New Session"
         >
-          <Plus size={20} />
+          <Plus size={16} />
         </button>
       </div>
 
       {/* Search */}
-      <div className="p-4 border-b border-border">
+      <div className="px-3 py-3 border-b border-paper-rule">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-fog" size={13} />
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder="Search sessions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-text-primary placeholder-text-secondary"
+            className="w-full pl-8 pr-3 py-2 bg-paper border border-paper-rule rounded-button text-[13px] focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber transition-all text-ink placeholder-ink-fog"
           />
         </div>
       </div>
 
       {/* Conversation List */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-border">
+      <div className="flex-1 overflow-y-auto p-3">
         {conversations.length === 0 ? (
-          <div className="text-center text-text-secondary text-sm mt-10">
-            No conversations yet.<br />Start a new chat to begin.
+          <div className="text-center mt-12 px-4">
+            <span className="font-mono text-[9px] text-ink-fog uppercase tracking-widest block mb-2">NO SESSIONS YET</span>
+            <p className="text-[12px] text-ink-muted">Start a new query to begin your case file history.</p>
           </div>
         ) : filteredConversations.length === 0 ? (
-          <div className="text-center text-text-secondary text-sm mt-10">
-            No matches found for "{searchQuery}".
+          <div className="text-center mt-10">
+            <p className="text-[12px] text-ink-muted">No matches for "{searchQuery}".</p>
           </div>
         ) : (
           <>
-            {renderGroup("Pinned", grouped.pinned)}
-            {renderGroup("Today", grouped.today)}
-            {renderGroup("Yesterday", grouped.yesterday)}
-            {renderGroup("Previous 7 Days", grouped.previous7Days)}
-            {renderGroup("Older", grouped.older)}
+            {renderGroup("PINNED", grouped.pinned)}
+            {renderGroup("TODAY", grouped.today)}
+            {renderGroup("YESTERDAY", grouped.yesterday)}
+            {renderGroup("PREVIOUS 7 DAYS", grouped.previous7Days)}
+            {renderGroup("OLDER", grouped.older)}
           </>
         )}
       </div>

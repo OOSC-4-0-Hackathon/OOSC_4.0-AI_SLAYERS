@@ -4,13 +4,13 @@ import { getConversations, getMessages } from '../../services/chatService';
 import { useAuth } from '../../contexts/AuthContext';
 import { Menu, X } from 'lucide-react';
 
-const ConversationLayout = ({ 
-  featureType, 
-  onSelectConversation, 
+const ConversationLayout = ({
+  featureType,
+  onSelectConversation,
   activeConversationId,
   onNewChat,
   children,
-  onMessagesLoaded // Callback to pass messages back up when a conversation is selected
+  onMessagesLoaded
 }) => {
   const { currentUser } = useAuth();
   const [conversations, setConversations] = useState([]);
@@ -49,24 +49,24 @@ const ConversationLayout = ({
   };
 
   return (
-    <div className="flex h-full w-full bg-surface overflow-hidden relative">
-      {/* Mobile Sidebar Overlay */}
+    <div className="flex h-full w-full bg-paper overflow-hidden relative">
+      {/* Mobile open sidebar button */}
       {!sidebarOpen && (
-        <button 
+        <button
           onClick={() => setSidebarOpen(true)}
-          className="md:hidden absolute top-4 left-4 z-20 p-2 bg-white rounded-button shadow-sm text-text-secondary border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="md:hidden absolute top-4 left-4 z-20 p-2 bg-paper border border-paper-rule rounded-button shadow-stamp text-ink-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
       )}
 
       {/* Sidebar Container */}
-      <div 
-        className={`absolute md:relative z-30 h-full transition-transform duration-300 ease-in-out ${
+      <div
+        className={`absolute md:relative z-30 h-full transition-transform duration-200 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden'
         }`}
       >
-        <ChatSidebar 
+        <ChatSidebar
           conversations={conversations}
           activeConversationId={activeConversationId}
           onSelectConversation={handleSelectConversation}
@@ -74,23 +74,23 @@ const ConversationLayout = ({
           onConversationsChanged={fetchConversations}
         />
         <button
-          className="md:hidden absolute top-4 right-4 text-slate-500"
+          className="md:hidden absolute top-4 right-4 text-ink-muted hover:text-ink transition-colors"
           onClick={() => setSidebarOpen(false)}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
-      {/* Mobile Overlay Background */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-slate-900/20 z-20"
+        <div
+          className="md:hidden fixed inset-0 bg-ink/20 z-20"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-surface relative h-full">
+      <div className="flex-1 flex flex-col min-w-0 bg-paper relative h-full">
         {children}
       </div>
     </div>

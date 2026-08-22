@@ -1,5 +1,18 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Sparkles, 
+  Search, 
+  BookOpen, 
+  FileUp, 
+  FileText, 
+  Scale, 
+  LayoutDashboard,
+  Zap,
+  FolderArchive,
+  User,
+  LogOut
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Navbar({ fullWidth = false }) {
@@ -16,90 +29,134 @@ export default function Navbar({ fullWidth = false }) {
     }
   };
 
-  const isActive = (path) => location.pathname === path;
+  const NAV_ITEMS = [
+    { path: '/', label: 'Home', icon: Sparkles },
+    { path: '/civic', label: 'Civic Navigator', icon: Search },
+    { path: '/know-your-kanoon', label: 'Kanoon Q&A', icon: BookOpen },
+    { path: '/upload-chat', label: 'Doc Chat', icon: FileUp },
+    { path: '/dochub', label: 'Drafting', icon: FileText },
+    { path: '/reasoning', label: 'Reasoning', icon: Scale },
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  ];
 
-  const navLinkStyle = (path) =>
-    `text-sm font-medium transition-colors duration-200 ${
-      isActive(path)
-        ? 'text-text-primary font-semibold'
-        : 'text-text-secondary hover:text-text-primary'
-    }`;
+  const handleDemoClick = () => {
+    navigate('/civic', { state: { presetQuery: 'I filed an RTI application 38 days ago with Municipal Corporation regarding road repair tender not answered' } });
+  };
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b border-border bg-surface/80 backdrop-blur-xl transition-all">
-      <div className={`${fullWidth ? 'w-full' : 'max-w-[1280px]'} mx-auto px-4 md:px-8 flex justify-between items-center h-[72px]`}>
-        {/* Logo */}
-        <div className="flex items-center gap-12">
+    <header className="fixed top-0 w-full z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E4DFD5] transition-colors">
+      <div className={`${fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6'} flex items-center justify-between h-16 gap-3 sm:gap-6`}>
+        
+        {/* Left: Brand Identity matching Studio Navigation */}
+        <Link to="/" className="flex items-center space-x-3 group select-none shrink-0">
+          <div className="w-8 h-8 rounded-[4px] bg-[#121820] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542] shadow-2xs group-hover:border-[#C84B31] transition-colors">
+            <span className="font-serif font-black text-sm tracking-tight">Ny</span>
+          </div>
+          
+          <div className="flex items-baseline space-x-2">
+            <span className="font-serif font-extrabold text-lg sm:text-xl tracking-tight text-[#121820]">
+              NYAAY
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-widest px-1 py-0.5 rounded bg-[#C84B31]/10 text-[#C84B31] font-bold border border-[#C84B31]/20">
+              AI
+            </span>
+            <span className="hidden xl:inline text-[#DDD6C9] font-light">|</span>
+            <span className="hidden xl:inline text-[11px] font-mono text-[#7A8699] uppercase tracking-wider">
+              CIVIC LEGAL OS
+            </span>
+          </div>
+        </Link>
+
+        {/* Center: Segmented Navigation Pill matching Studio */}
+        <nav className="hidden lg:flex items-center p-1 bg-[#EFECE6]/80 rounded-[6px] border border-[#E4DFD5]/90 shadow-inner" aria-label="Main Navigation">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-xs font-mono transition-all duration-150 ${
+                  isActive
+                    ? 'bg-[#121820] text-[#FAF7F2] font-semibold shadow-xs'
+                    : 'text-[#5A687D] hover:text-[#121820] hover:bg-[#FAF7F2]/60'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C84B31]' : 'text-[#7A8699]'}`} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right: Quick Actions */}
+        <div className="flex items-center space-x-2 shrink-0">
+          {/* Dockets quick link */}
           <Link
-            to="/"
-            className="text-lg font-bold tracking-tight text-text-primary text-[20px] flex items-center gap-2"
+            to="/civic"
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#DDD6C9] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs"
+            title="View Case Dockets"
           >
-            <span className="material-symbols-outlined text-[24px] text-text-primary">gavel</span>
-            NYAAY AI
+            <FolderArchive className="w-3.5 h-3.5 text-[#5A687D]" />
+            <span className="hidden md:inline">Dockets</span>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link to="/" className={navLinkStyle('/')}>
-              Home
-            </Link>
-            {currentUser && (
-              <>
-                <Link to="/dashboard" className={navLinkStyle('/dashboard')}>
-                  Dashboard
-                </Link>
-                <Link to="/civic" className={navLinkStyle('/civic')}>
-                  Civic Navigator
-                </Link>
-                <Link to="/know-your-kanoon" className={navLinkStyle('/know-your-kanoon')}>
-                  Kanoon Q&A
-                </Link>
-                <Link to="/upload-chat" className={navLinkStyle('/upload-chat')}>
-                  Doc Chat
-                </Link>
-                <Link to="/dochub" className={navLinkStyle('/dochub')}>
-                  Legal Drafting
-                </Link>
-                <Link to="/reasoning" className={navLinkStyle('/reasoning')}>
-                  Legal Reasoning
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* User / CTA Section */}
-        <div className="flex items-center gap-4">
+          {/* Auth Button */}
           {currentUser ? (
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline text-xs font-medium text-text-secondary bg-secondary px-3 py-1.5 rounded-button border border-border">
-                {currentUser.displayName || currentUser.email}
+            <div className="flex items-center space-x-2">
+              <span className="hidden sm:inline text-xs font-mono text-[#121820] bg-white border border-[#DDD6C9] px-2.5 py-1.5 rounded-[4px]">
+                {currentUser.displayName || currentUser.email?.split('@')[0]}
               </span>
               <button
                 onClick={handleLogout}
-                className="bg-primary text-white hover:bg-primary-hover px-4 py-2 rounded-button font-medium transition-all text-[13px] shadow-sm"
+                className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#121820] hover:bg-[#222C3A] text-white text-xs font-mono rounded-[4px] transition-colors"
+                title="Sign out"
               >
-                Log out
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center space-x-2">
               <Link
                 to="/login"
-                className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors px-3 py-2"
+                className="px-3 py-1.5 text-xs font-mono text-[#5A687D] hover:text-[#121820] transition-colors"
               >
-                Login
+                Sign in
               </Link>
               <Link
                 to="/signup"
-                className="bg-primary text-white hover:bg-primary-hover px-4 py-2 rounded-button font-medium transition-all text-[13px] shadow-sm"
+                className="px-3 py-1.5 bg-[#121820] hover:bg-[#222C3A] text-white text-xs font-mono font-medium rounded-[4px] transition-colors shadow-xs"
               >
-                Sign up
+                Get started
               </Link>
             </div>
           )}
         </div>
+
       </div>
-    </nav>
+
+      {/* Mobile Horizontal Navigation Strip */}
+      <div className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#F4F1EB]/90 backdrop-blur-xs border-t border-[#E4DFD5] overflow-x-auto text-xs font-mono scrollbar-none">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-[4px] shrink-0 transition-all ${
+                isActive
+                  ? 'bg-[#121820] text-white font-medium shadow-xs'
+                  : 'bg-white/70 text-[#5A687D] hover:text-[#121820] border border-[#E4DFD5]'
+              }`}
+            >
+              <Icon className={`w-3 h-3 ${isActive ? 'text-[#C84B31]' : 'text-[#7A8699]'}`} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </header>
   );
 }

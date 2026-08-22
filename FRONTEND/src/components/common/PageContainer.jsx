@@ -4,9 +4,9 @@ import Footer from './Footer';
 
 export default function PageContainer({ children, className = '' }) {
   return (
-    <div className="min-h-screen bg-background text-primary flex flex-col font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820] flex flex-col font-sans antialiased overflow-x-hidden">
       <Navbar />
-      <main className={`flex-grow pt-[140px] pb-20 max-w-[1280px] w-full mx-auto px-8 ${className}`}>
+      <main className={`flex-grow pt-[80px] pb-20 max-w-7xl w-full mx-auto px-4 sm:px-6 ${className}`}>
         {children}
       </main>
       <Footer />

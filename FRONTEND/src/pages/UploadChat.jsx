@@ -160,61 +160,64 @@ const UploadChatArea = ({ refreshConversations }) => {
       onSelectConversation={handleSelectConversation}
       onMessagesLoaded={handleMessagesLoaded}
     >
-      <div className="flex flex-col h-full bg-surface relative">
+      <div className="flex flex-col h-full bg-paper relative">
         {/* Header */}
-        <header className="h-16 flex items-center px-6 border-b border-border bg-surface/80 backdrop-blur-sm z-10 shrink-0">
+        <header className="h-14 flex items-center px-6 border-b border-paper-rule bg-paper z-10 shrink-0">
           <div className="flex items-center gap-3 md:ml-12">
-            <div className="p-1.5 bg-primary/10 rounded-button border border-primary/20">
-              <FileUp className="w-5 h-5 text-primary" />
+            <div className="p-1.5 bg-amber-light border border-amber/30 rounded-stamp flex items-center justify-center">
+              <FileUp className="w-4 h-4 text-amber" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-text-primary tracking-tight leading-tight">Document Chat</h1>
-              <p className="text-xs text-text-secondary">
-                {documentMetadata ? documentMetadata.filename : "Upload and analyze legal documents"}
-              </p>
+              <span className="label-stamp text-ink-fog block">DOCUMENT ANALYSIS</span>
+              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                {documentMetadata ? documentMetadata.filename : 'Document Chat'}
+              </h1>
             </div>
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto bg-background relative scroll-smooth scrollbar-thin scrollbar-thumb-border">
+        <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {!documentMetadata ? (
             <div className="h-full flex items-center justify-center p-6">
-              <div className="bg-surface border-2 border-dashed border-border rounded-3xl p-10 max-w-lg w-full text-center hover:border-primary/40 transition-colors shadow-sm">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UploadCloud className="w-8 h-8 text-primary" />
+              <div className="bg-paper border-2 border-dashed border-paper-rule rounded-card p-10 max-w-lg w-full text-center hover:border-amber/40 transition-colors shadow-stamp">
+                <div className="w-14 h-14 bg-amber-light border border-amber/30 rounded-stamp flex items-center justify-center mx-auto mb-6">
+                  <UploadCloud className="w-7 h-7 text-amber" />
                 </div>
-                <h2 className="text-2xl font-semibold text-text-primary mb-2">Upload Document</h2>
-                <p className="text-text-secondary text-sm mb-8">
-                  Upload any legal document (PDF or DOCX up to 10MB) to extract insights, summarize clauses, and ask questions.
+                <span className="label-stamp text-ink-fog block mb-3">DOCUMENT UPLOAD</span>
+                <h2 className="text-[26px] font-bold text-ink mb-3 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                  Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
+                </h2>
+                <p className="text-[13px] text-ink-muted mb-8 leading-relaxed">
+                  PDF or DOCX up to 10MB. Extract insights, summarize clauses, and identify red flags.
                 </p>
-                
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  accept=".pdf,.docx" 
-                  className="hidden" 
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept=".pdf,.docx"
+                  className="hidden"
                 />
-                
-                <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
-                  <button 
+
+                <div className="flex flex-col sm:flex-row justify-center gap-3 mb-5">
+                  <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="px-6 py-2.5 bg-surface border border-border text-text-primary rounded-button hover:bg-secondary font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="px-6 py-2.5 bg-paper-warm border border-paper-rule text-ink rounded-button hover:border-paper-border font-medium text-[14px] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
                   >
                     Select File
                   </button>
-                  
+
                   {file && (
-                    <button 
+                    <button
                       onClick={handleUpload}
                       disabled={uploading}
-                      className="px-6 py-2.5 bg-primary text-white rounded-button hover:bg-primary-hover font-medium transition-colors disabled:opacity-70 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      className="px-6 py-2.5 bg-ink text-paper rounded-button hover:bg-ink-soft font-semibold text-[14px] transition-colors disabled:opacity-60 flex items-center justify-center gap-2 shadow-stamp focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
                     >
                       {uploading ? (
                         <>
-                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span className="w-3.5 h-3.5 border-2 border-paper/30 border-t-paper rounded-full animate-spin" />
                           Uploading...
                         </>
                       ) : (
@@ -225,13 +228,13 @@ const UploadChatArea = ({ refreshConversations }) => {
                 </div>
 
                 {file && !uploading && (
-                  <p className="text-sm font-medium text-primary bg-primary/10 inline-block px-3 py-1 rounded-full">
-                    Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  <p className="font-mono text-[11px] font-medium text-amber bg-amber-light inline-block px-3 py-1 rounded-stamp border border-amber/30">
+                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                   </p>
                 )}
-                
+
                 {uploadError && (
-                  <p className="text-error text-sm mt-4 bg-error-bg py-2 px-3 rounded-lg inline-block border border-error/50">
+                  <p className="text-error text-[13px] mt-4 bg-error-bg py-2 px-3 rounded-card inline-block border border-error/30">
                     {uploadError}
                   </p>
                 )}
@@ -248,13 +251,14 @@ const UploadChatArea = ({ refreshConversations }) => {
               ))}
               
               {isGenerating && (
-                <MessageBubble 
-                  message={{ role: 'assistant', content: 'Thinking...' }} 
+                <MessageBubble
+                  message={{ role: 'assistant', content: '' }}
                   renderContent={() => (
-                    <div className="flex items-center gap-2 text-primary font-medium">
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
                     </div>
                   )}
                 />
@@ -266,11 +270,11 @@ const UploadChatArea = ({ refreshConversations }) => {
 
         {/* Input Area (Only visible when document is uploaded) */}
         {documentMetadata && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-10 pb-6 px-4 md:px-8 z-10 pointer-events-none">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-paper via-paper/90 to-transparent pt-10 pb-6 px-4 md:px-8 z-10 pointer-events-none">
             <div className="max-w-4xl mx-auto w-full pointer-events-auto">
               {chatError && (
-                <div className="mb-4 p-3 bg-error-bg border border-error/50 rounded-lg flex items-center gap-2 text-error text-sm shadow-sm">
-                  <AlertCircle className="w-4 h-4" />
+                <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-card flex items-center gap-2 text-error text-[13px] shadow-stamp">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   {chatError}
                 </div>
               )}
