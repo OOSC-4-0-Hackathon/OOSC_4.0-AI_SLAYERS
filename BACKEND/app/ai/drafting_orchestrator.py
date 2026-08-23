@@ -91,12 +91,8 @@ Respond strictly in JSON format matching this schema:
         sys_prompt += f"\n\nOUTPUT FORMAT:\nYou MUST return a single JSON object strictly adhering to this schema:\n{json.dumps(schema_str, indent=2)}\nDo NOT include markdown wrapping like ```json."
         
         import time
-<<<<<<< HEAD
         from app.core.key_rotator import key_rotator
         models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
-=======
-        models_to_try = ['gemini-flash-lite-latest', 'gemini-flash-latest']
->>>>>>> 6fed1e8 (feat(ui): complete frontend overhaul - design system, shared EmptyState, Navbar tabs, numbered pillars, hero animation, motif pruned)
         
         for attempt in range(retries + 1):
             model_name = models_to_try[attempt % len(models_to_try)]
@@ -223,11 +219,7 @@ IMPORTANT:
                 from app.core.key_rotator import key_rotator
                 temp_client = genai.Client(api_key=key_rotator.get())
                 response = temp_client.models.generate_content(
-<<<<<<< HEAD
                     model=model_name,
-=======
-                    model='gemini-flash-lite-latest',
->>>>>>> 6fed1e8 (feat(ui): complete frontend overhaul - design system, shared EmptyState, Navbar tabs, numbered pillars, hero animation, motif pruned)
                     contents=f"User Facts:\n{user_facts}\n\n{context_str}",
                     config=types.GenerateContentConfig(
                         system_instruction=sys_prompt,
