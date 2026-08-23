@@ -165,6 +165,35 @@ class DocumentGenerator:
         return buffer
 
     @staticmethod
+    def generate_text_docx(content: str) -> io.BytesIO:
+        doc = Document()
+        
+        # Set margins to 1 inch
+        sections = doc.sections
+        for section in sections:
+            section.top_margin = Inches(1)
+            section.bottom_margin = Inches(1)
+            section.left_margin = Inches(1)
+            section.right_margin = Inches(1)
+
+        lines = content.split('\n')
+        for line in lines:
+            sanitized = line.strip().replace('₹', 'Rs. ')
+            if not sanitized:
+                doc.add_paragraph()
+            else:
+                p = doc.add_paragraph(sanitized)
+                p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                for run in p.runs:
+                    run.font.name = 'Times New Roman'
+                    run.font.size = Pt(12)
+
+        f = io.BytesIO()
+        doc.save(f)
+        f.seek(0)
+        return f
+
+    @staticmethod
     def generate_reasoning_pdf(content: str) -> io.BytesIO:
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   FileCheck, 
   Send, 
@@ -8,14 +8,10 @@ import {
   Check, 
   Download, 
   Printer, 
-  Sparkles, 
-  RefreshCw, 
-  ArrowRight, 
-  ShieldAlert,
-  HelpCircle,
-  Clock,
-  Layers
+  Sparkles
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { startFormSession, sendFormAnswer, downloadPdf, downloadDocx } from '../services/formFillerService';
 
 interface FormQuestion {
   id: string;
@@ -37,6 +33,7 @@ interface FormTemplateConfig {
   generateFormText: (fields: Record<string, string>) => string;
 }
 
+// Keep the UI rendering config here, but the backend drives the flow
 const FORM_TEMPLATES: FormTemplateConfig[] = [
   {
     id: 'RTI_FORM_A',
@@ -45,13 +42,13 @@ const FORM_TEMPLATES: FormTemplateConfig[] = [
     actReference: 'Right to Information Act, 2005 (Act No. 22 of 2005)',
     authority: 'Public Information Officer (PIO) / Concerned Central or State Public Authority',
     initialFields: {
-      APPLICANT_NAME: 'Aarav Sharma',
-      APPLICANT_ADDRESS: 'House 14, Pocket B, Mayur Vihar Phase 2, New Delhi - 110091',
-      APPLICANT_CONTACT: '+91 98112 34567 | aarav.citizen@email.com',
-      PUBLIC_AUTHORITY: 'Public Information Officer, Municipal Corporation of Delhi (MCD), Civic Centre, New Delhi',
-      PERIOD_OF_INFO: 'Financial Year 2024–2025 (1st April 2024 to 31st March 2025)',
-      SPECIFIC_QUESTIONS: '1. Certified copy of tender sanction order and work completion certificate for Ward 42 road resurfacing.\n2. Daily measurement book (MB) records and asphalt thickness test reports.\n3. Total payment released to the contractor with ledger vouchers.',
-      FEE_PAYMENT_MODE: 'Postal Order (IPO) No. 45F 892019 of ₹10/- enclosed herewith'
+      APPLICANT_NAME: '',
+      APPLICANT_ADDRESS: '',
+      APPLICANT_CONTACT: '',
+      PUBLIC_AUTHORITY: '',
+      PERIOD_OF_INFO: '',
+      SPECIFIC_QUESTIONS: '',
+      FEE_PAYMENT_MODE: ''
     },
     questions: [
       {
@@ -143,14 +140,14 @@ ____________________________________
     actReference: 'Consumer Protection Act, 2019 (Act No. 35 of 2019)',
     authority: 'District Consumer Disputes Redressal Commission (DCDRC)',
     initialFields: {
-      APPLICANT_NAME: 'Priya Mehra',
-      APPLICANT_ADDRESS: 'Flat 402, Royal Palms, Bannerghatta Road, Bengaluru - 560076',
-      APPLICANT_CONTACT: '+91 97420 11223 | priya.consumer@email.com',
-      OPPOSITE_PARTY: 'ElectroRetail India Private Limited & Apex Tech Electronics Ltd.',
-      PRODUCT_DETAILS: 'Smart 4K Ultra HD Television 55-inch (Model: AT-55X, S/N: 8840192)',
-      PURCHASE_PRICE: '₹54,999/- paid via Credit Card on 12th August 2025 (Invoice No: BLR-89201)',
-      DEFECT_DESCRIPTION: 'Screen panel blackout and internal power circuit burn within 2 months of purchase under 2-year warranty. Service center issued rejection without technical inspection.',
-      RELIEF_PRAYER: '1. Full refund of ₹54,999/- with 12% interest p.a.\n2. Compensation of ₹25,000/- for harassment and mental agony.\n3. Litigation costs of ₹5,000/-.'
+      APPLICANT_NAME: '',
+      APPLICANT_ADDRESS: '',
+      APPLICANT_CONTACT: '',
+      OPPOSITE_PARTY: '',
+      PRODUCT_DETAILS: '',
+      PURCHASE_PRICE: '',
+      DEFECT_DESCRIPTION: '',
+      RELIEF_PRAYER: ''
     },
     questions: [
       {
@@ -240,15 +237,15 @@ ____________________________________
     actReference: 'Payment of Gratuity Act, 1972 & Central Rules, 1972',
     authority: 'Controlling Authority / Labour Commissioner',
     initialFields: {
-      APPLICANT_NAME: 'Vikram Sengupta',
-      APPLICANT_ADDRESS: 'C-204, Sector 62, Noida, Gautam Buddha Nagar, UP - 201309',
-      APPLICANT_CONTACT: '+91 99100 88776 | vikram.sengupta@email.com',
-      EMPLOYER_NAME: 'Apex Solutions Private Limited',
-      EMPLOYER_ADDRESS: 'Cyber Park, Sector 29, Gurugram, Haryana - 122001',
-      TENURE_DATES: 'Joined on 1st June 2018 and Resigned on 31st January 2025 (Total Tenure: 6 Years, 7 Months)',
-      LAST_DRAWN_WAGES: '₹75,000/- (Basic ₹55,000 + DA ₹20,000 per month)',
-      GRATUITY_CALCULATED_AMOUNT: '₹2,37,980/- (Calculated formula: ₹75,000 / 26 * 15 * 7 years)',
-      BANK_ACCOUNT_DETAILS: 'HDFC Bank, Account No: 50100293849102, IFSC: HDFC0001234'
+      APPLICANT_NAME: '',
+      APPLICANT_ADDRESS: '',
+      APPLICANT_CONTACT: '',
+      EMPLOYER_NAME: '',
+      EMPLOYER_ADDRESS: '',
+      TENURE_DATES: '',
+      LAST_DRAWN_WAGES: '',
+      GRATUITY_CALCULATED_AMOUNT: '',
+      BANK_ACCOUNT_DETAILS: ''
     },
     questions: [
       {
@@ -330,82 +327,126 @@ ____________________________________
 ];
 
 export const ConversationalFormFiller: React.FC = () => {
+  const { currentUser } = useAuth();
+  const token = currentUser ? (currentUser as any).accessToken : null;
+
   const [selectedFormId, setSelectedFormId] = useState<string>('RTI_FORM_A');
   const activeTemplate = FORM_TEMPLATES.find(f => f.id === selectedFormId) || FORM_TEMPLATES[0];
 
   const [formFields, setFormFields] = useState<Record<string, string>>(activeTemplate.initialFields);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [currentFieldId, setCurrentFieldId] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>('STARTING'); // STARTING, IN_PROGRESS, COMPLETE, ERROR
   const [inputVal, setInputVal] = useState<string>('');
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; time: string }>>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string; time: string }>>([]);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
 
-  // Sync initial fields on template change
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    setFormFields(activeTemplate.initialFields);
-    setCurrentQuestionIndex(0);
-    setInputVal('');
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages, isAiThinking]);
+
+  // Reset and initialize session whenever form changes
+  useEffect(() => {
+    let isMounted = true;
     
-    // Seed initial greeting message
-    const firstQ = activeTemplate.questions[0];
-    setChatMessages([
-      {
-        sender: 'ai',
-        text: `Hello! I am your AI Intake Officer for **${activeTemplate.name}** (${activeTemplate.actReference}). I will guide you through a step-by-step interview and live-populate your official government filing form.\n\n${firstQ.question}`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const initSession = async () => {
+      setStatus('STARTING');
+      setFormFields(activeTemplate.initialFields);
+      setChatMessages([]);
+      setCurrentFieldId(null);
+      setIsAiThinking(true);
+      
+      try {
+        const data = await startFormSession(token, selectedFormId);
+        if (isMounted) {
+          setCurrentFieldId(data.current_field);
+          setStatus(data.status);
+          setChatMessages([{
+            role: 'assistant',
+            content: data.ai_response,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setStatus('ERROR');
+          setChatMessages([{
+            role: 'assistant',
+            content: "I'm sorry, I couldn't connect to the server. Please try refreshing or selecting the form again.",
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsAiThinking(false);
+        }
       }
-    ]);
-  }, [selectedFormId]);
+    };
 
-  const currentQ = activeTemplate.questions[currentQuestionIndex];
+    initSession();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedFormId, token, activeTemplate.initialFields]);
 
-  const handleSendMessage = (e?: React.FormEvent) => {
+  // Find current question object for rendering placeholders
+  const currentQ = activeTemplate.questions.find(q => q.fieldKey === currentFieldId);
+  const completedCount = Object.keys(formFields).filter(k => formFields[k].trim() !== '').length;
+  const totalQuestions = activeTemplate.questions.length;
+
+  const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!inputVal.trim()) return;
+    if (!inputVal.trim() || isAiThinking || status === 'COMPLETE') return;
 
     const userText = inputVal.trim();
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Update field value
-    setFormFields(prev => ({
-      ...prev,
-      [currentQ.fieldKey]: userText
-    }));
-
     // Add user message
-    const updatedMessages = [
-      ...chatMessages,
-      { sender: 'user' as const, text: userText, time: timeStr }
-    ];
-
+    const newMessage = { role: 'user', content: userText, time: timeStr };
+    const updatedMessages = [...chatMessages, newMessage];
+    
+    setChatMessages(updatedMessages);
     setInputVal('');
+    setIsAiThinking(true);
 
-    // Move to next question or complete
-    if (currentQuestionIndex < activeTemplate.questions.length - 1) {
-      const nextIdx = currentQuestionIndex + 1;
-      const nextQ = activeTemplate.questions[nextIdx];
-      setCurrentQuestionIndex(nextIdx);
+    try {
+      // Backend handles validation and single source of truth for the form structure
+      const data = await sendFormAnswer(token, {
+        form_id: selectedFormId,
+        collected_fields: formFields,
+        user_answer: userText,
+        history: updatedMessages.map(m => ({ role: m.role, content: m.content }))
+      });
+      
+      setFormFields(data.collected_fields);
+      setCurrentFieldId(data.current_field);
+      setStatus(data.status);
+      
+      setChatMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.ai_response,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
 
-      setTimeout(() => {
-        setChatMessages([
-          ...updatedMessages,
-          {
-            sender: 'ai',
-            text: `Got it! Form field updated.\n\n${nextQ.question}`,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-      }, 300);
-    } else {
-      setTimeout(() => {
-        setChatMessages([
-          ...updatedMessages,
-          {
-            sender: 'ai',
-            text: `🎉 **All required particulars have been captured!** Your official ${activeTemplate.name} is fully formatted and ready for print or electronic filing. You can review and copy it from the right-hand preview panel.`,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-      }, 300);
+    } catch (err) {
+      setChatMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: "Something went wrong while processing that answer. Please try sending it again.",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    } finally {
+      setIsAiThinking(false);
     }
   };
 
@@ -431,12 +472,41 @@ export const ConversationalFormFiller: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      const text = activeTemplate.generateFormText(formFields);
+      const blob = await downloadPdf(token, text);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${activeTemplate.id}_Official_Filing.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download PDF:', err);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    try {
+      const text = activeTemplate.generateFormText(formFields);
+      const blob = await downloadDocx(token, text);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${activeTemplate.id}_Official_Filing.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download DOCX:', err);
+      alert('Failed to generate DOCX. Please try again.');
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
-
-  const completedCount = Object.keys(formFields).length;
-  const totalQuestions = activeTemplate.questions.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -461,7 +531,8 @@ export const ConversationalFormFiller: React.FC = () => {
           <select
             value={selectedFormId}
             onChange={(e) => setSelectedFormId(e.target.value)}
-            className="px-3.5 py-2 rounded-lg bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] font-bold focus:outline-none focus:ring-2 focus:ring-[#121820] shadow-xs"
+            disabled={isAiThinking || status === 'STARTING'}
+            className="px-3.5 py-2 rounded-lg bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] font-bold focus:outline-none focus:ring-2 focus:ring-[#121820] shadow-xs disabled:opacity-50"
           >
             {FORM_TEMPLATES.map(t => (
               <option key={t.id} value={t.id}>
@@ -493,18 +564,18 @@ export const ConversationalFormFiller: React.FC = () => {
             </div>
 
             <div className="text-right font-mono text-xs text-[#718096]">
-              <span>Step {Math.min(currentQuestionIndex + 1, totalQuestions)} of {totalQuestions}</span>
+              <span>{completedCount} of {totalQuestions} required fields completed</span>
             </div>
           </div>
 
           {/* Chat Messages Log */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#FAF7F2]/40 text-xs">
+          <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#FAF7F2]/40 text-xs scroll-smooth">
             {chatMessages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {msg.sender === 'ai' && (
+                {msg.role === 'assistant' && (
                   <div className="w-6 h-6 rounded-full bg-[#121820] text-white flex items-center justify-center shrink-0 mt-0.5">
                     <Bot className="w-3 h-3 text-[#FAF7F2]" />
                   </div>
@@ -512,33 +583,46 @@ export const ConversationalFormFiller: React.FC = () => {
 
                 <div
                   className={`max-w-[85%] rounded-xl p-3 leading-relaxed ${
-                    msg.sender === 'user'
+                    msg.role === 'user'
                       ? 'bg-[#121820] text-white rounded-tr-none'
                       : 'bg-white border border-[#E4DFD5] text-[#2D3748] shadow-xs rounded-tl-none'
                   }`}
                 >
-                  <p className="whitespace-pre-line">{msg.text}</p>
+                  <p className="whitespace-pre-line">{msg.content}</p>
                   <span
                     className={`block text-[10px] font-mono mt-1 ${
-                      msg.sender === 'user' ? 'text-white/60 text-right' : 'text-[#A0AEC0]'
+                      msg.role === 'user' ? 'text-white/60 text-right' : 'text-[#A0AEC0]'
                     }`}
                   >
                     {msg.time}
                   </span>
                 </div>
 
-                {msg.sender === 'user' && (
+                {msg.role === 'user' && (
                   <div className="w-6 h-6 rounded-full bg-[#C84B31] text-white flex items-center justify-center shrink-0 mt-0.5">
                     <User className="w-3 h-3" />
                   </div>
                 )}
               </div>
             ))}
+            
+            {isAiThinking && (
+               <div className="flex items-start gap-2.5 justify-start">
+                  <div className="w-6 h-6 rounded-full bg-[#121820] text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <Bot className="w-3 h-3 text-[#FAF7F2]" />
+                  </div>
+                  <div className="max-w-[85%] rounded-xl p-3 bg-white border border-[#E4DFD5] shadow-xs rounded-tl-none flex items-center space-x-1">
+                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+               </div>
+            )}
           </div>
 
           {/* Interactive Question Input Box */}
           <div className="p-3.5 bg-white border-t border-[#E4DFD5]">
-            {currentQ && currentQuestionIndex < totalQuestions && (
+            {currentQ && status === 'IN_PROGRESS' && (
               <div className="mb-2">
                 <div className="flex items-center justify-between text-[11px] font-mono text-[#718096] mb-1">
                   <span>Tip: {currentQ.explanation}</span>
@@ -546,7 +630,8 @@ export const ConversationalFormFiller: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleUseExample(currentQ.example)}
-                      className="text-[#C84B31] hover:underline font-bold"
+                      className="text-[#C84B31] hover:underline font-bold disabled:opacity-50"
+                      disabled={isAiThinking}
                     >
                       Use sample text
                     </button>
@@ -558,14 +643,15 @@ export const ConversationalFormFiller: React.FC = () => {
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder={currentQ ? currentQ.placeholder : 'Type your answer...'}
+                placeholder={status === 'COMPLETE' ? 'Form complete' : (currentQ ? currentQ.placeholder : 'Type your answer...')}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs rounded-lg border border-[#D5CEC2] focus:outline-none focus:ring-1 focus:ring-[#121820] bg-[#FAF7F2]"
+                disabled={isAiThinking || status === 'COMPLETE' || status === 'STARTING'}
+                className="flex-1 px-3 py-2 text-xs rounded-lg border border-[#D5CEC2] focus:outline-none focus:ring-1 focus:ring-[#121820] bg-[#FAF7F2] disabled:opacity-60"
               />
               <button
                 type="submit"
-                disabled={!inputVal.trim()}
+                disabled={!inputVal.trim() || isAiThinking || status === 'COMPLETE' || status === 'STARTING'}
                 className="p-2 rounded-lg bg-[#121820] text-white hover:bg-[#242F3E] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 title="Submit answer"
               >
@@ -599,11 +685,27 @@ export const ConversationalFormFiller: React.FC = () => {
               </button>
 
               <button
+                onClick={handleDownloadPdf}
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+              >
+                <Download className="w-3.5 h-3.5 text-rose-600" />
+                <span>PDF</span>
+              </button>
+
+              <button
+                onClick={handleDownloadDocx}
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+              >
+                <Download className="w-3.5 h-3.5 text-blue-600" />
+                <span>DOCX</span>
+              </button>
+
+              <button
                 onClick={handleDownloadTxt}
                 className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-[#556377]" />
-                <span>Export .TXT</span>
+                <span>TXT</span>
               </button>
 
               <button

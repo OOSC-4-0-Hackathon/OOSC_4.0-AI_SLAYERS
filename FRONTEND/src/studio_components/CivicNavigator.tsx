@@ -55,6 +55,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [quotaExhaustedDemo, setQuotaExhaustedDemo] = useState<boolean>(false);
   const [inspectingAct, setInspectingAct] = useState<BareAct | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Live 0ms regex classifier detection
   const liveClassification = classifyDomain(queryInput);
@@ -75,6 +76,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       return;
     }
 
+    setErrorMsg(null);
     setIsStreaming(true);
     setStreamProgress(1);
     setStreamingLog('Dispatching regex classifier (0ms) -> Hybrid Chroma dense & BM25 sparse index...');
@@ -109,16 +111,19 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
           setTimeout(() => {
             const parsedDossier = parseMarkdownToDossier(complete.text, domain);
             setActiveDossier(parsedDossier);
+            onSaveDossier(parsedDossier, text);
             setIsStreaming(false);
           }, 300);
         },
         (err: any) => {
           console.error("Stream failed", err);
+          setErrorMsg(typeof err === 'string' ? err : "An error occurred while analyzing the case.");
           setIsStreaming(false);
         }
       );
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setErrorMsg(e.toString());
       setIsStreaming(false);
     }
   };
@@ -129,7 +134,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
     setTimeout(() => setCopiedSection(null), 2000);
   };
 
-  const isDossierSaved = activeDossier ? savedDocketIds.includes(activeDossier.problemAndRights.docketId) : false;
+  const isDossierSaved = activeDossier ? savedDocketIds.includes(activeDossier?.problemAndRights?.docketId) : false;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 text-[#121820]">
@@ -367,6 +372,16 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       )}
 
       {/* 5. DESIGNED EMPTY STATE (When no case is queried yet) */}
+      {errorMsg && (
+        <div className="bg-[#FEF3F2] border border-[#F04438] rounded-[2px] p-4 flex items-start space-x-3 mb-6">
+          <AlertCircle className="w-5 h-5 text-[#F04438] flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-sm font-bold text-[#912018] font-sans">Pipeline Failure</h4>
+            <p className="text-xs text-[#B42318] mt-1 font-mono">{errorMsg}</p>
+          </div>
+        </div>
+      )}
+
       {!activeDossier && !isStreaming && !quotaExhaustedDemo && (
         <div className="border border-dashed border-[#C84B31]/60 bg-[#FAF7F2] p-8 sm:p-12 rounded-[2px] text-center space-y-6">
           <div className="max-w-md mx-auto space-y-3">
@@ -418,10 +433,10 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <span className="stamp-badge text-[10px] px-2 py-0.5 text-white border-white/40">
-                  DOCKET: {activeDossier.problemAndRights.docketId}
+                  DOCKET: {activeDossier?.problemAndRights?.docketId}
                 </span>
                 <span className="font-mono text-xs text-[#A2B1C6]">
-                  DOMAIN: {activeDossier.problemAndRights.domain}
+                  DOMAIN: {activeDossier?.problemAndRights?.domain}
                 </span>
               </div>
               <h2 className="font-serif text-xl sm:text-2xl font-black text-white">
@@ -467,19 +482,19 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               
               <div className="space-y-2">
                 <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR LEGAL PROBLEM</h3>
-                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier.problemAndRights.yourLegalProblem}</p>
+                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier?.problemAndRights?.yourLegalProblem}</p>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT THE LAW APPEARS TO SAY</h3>
-                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier.problemAndRights.whatTheLawSays}</p>
+                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier?.problemAndRights?.whatTheLawSays}</p>
               </div>
 
               <div className="space-y-2">
                 <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR POTENTIAL RIGHTS / REMEDIES</h3>
                 <ul className="list-disc pl-5 space-y-1">
-                  {activeDossier.problemAndRights.potentialRights.length > 0 ? (
-                    activeDossier.problemAndRights.potentialRights.map((right, idx) => (
+                  {activeDossier?.problemAndRights?.potentialRights.length > 0 ? (
+                    (activeDossier?.problemAndRights?.potentialRights || []).map((right, idx) => (
                       <li key={idx} className="text-sm text-[#121820] font-sans">{right}</li>
                     ))
                   ) : (
@@ -491,7 +506,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               <div className="space-y-2">
                 <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT IS NOT YET ESTABLISHED</h3>
                 <p className="text-sm text-[#C84B31] font-sans leading-relaxed font-medium">
-                  {activeDossier.problemAndRights.missingInformation}
+                  {activeDossier?.problemAndRights?.missingInformation}
                 </p>
               </div>
 
@@ -501,7 +516,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                 <div className="space-y-1">
                   <span className="font-mono text-[10px] text-[#C84B31] uppercase tracking-wider font-bold">CRITICAL TAKEAWAY</span>
                   <p className="text-sm text-[#FAF7F2] font-sans leading-relaxed">
-                    {activeDossier.problemAndRights.criticalTakeaway}
+                    {activeDossier?.problemAndRights?.criticalTakeaway}
                   </p>
                 </div>
               </div>
@@ -529,15 +544,15 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#F2EFE9]">
                 <span className="text-xs text-[#556377] font-sans">
-                  <strong>Threshold:</strong> {activeDossier.evidenceRequired.minimumEvidentiaryThreshold}
+                  <strong>Threshold:</strong> {activeDossier?.evidenceRequired?.minimumEvidentiaryThreshold}
                 </span>
                 <span className="stamp-verified text-[11px] px-2 py-0.5">
-                  AUDIT READINESS: {activeDossier.evidenceRequired.auditReadinessScore}%
+                  AUDIT READINESS: {activeDossier?.evidenceRequired?.auditReadinessScore}%
                 </span>
               </div>
 
               <div className="space-y-2.5">
-                {activeDossier.evidenceRequired.items.map((item) => (
+                {(activeDossier?.evidenceRequired?.items || []).map((item) => (
                   <div 
                     key={item.id}
                     className={`p-3.5 border rounded-[2px] flex items-start space-x-3 transition-colors ${
@@ -598,20 +613,20 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
                   <div className="font-mono text-[10px] text-[#7A8699] uppercase">FORUM / BODY</div>
-                  <div className="font-serif font-bold text-sm text-[#121820] mt-1">{activeDossier.relevantAuthority.designatedBody}</div>
-                  <div className="text-xs text-[#556377] mt-0.5 font-sans">{activeDossier.relevantAuthority.officerTitle}</div>
+                  <div className="font-serif font-bold text-sm text-[#121820] mt-1">{activeDossier?.relevantAuthority?.designatedBody}</div>
+                  <div className="text-xs text-[#556377] mt-0.5 font-sans">{activeDossier?.relevantAuthority?.officerTitle}</div>
                 </div>
 
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
                   <div className="font-mono text-[10px] text-[#7A8699] uppercase">STATUTORY LIMIT</div>
-                  <div className="font-serif font-bold text-sm text-[#C84B31] mt-1">{activeDossier.relevantAuthority.statutoryTimeLimit}</div>
-                  <div className="text-xs text-[#556377] mt-0.5 font-mono">Appeal Window: {activeDossier.relevantAuthority.appealPeriod}</div>
+                  <div className="font-serif font-bold text-sm text-[#C84B31] mt-1">{activeDossier?.relevantAuthority?.statutoryTimeLimit}</div>
+                  <div className="text-xs text-[#556377] mt-0.5 font-mono">Appeal Window: {activeDossier?.relevantAuthority?.appealPeriod}</div>
                 </div>
 
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
                   <div className="font-mono text-[10px] text-[#7A8699] uppercase">FILING FEE</div>
-                  <div className="font-serif font-bold text-sm text-emerald-800 mt-1">{activeDossier.relevantAuthority.filingFee}</div>
-                  <div className="text-xs text-[#556377] mt-0.5 font-sans">Jurisdiction: {activeDossier.relevantAuthority.jurisdictionLevel}</div>
+                  <div className="font-serif font-bold text-sm text-emerald-800 mt-1">{activeDossier?.relevantAuthority?.filingFee}</div>
+                  <div className="text-xs text-[#556377] mt-0.5 font-sans">Jurisdiction: {activeDossier?.relevantAuthority?.jurisdictionLevel}</div>
                 </div>
               </div>
 
@@ -621,7 +636,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                   STATUTORY ESCALATION PATHWAY:
                 </div>
                 <div className="space-y-2.5">
-                  {activeDossier.relevantAuthority.escalationPath.map((tier) => (
+                  {(activeDossier?.relevantAuthority?.escalationPath || []).map((tier) => (
                     <div key={tier.tier} className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] flex items-start space-x-3">
                       <div className="w-6 h-6 rounded-[2px] bg-[#121820] text-white flex items-center justify-center font-mono text-xs font-bold shrink-0">
                         {tier.tier}
@@ -660,12 +675,12 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
 
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex items-center justify-between font-mono text-xs text-[#7A8699] pb-2 border-b border-[#F2EFE9]">
-                <span>ESTIMATED DURATION: ~{activeDossier.actionPlan.totalEstimatedDays} DAYS</span>
-                <span>{activeDossier.actionPlan.steps.length} SEQUENTIAL MILESTONES</span>
+                <span>ESTIMATED DURATION: ~{activeDossier?.actionPlan?.totalEstimatedDays} DAYS</span>
+                <span>{activeDossier?.actionPlan?.steps.length} SEQUENTIAL MILESTONES</span>
               </div>
 
               <div className="space-y-3">
-                {activeDossier.actionPlan.steps.map((step) => (
+                {(activeDossier?.actionPlan?.steps || []).map((step) => (
                   <div key={step.stepNumber} className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] flex items-start space-x-3">
                     <div className={`w-6 h-6 rounded-[2px] flex items-center justify-center font-mono text-xs font-bold shrink-0 ${
                       step.status === 'completed' 
@@ -715,40 +730,40 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               <div className="space-y-6">
                 
                 {/* Recommendation Status */}
-                <div className={`p-4 border rounded-[2px] flex items-start space-x-3 ${activeDossier.documentGeneration.documentRecommended ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
-                  {activeDossier.documentGeneration.documentRecommended ? (
+                <div className={`p-4 border rounded-[2px] flex items-start space-x-3 ${activeDossier?.documentGeneration?.documentRecommended ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+                  {activeDossier?.documentGeneration?.documentRecommended ? (
                     <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   ) : (
                     <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   )}
                   <div className="space-y-1">
-                    <span className={`font-mono text-xs font-bold uppercase tracking-wider ${activeDossier.documentGeneration.documentRecommended ? 'text-emerald-800' : 'text-amber-800'}`}>
-                      DOCUMENT RECOMMENDED: {activeDossier.documentGeneration.documentRecommended ? 'YES' : 'NO'}
+                    <span className={`font-mono text-xs font-bold uppercase tracking-wider ${activeDossier?.documentGeneration?.documentRecommended ? 'text-emerald-800' : 'text-amber-800'}`}>
+                      DOCUMENT RECOMMENDED: {activeDossier?.documentGeneration?.documentRecommended ? 'YES' : 'NO'}
                     </span>
-                    <p className={`text-sm font-sans leading-relaxed ${activeDossier.documentGeneration.documentRecommended ? 'text-emerald-900' : 'text-amber-900'}`}>
-                      {activeDossier.documentGeneration.reasoning}
+                    <p className={`text-sm font-sans leading-relaxed ${activeDossier?.documentGeneration?.documentRecommended ? 'text-emerald-900' : 'text-amber-900'}`}>
+                      {activeDossier?.documentGeneration?.reasoning}
                     </p>
                   </div>
                 </div>
 
-                {activeDossier.documentGeneration.documentRecommended && (
+                {activeDossier?.documentGeneration?.documentRecommended && (
                   <>
                     <div>
                       <span className="font-mono text-[11px] text-[#C84B31] font-bold uppercase tracking-wider">
-                        TARGET JUDICIAL TEMPLATE // {activeDossier.documentGeneration.suggestedFormNumber}
+                        TARGET JUDICIAL TEMPLATE // {activeDossier?.documentGeneration?.suggestedFormNumber}
                       </span>
                       <h3 className="font-serif text-xl font-bold text-[#121820] mt-1">
-                        {activeDossier.documentGeneration.title}
+                        {activeDossier?.documentGeneration?.title}
                       </h3>
                       <p className="text-xs font-mono text-[#556377] mt-0.5">
-                        Statutory Base: {activeDossier.documentGeneration.actReference}
+                        Statutory Base: {activeDossier?.documentGeneration?.actReference}
                       </p>
                     </div>
 
                     {/* Highlighted Placeholder Notice */}
                     <div className="p-3 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] text-xs font-mono text-[#121820] flex items-center justify-between">
-                      <span>⚡ DYNAMIC TOKENS DETECTED: {Object.keys(activeDossier.documentGeneration.placeholders).length} PLACEHOLDERS READY TO FILL</span>
-                      <span className="font-bold text-[#C84B31]">{activeDossier.documentGeneration.documentType}</span>
+                      <span>⚡ DYNAMIC TOKENS DETECTED: {Object.keys(activeDossier?.documentGeneration?.placeholders).length} PLACEHOLDERS READY TO FILL</span>
+                      <span className="font-bold text-[#C84B31]">{activeDossier?.documentGeneration?.documentType}</span>
                     </div>
 
                     {/* Launch CTA */}

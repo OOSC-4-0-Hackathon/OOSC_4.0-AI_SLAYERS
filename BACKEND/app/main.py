@@ -86,7 +86,7 @@ app.add_middleware(
 )
 
 from app.core.metrics import global_metrics
-from app.routes import auth, kanoon, upload_chat, chat, drafting, reasoning, admin
+from app.routes import auth, kanoon, upload_chat, chat, drafting, reasoning, admin, form_filler
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(kanoon.router, prefix="/api/kanoon", tags=["Know Your Kanoon"])
@@ -94,6 +94,7 @@ app.include_router(upload_chat.router, prefix="/api/upload-chat", tags=["Upload 
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat History"])
 app.include_router(drafting.router, prefix="/api/drafting", tags=["Drafting"])
 app.include_router(reasoning.router, prefix="/api/reasoning", tags=["Reasoning"])
+app.include_router(form_filler.router, prefix="/api/form-filler", tags=["Form Filler"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 
 
