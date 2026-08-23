@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt .
 # Install CPU version of PyTorch first to save space
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir torch --extra-index-url https://download.pytorch.org/whl/cpu
 # Install remaining dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
