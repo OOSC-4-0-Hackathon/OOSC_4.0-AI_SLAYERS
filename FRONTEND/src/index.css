@@ -24,6 +24,19 @@
     --stamp-ochre: #B85020;
     --docket-border: #E4DFD5;
     --docket-border-dark: #2B3542;
+
+    /* === DESIGN SYSTEM CANONICAL TOKENS === */
+    --accent: #C84B31;
+    --accent-hover: #A83C25;
+    --accent-light: #FAEAE7;
+    --bg-dark: #121820;
+    --bg-light: #F9F8F5;
+    --bg-warm: #F2EFE9;
+    --border-subtle: #E4DFD5;
+    --border-mid: #C8C3B8;
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', Menlo, monospace;
   }
 
   html {

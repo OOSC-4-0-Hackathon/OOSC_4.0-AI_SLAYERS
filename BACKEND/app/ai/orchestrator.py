@@ -244,7 +244,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
+<<<<<<< HEAD
                         model='gemini-3.6-flash',
+=======
+                        model='gemini-flash-lite-latest',
+>>>>>>> 6fed1e8 (feat(ui): complete frontend overhaul - design system, shared EmptyState, Navbar tabs, numbered pillars, hero animation, motif pruned)
                         contents=user_prompt,
                         config=types.GenerateContentConfig(
                             system_instruction=sys_prompt,

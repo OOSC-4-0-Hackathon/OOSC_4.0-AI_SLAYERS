@@ -5,6 +5,7 @@ import ConversationLayout from '../components/chat/ConversationLayout';
 import ChatInput from '../components/chat/ChatInput';
 import MessageBubble from '../components/chat/MessageBubble';
 import UploadChatRenderer from '../components/uploadChat/UploadChatRenderer';
+import EmptyState from '../components/common/EmptyState';
 import { uploadDocument, queryDocument } from '../services/uploadChatService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -180,64 +181,74 @@ const UploadChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {!documentMetadata ? (
             <div className="h-full flex items-center justify-center p-6">
-              <div className="bg-paper border-2 border-dashed border-paper-rule rounded-card p-10 max-w-lg w-full text-center hover:border-amber/40 transition-colors shadow-stamp">
-                <div className="w-14 h-14 bg-amber-light border border-amber/30 rounded-stamp flex items-center justify-center mx-auto mb-6">
-                  <UploadCloud className="w-7 h-7 text-amber" />
+              <div className="max-w-md w-full">
+                {/* Icon + heading via shared pattern */}
+                <div className="flex flex-col items-center text-center mb-6">
+                  <div className="w-14 h-14 bg-paper border border-paper-rule rounded-[4px] flex items-center justify-center mb-6 shadow-[0_1px_3px_rgba(26,24,20,0.06)]">
+                    <UploadCloud className="w-6 h-6 text-[#C8821A]" />
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#A8A39A] mb-3 block">DOCUMENT UPLOAD</span>
+                  <h2 className="text-[22px] font-bold text-[#1A1814] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                    Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
+                  </h2>
+                  <p className="text-[13px] text-[#7A7469] leading-relaxed">
+                    Upload a PDF or DOCX to extract clauses and red flags.
+                  </p>
                 </div>
-                <span className="label-stamp text-ink-fog block mb-3">DOCUMENT UPLOAD</span>
-                <h2 className="text-[26px] font-bold text-ink mb-3 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-                  Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
-                </h2>
-                <p className="text-[13px] text-ink-muted mb-8 leading-relaxed">
-                  PDF or DOCX up to 10MB. Extract insights, summarize clauses, and identify red flags.
-                </p>
 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept=".pdf,.docx"
-                  className="hidden"
-                />
+                {/* Upload zone */}
+                <div className="border-2 border-dashed border-[#D4CFC4] hover:border-[#C8821A]/40 rounded-[4px] p-6 transition-colors">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".pdf,.docx"
+                    className="hidden"
+                  />
 
-                <div className="flex flex-col sm:flex-row justify-center gap-3 mb-5">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="px-6 py-2.5 bg-paper-warm border border-paper-rule text-ink rounded-button hover:border-paper-border font-medium text-[14px] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
-                  >
-                    Select File
-                  </button>
+                  {file ? (
+                    <div className="text-center space-y-3">
+                      <p className="font-mono text-[11px] font-medium text-[#C8821A] bg-[#F9EDD5] inline-block px-3 py-1 rounded-[3px] border border-[#C8821A]/30">
+                        {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploading}
+                          className="px-4 py-2 bg-[#F2EFE9] border border-[#D4CFC4] text-[#1A1814] rounded-[3px] hover:border-[#1A1814] font-medium text-[13px] transition-colors"
+                        >
+                          Change
+                        </button>
+                        <button
+                          onClick={handleUpload}
+                          disabled={uploading}
+                          className="px-5 py-2 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
+                        >
+                          {uploading ? (
+                            <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Uploading...</>
+                          ) : 'Upload & Parse'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="px-6 py-2.5 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors"
+                      >
+                        Select File
+                      </button>
+                      <p className="mt-3 font-mono text-[11px] text-[#A8A39A]">PDF or DOCX · max 10MB</p>
+                    </div>
+                  )}
 
-                  {file && (
-                    <button
-                      onClick={handleUpload}
-                      disabled={uploading}
-                      className="px-6 py-2.5 bg-ink text-paper rounded-button hover:bg-ink-soft font-semibold text-[14px] transition-colors disabled:opacity-60 flex items-center justify-center gap-2 shadow-stamp focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
-                    >
-                      {uploading ? (
-                        <>
-                          <span className="w-3.5 h-3.5 border-2 border-paper/30 border-t-paper rounded-full animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        "Upload & Parse"
-                      )}
-                    </button>
+                  {uploadError && (
+                    <p className="text-[#B83A2A] text-[13px] mt-4 bg-[#FAEAE8] py-2 px-3 rounded-[3px] border border-[#B83A2A]/30 text-center">
+                      {uploadError}
+                    </p>
                   )}
                 </div>
-
-                {file && !uploading && (
-                  <p className="font-mono text-[11px] font-medium text-amber bg-amber-light inline-block px-3 py-1 rounded-stamp border border-amber/30">
-                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
-                )}
-
-                {uploadError && (
-                  <p className="text-error text-[13px] mt-4 bg-error-bg py-2 px-3 rounded-card inline-block border border-error/30">
-                    {uploadError}
-                  </p>
-                )}
               </div>
             </div>
           ) : (

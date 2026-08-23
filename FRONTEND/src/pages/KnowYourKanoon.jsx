@@ -6,6 +6,7 @@ import ConversationLayout from '../components/chat/ConversationLayout';
 import ChatInput from '../components/chat/ChatInput';
 import MessageBubble from '../components/chat/MessageBubble';
 import KanoonRenderer from '../components/kanoon/KanoonRenderer';
+import EmptyState from '../components/common/EmptyState';
 import { askKanoon } from '../services/kanoonService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -106,30 +107,13 @@ const KanoonChatArea = ({ refreshConversations }) => {
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-8">
-              <div className="w-14 h-14 bg-paper border border-paper-rule rounded-stamp flex items-center justify-center mb-6 shadow-stamp">
-                <span className="font-display italic text-[22px] font-bold text-amber" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>
-              </div>
-              <span className="label-stamp text-ink-fog mb-3">KANOON Q&amp;A</span>
-              <h2 className="text-[26px] font-bold text-ink mb-3 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-                Ask any legal question.
-                <br /><span className="italic font-normal">Get a statute-grounded answer.</span>
-              </h2>
-              <p className="text-[13px] text-ink-muted mb-8 leading-relaxed">
-                Clear answers about Indian law, fundamental rights, procedures, and civil matters — grounded in 93 Bare Acts.
-              </p>
-              <div className="flex flex-col gap-2 w-full max-w-sm">
-                {EXAMPLE_QUESTIONS.map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setInputValue(q)}
-                    className="text-[13px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-3 rounded-card text-ink-muted hover:text-ink text-left transition-colors shadow-stamp focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <EmptyState
+              icon={<span className="font-serif italic text-[22px] font-bold text-[#C8821A]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
+              eyebrow="KANOON Q&A"
+              title={<>Ask any legal question.<br /><span className="italic font-normal">Get a statute-grounded answer.</span></>}
+              subtitle="Indian law, grounded in statute."
+              actions={EXAMPLE_QUESTIONS.map(q => ({ label: q, onClick: () => setInputValue(q) }))}
+            />
           ) : (
             <div className="pb-32">
               {messages.map((msg, idx) => (

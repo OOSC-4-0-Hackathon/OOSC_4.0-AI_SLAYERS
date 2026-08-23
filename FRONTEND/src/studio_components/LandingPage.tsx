@@ -20,7 +20,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { ThreeDocumentPlanes } from './ThreeDocumentPlanes';
-import { LiveStreamingDemoHero } from './LiveStreamingDemoHero';
+import HeroPipelineAnimation from '../components/landing/HeroPipelineAnimation';
 import { StatuteInspectionModal } from './StatuteInspectionModal';
 import { BARE_ACTS_CATALOG } from '../data/bareActsData';
 import { BareAct } from '../types';
@@ -155,14 +155,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-8 border-b border-[#E4DFD5]">
             <div className="flex items-center space-x-2">
               <span className="stamp-badge px-2 py-0.5 text-[10px]">
-                DOSSIER // CIVIC EMPOWERMENT
+                CIVIC EMPOWERMENT
               </span>
               <span className="font-mono text-xs text-[#7A8699]">
-                CASE FILE REFERENCE: NYAAY-RAG-2026
+                NYAAY-RAG-2026
               </span>
             </div>
             <div className="font-mono text-xs text-[#7A8699] flex items-center space-x-4">
-              <span>93 INDIAN BARE ACTS GROUNDED</span>
+              <span>93 INDIAN BARE ACTS</span>
               <span>•</span>
               <span className="text-emerald-700 font-bold">SUB-500MS TIME-TO-FIRST-TOKEN</span>
             </div>
@@ -259,7 +259,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#C84B31] animate-pulse"></span>
               <span className="font-mono text-xs text-[#C84B31] font-bold tracking-widest uppercase">
-                LIVE PROOF // REAL-TIME EVALUATION
+                LIVE PROOF
               </span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl text-[#121820] font-black">
@@ -271,7 +271,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           {/* Live Streaming Proof Engine */}
-          <LiveStreamingDemoHero 
+          <HeroPipelineAnimation 
             onOpenDossierInNavigator={(query) => onStartQuery(query)}
           />
         </div>
@@ -289,109 +289,59 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <h2 className="font-serif text-3xl font-bold text-[#121820] tracking-tight">
                 Empowering Citizens Across 4 Civic Dimensions
               </h2>
-              <p className="text-sm text-[#556377] mt-1 font-sans max-w-2xl">
-                Turning opaque bureaucracy, scattered legislation, and legal intimidation into accessible, grounded, and automated citizen action.
-              </p>
             </div>
-
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Pillar 1: RTI Drafting Agent */}
-            <div className="bg-white border border-[#E4DFD5] rounded-xl p-5 hover:border-[#121820] transition-all flex flex-col justify-between shadow-xs">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-amber-700" />
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#718096] font-bold">DIRECTION 1</span>
-                  <h3 className="font-serif font-bold text-base text-[#121820]">RTI Drafting Agent</h3>
-                </div>
-                <p className="text-xs text-[#556377] leading-relaxed">
-                  Converts plain-language citizen questions into legally formatted RTI Form A applications and Sec 19 First Appeals directed to the exact Public Information Officer.
-                </p>
-              </div>
-
-              <button
-                onClick={() => onStartQuery('I filed an RTI application 38 days ago with the Municipal Corporation requesting road repair tender details. No response received.')}
-                className="mt-4 pt-3 border-t border-[#EFECE6] text-xs font-mono text-[#C84B31] font-bold flex items-center justify-between hover:translate-x-0.5 transition-transform"
+          {/* Numbered horizontal list — 4 pillars */}
+          <div className="divide-y divide-[#E4DFD5] border-y border-[#E4DFD5]">
+            {[
+              {
+                n: '01',
+                name: 'RTI Drafting Agent',
+                desc: 'Converts plain-language citizen questions into legally formatted RTI Form A applications and Sec 19 First Appeals directed to the exact Public Information Officer.',
+                query: 'I filed an RTI application 38 days ago with the Municipal Corporation requesting road repair tender details. No response received.',
+                cta: 'Draft RTI Application',
+              },
+              {
+                n: '02',
+                name: 'Rights Navigator',
+                desc: 'Translates messy disputes (tenant evictions, consumer defects, unpaid wages) into simple terms backed by citations from 93 Bare Acts and evidence checklists.',
+                query: 'Authorized service center rejected warranty repair on my 4-month-old laptop claiming customer fault without technical diagnostic inspection.',
+                cta: 'Explore Rights Dossier',
+              },
+              {
+                n: '03',
+                name: 'Scheme Eligibility Reader',
+                desc: 'Answers eligibility questions in plain language across healthcare, housing, pensions, and gig worker funds with benefit calculators and document lists.',
+                query: null,
+                cta: 'Check Welfare Schemes',
+                navTab: 'scheme_reader',
+              },
+              {
+                n: '04',
+                name: 'Conversational Form-Filler',
+                desc: 'Interviews the user in plain English or Hinglish and auto-populates the official legal/civic form in real-time side-by-side ready for filing.',
+                query: null,
+                cta: 'Live Interactive Intake',
+                navTab: 'form_filler',
+              },
+            ].map((item) => (
+              <div
+                key={item.n}
+                className="group grid grid-cols-[56px_1fr_auto] items-start gap-6 py-5 cursor-pointer hover:bg-[#FAFAF8] transition-colors px-2 rounded-sm"
+                onClick={() => item.navTab ? (onNavigateToTab ? onNavigateToTab(item.navTab) : onStartQuery(item.query || item.cta)) : onStartQuery(item.query || '')}
               >
-                <span>Draft RTI Application</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Pillar 2: Rights Navigator */}
-            <div className="bg-white border border-[#E4DFD5] rounded-xl p-5 hover:border-[#121820] transition-all flex flex-col justify-between shadow-xs">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 flex items-center justify-center">
-                  <Search className="w-5 h-5 text-blue-700" />
+                {/* Number */}
+                <span className="font-mono text-4xl font-black text-[#E4DFD5] group-hover:text-[#C84B31] transition-colors leading-none mt-1">{item.n}</span>
+                {/* Content */}
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-[#121820] group-hover:text-[#C84B31] transition-colors mb-0.5">{item.name}</h3>
+                  <p className="text-[13px] text-[#556377] leading-relaxed max-w-2xl opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-20 overflow-hidden transition-all duration-300">{item.desc}</p>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#718096] font-bold">DIRECTION 2</span>
-                  <h3 className="font-serif font-bold text-base text-[#121820]">Rights Navigator</h3>
-                </div>
-                <p className="text-xs text-[#556377] leading-relaxed">
-                  Translates messy disputes (tenant evictions, consumer defects, unpaid wages) into simple terms backed by citations from 93 Bare Acts and evidence checklists.
-                </p>
+                {/* Arrow */}
+                <span className="font-mono text-sm text-[#7A8699] group-hover:text-[#C84B31] group-hover:translate-x-0.5 transition-all mt-1">→</span>
               </div>
-
-              <button
-                onClick={() => onStartQuery('Authorized service center rejected warranty repair on my 4-month-old laptop claiming customer fault without technical diagnostic inspection.')}
-                className="mt-4 pt-3 border-t border-[#EFECE6] text-xs font-mono text-[#C84B31] font-bold flex items-center justify-between hover:translate-x-0.5 transition-transform"
-              >
-                <span>Explore Rights Dossier</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Pillar 3: Scheme Eligibility Reader */}
-            <div className="bg-white border border-[#E4DFD5] rounded-xl p-5 hover:border-[#121820] transition-all flex flex-col justify-between shadow-xs">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-emerald-700" />
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#718096] font-bold">DIRECTION 3</span>
-                  <h3 className="font-serif font-bold text-base text-[#121820]">Scheme Eligibility Reader</h3>
-                </div>
-                <p className="text-xs text-[#556377] leading-relaxed">
-                  Answers eligibility questions in plain language across healthcare, housing, pensions, and gig worker funds with benefit calculators and document lists.
-                </p>
-              </div>
-
-              <button
-                onClick={() => onNavigateToTab ? onNavigateToTab('scheme_reader') : onStartQuery('Ayushman Bharat PMJAY scheme eligibility criteria')}
-                className="mt-4 pt-3 border-t border-[#EFECE6] text-xs font-mono text-[#C84B31] font-bold flex items-center justify-between hover:translate-x-0.5 transition-transform"
-              >
-                <span>Check Welfare Schemes</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Pillar 4: Conversational Form-Filler */}
-            <div className="bg-white border border-[#E4DFD5] rounded-xl p-5 hover:border-[#121820] transition-all flex flex-col justify-between shadow-xs">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200 text-purple-800 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-purple-700" />
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#718096] font-bold">DIRECTION 4</span>
-                  <h3 className="font-serif font-bold text-base text-[#121820]">Conversational Form-Filler</h3>
-                </div>
-                <p className="text-xs text-[#556377] leading-relaxed">
-                  Interviews the user in plain English or Hinglish and auto-populates the official legal/civic form in real-time side-by-side ready for filing.
-                </p>
-              </div>
-
-              <button
-                onClick={() => onNavigateToTab ? onNavigateToTab('form_filler') : onStartQuery('File RTI Form A')}
-                className="mt-4 pt-3 border-t border-[#EFECE6] text-xs font-mono text-[#C84B31] font-bold flex items-center justify-between hover:translate-x-0.5 transition-transform"
-              >
-                <span>Live Interactive Intake</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -406,7 +356,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 space-y-12">
           <div className="font-mono text-xs text-[#C84B31] tracking-widest uppercase font-bold flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-[#C84B31] inline-block"></span>
-            <span>// CIVIC REALITY & PROBLEM STATEMENT</span>
+            <span>CIVIC REALITY & PROBLEM STATEMENT</span>
           </div>
 
           <div className="space-y-6 font-serif text-2xl sm:text-4xl lg:text-5xl leading-[1.3] font-medium tracking-tight">
@@ -483,7 +433,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="font-mono text-[11px] font-bold text-[#C84B31] uppercase">
-                          PART 0{item.index} // {item.badge}
+                          PART 0{item.index} · {item.badge}
                         </span>
                         <span className="font-mono text-[10px] text-[#7A8699]">STEP {item.index} OF 5</span>
                       </div>
@@ -575,12 +525,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Horizontal scroll strip */}
+          <div className="flex gap-4 overflow-x-auto pb-6 -mb-6 scrollbar-none">
             {sampleCivicDisputes.map((scenario, idx) => (
               <div
                 key={idx}
                 onClick={() => onStartQuery(scenario.query)}
-                className="group cursor-pointer p-5 border border-[#E4DFD5] bg-white hover:border-[#121820] hover:shadow-sm transition-all rounded-[2px] flex flex-col justify-between space-y-4 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                className="group cursor-pointer flex-shrink-0 w-[320px] sm:w-[360px] p-5 border border-[#E4DFD5] bg-white hover:border-[#121820] hover:shadow-sm transition-all rounded-[2px] flex flex-col justify-between space-y-4"
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => { if (e.key === 'Enter') onStartQuery(scenario.query); }}
@@ -588,7 +539,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-bold text-[#C84B31] uppercase">
-                      {scenario.domain} // {scenario.badge}
+                      {scenario.domain} · {scenario.badge}
                     </span>
                     <span className="text-[11px] font-mono text-[#7A8699] group-hover:text-[#121820] flex items-center space-x-1">
                       <span>LAUNCH</span>
@@ -596,7 +547,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     </span>
                   </div>
 
-                  <h4 className="font-serif font-bold text-lg text-[#121820] group-hover:text-[#C84B31] transition-colors">
+                  <h4 className="font-serif font-bold text-base text-[#121820] group-hover:text-[#C84B31] transition-colors">
                     {scenario.title}
                   </h4>
 
@@ -606,8 +557,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-[#F2EFE9] flex items-center justify-between text-[11px] font-mono text-[#7A8699]">
-                  <span className="truncate max-w-[280px]">GROUNDED: {scenario.statute}</span>
-                  <span className="text-emerald-700 font-bold">READY</span>
+                  <span className="truncate max-w-[240px]">GROUNDED: {scenario.statute}</span>
+                  <span className="text-emerald-700 font-bold flex-shrink-0">READY</span>
                 </div>
               </div>
             ))}
@@ -619,8 +570,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <section className="py-16 bg-[#121820] text-[#FAF7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="font-mono text-xs text-[#C84B31] tracking-widest uppercase font-bold">
-              KNOWLEDGE BASE // 93 ACTS
+            <span className="font-mono text-xs text-[#C84B31] font-bold tracking-widest uppercase">
+              KNOWLEDGE BASE
             </span>
             <h3 className="font-serif text-2xl sm:text-3xl font-black text-white">
               Explore the 93 Indian Bare Acts Catalog

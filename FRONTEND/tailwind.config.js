@@ -31,6 +31,21 @@ export default {
           light: '#F9EDD5',
           dark: '#7A4F0D',
         },
+        // === DESIGN SYSTEM CANONICAL TOKENS (new) ===
+        accent: {
+          DEFAULT: '#C84B31',
+          hover: '#A83C25',
+          light: '#FAEAE7',
+          dark: '#8C271E',
+        },
+        'bg-dark': '#121820',
+        'bg-light': '#F9F8F5',
+        'bg-warm': '#F2EFE9',
+        'border-subtle': '#E4DFD5',
+        'ink-primary': '#121820',
+        'ink-secondary': '#475467',
+        'ink-muted-new': '#7A8699',
+        // ============================================
         // Semantic aliases (keep old names working for untouched pages)
         background: '#FFFFFF',
         surface: '#F9F8F5',

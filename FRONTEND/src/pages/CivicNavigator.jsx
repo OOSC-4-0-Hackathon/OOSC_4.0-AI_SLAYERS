@@ -13,20 +13,23 @@ import { SchemeEligibilityReader } from '../studio_components/SchemeEligibilityR
 import { ConversationalFormFiller } from '../studio_components/ConversationalFormFiller';
 import { BareActsBrowser } from '../studio_components/BareActsBrowser';
 
-// We import the Navigation from studio_components to use its tab bar, 
-// but we will render it without the top header since we have Navbar.
-import { Navigation } from '../studio_components/Navigation';
+const CIVIC_TABS = [
+  { id: 'navigator',    label: 'Case Dossier' },
+  { id: 'evidence',     label: 'Evidence Checklist' },
+  { id: 'action_plan',  label: 'Action Plan' },
+  { id: 'drafter',      label: 'Drafter' },
+  { id: 'scheme_reader',label: 'Schemes' },
+  { id: 'bare_acts',    label: 'Bare Acts' },
+];
 
 export default function CivicNavigatorPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   
-  // State for tabs and dossier
   const [activeTab, setActiveTab] = useState('navigator');
   const [activeDossier, setActiveDossier] = useState(null);
   
-  // Preset query if redirected from Landing page
   const presetQueryText = location.state?.presetQuery || '';
 
   const [savedCases, setSavedCases] = useState(() => {
@@ -84,46 +87,21 @@ export default function CivicNavigatorPage() {
     });
   };
 
-  // We wrap the workspace to give it a similar look to the studio
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Navbar tabs strip height: 40px → pt-[104px] total (64px navbar + 40px tab strip)
   return (
     <div className="min-h-screen flex flex-col bg-[#F9F8F5] ledger-grid text-[#121820] font-sans">
-      <Navbar />
+      <Navbar
+        tabs={CIVIC_TABS}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
 
-      {/* Render the studio tab navigation right below our main navbar */}
-      <div className="mt-16">
-        <div className="bg-[#121820] text-white overflow-x-auto border-b border-[#242F3E]">
-           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-6">
-              {[
-                { id: 'navigator', label: 'CASE DOSSIER' },
-                { id: 'evidence', label: 'EVIDENCE CHECKLIST' },
-                { id: 'action_plan', label: 'ACTION PLAN' },
-                { id: 'drafter', label: 'DRAFTER' },
-                { id: 'scheme_reader', label: 'SCHEMES' },
-                { id: 'bare_acts', label: 'BARE ACTS' }
-              ].map(tab => (
-                 <button
-                   key={tab.id}
-                   onClick={() => {
-                     if (tab.id === 'drafter') {
-                       navigate('/dochub');
-                     } else {
-                       setActiveTab(tab.id);
-                     }
-                   }}
-                   className={`whitespace-nowrap py-3 text-xs font-mono font-bold tracking-wider border-b-2 transition-colors ${
-                     activeTab === tab.id 
-                       ? 'border-[#C84B31] text-[#C84B31]' 
-                       : 'border-transparent text-[#7A8699] hover:text-[#FAF7F2]'
-                   }`}
-                 >
-                   {tab.label}
-                 </button>
-              ))}
-           </div>
-        </div>
-      </div>
-
-      <main className="flex-1 bg-[#F9F8F5]">
+      <main className="flex-1 bg-[#F9F8F5] pt-[104px]">
         {activeTab === 'navigator' && (
           <StudioCivicNavigator
             initialQuery={presetQueryText}

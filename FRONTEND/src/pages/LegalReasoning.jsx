@@ -5,6 +5,7 @@ import ConversationLayout from '../components/chat/ConversationLayout';
 import ChatInput from '../components/chat/ChatInput';
 import MessageBubble from '../components/chat/MessageBubble';
 import LegalAnalysisRenderer from '../components/reasoning/LegalAnalysisRenderer';
+import EmptyState from '../components/common/EmptyState';
 import { generateReasoning } from '../services/reasoningService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -120,23 +121,17 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
         {/* Chat Area */}
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-8">
-              <div className="w-14 h-14 bg-paper border border-paper-rule rounded-stamp flex items-center justify-center mb-6 shadow-stamp">
-                <span className="font-display italic text-[22px] font-bold text-amber" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>
-              </div>
-              <span className="label-stamp text-ink-fog mb-3">CASE STRATEGY</span>
-              <h2 className="text-[26px] font-bold text-ink mb-3 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-                Build both sides<br /><span className="italic font-normal">of your case.</span>
-              </h2>
-              <p className="text-[13px] text-ink-muted mb-8 leading-relaxed">
-                Construct arguments, evaluate litigation risk, and analyse statutes. Context is maintained throughout the session.
-              </p>
-              <div className="flex gap-2 flex-wrap justify-center">
-                <button onClick={() => setInputValue("Analyze a potential contract dispute regarding late delivery...")} className="text-[12px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-2 rounded-button text-ink-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber">Contract Dispute</button>
-                <button onClick={() => setInputValue("What are the legal steps for an eviction notice...")} className="text-[12px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-2 rounded-button text-ink-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber">Eviction Notice</button>
-                <button onClick={() => setInputValue("Analyze the new BNS provisions regarding...")} className="text-[12px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-2 rounded-button text-ink-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber">BNS Analysis</button>
-              </div>
-            </div>
+            <EmptyState
+              icon={<span className="font-serif italic text-[22px] font-bold text-[#C8821A]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>}
+              eyebrow="CASE STRATEGY"
+              title={<>Build both sides<br /><span className="italic font-normal">of your case.</span></>}
+              subtitle="Arguments, risk, statute — all in one session."
+              actions={[
+                { label: 'Contract Dispute', onClick: () => setInputValue('Analyze a potential contract dispute regarding late delivery...') },
+                { label: 'Eviction Notice', onClick: () => setInputValue('What are the legal steps for an eviction notice...') },
+                { label: 'BNS Analysis', onClick: () => setInputValue('Analyze the new BNS provisions regarding...') },
+              ]}
+            />
           ) : (
             <div className="pb-32">
               {messages.map((msg, idx) => (

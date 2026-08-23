@@ -8,14 +8,24 @@ import {
   FileText, 
   Scale, 
   LayoutDashboard,
-  Zap,
   FolderArchive,
-  User,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function Navbar({ fullWidth = false }) {
+/**
+ * AppNav — unified navigation bar for all routes.
+ *
+ * Optional tab strip: pass `tabs`, `activeTab`, `onTabChange` to render
+ * a cream pill tab row below the main header (used by CivicNavigator).
+ *
+ * Props:
+ *   fullWidth    — stretch to full viewport width (default: max-w-7xl centred)
+ *   tabs         — array of { id, label } objects
+ *   activeTab    — currently active tab id
+ *   onTabChange  — (id: string) => void
+ */
+export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange }) {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,29 +40,27 @@ export default function Navbar({ fullWidth = false }) {
   };
 
   const NAV_ITEMS = [
-    { path: '/', label: 'Home', icon: Sparkles },
-    { path: '/civic', label: 'Civic Navigator', icon: Search },
-    { path: '/know-your-kanoon', label: 'Kanoon Q&A', icon: BookOpen },
-    { path: '/upload-chat', label: 'Doc Chat', icon: FileUp },
-    { path: '/dochub', label: 'Drafting', icon: FileText },
-    { path: '/reasoning', label: 'Reasoning', icon: Scale },
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/',                 label: 'Home',           icon: Sparkles },
+    { path: '/civic',            label: 'Civic Navigator', icon: Search },
+    { path: '/know-your-kanoon', label: 'Kanoon Q&A',     icon: BookOpen },
+    { path: '/upload-chat',      label: 'Doc Chat',        icon: FileUp },
+    { path: '/dochub',           label: 'Drafting',        icon: FileText },
+    { path: '/reasoning',        label: 'Reasoning',       icon: Scale },
+    { path: '/dashboard',        label: 'Dashboard',       icon: LayoutDashboard },
   ];
 
-  const handleDemoClick = () => {
-    navigate('/civic', { state: { presetQuery: 'I filed an RTI application 38 days ago with Municipal Corporation regarding road repair tender not answered' } });
-  };
+  const innerClass = fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6';
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E4DFD5] transition-colors">
-      <div className={`${fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6'} flex items-center justify-between h-16 gap-3 sm:gap-6`}>
-        
-        {/* Left: Brand Identity matching Studio Navigation */}
+      {/* ── Main row ── */}
+      <div className={`${innerClass} flex items-center justify-between h-16 gap-3 sm:gap-6`}>
+
+        {/* Brand */}
         <Link to="/" className="flex items-center space-x-3 group select-none shrink-0">
-          <div className="w-8 h-8 rounded-[4px] bg-[#121820] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542] shadow-2xs group-hover:border-[#C84B31] transition-colors">
+          <div className="w-8 h-8 rounded-[4px] bg-[#121820] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542] shadow-[0_1px_3px_rgba(0,0,0,0.2)] group-hover:border-[#C84B31] transition-colors">
             <span className="font-serif font-black text-sm tracking-tight">Ny</span>
           </div>
-          
           <div className="flex items-baseline space-x-2">
             <span className="font-serif font-extrabold text-lg sm:text-xl tracking-tight text-[#121820]">
               NYAAY
@@ -67,8 +75,11 @@ export default function Navbar({ fullWidth = false }) {
           </div>
         </Link>
 
-        {/* Center: Segmented Navigation Pill matching Studio */}
-        <nav className="hidden lg:flex items-center p-1 bg-[#EFECE6]/80 rounded-[6px] border border-[#E4DFD5]/90 shadow-inner" aria-label="Main Navigation">
+        {/* Desktop nav — segmented pill */}
+        <nav
+          className="hidden lg:flex items-center p-1 bg-[#EFECE6]/80 rounded-[6px] border border-[#E4DFD5]/90 shadow-inner"
+          aria-label="Main Navigation"
+        >
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -89,22 +100,20 @@ export default function Navbar({ fullWidth = false }) {
           })}
         </nav>
 
-        {/* Right: Quick Actions */}
+        {/* Right: actions */}
         <div className="flex items-center space-x-2 shrink-0">
-          {/* Dockets quick link */}
           <Link
             to="/civic"
-            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#DDD6C9] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs"
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#DDD6C9] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
             title="View Case Dockets"
           >
             <FolderArchive className="w-3.5 h-3.5 text-[#5A687D]" />
             <span className="hidden md:inline">Dockets</span>
           </Link>
 
-          {/* Auth Button */}
           {currentUser ? (
             <div className="flex items-center space-x-2">
-              <span className="hidden sm:inline text-xs font-mono text-[#121820] bg-white border border-[#DDD6C9] px-2.5 py-1.5 rounded-[4px]">
+              <span className="hidden sm:inline text-xs font-mono text-[#121820] bg-white border border-[#DDD6C9] px-2.5 py-1.5 rounded-[4px] truncate max-w-[120px]">
                 {currentUser.displayName || currentUser.email?.split('@')[0]}
               </span>
               <button
@@ -133,10 +142,33 @@ export default function Navbar({ fullWidth = false }) {
             </div>
           )}
         </div>
-
       </div>
 
-      {/* Mobile Horizontal Navigation Strip */}
+      {/* ── Optional tab strip (e.g. CivicNavigator) ── */}
+      {tabs && tabs.length > 0 && (
+        <div className="border-t border-[#E4DFD5] bg-[#F4F1EB]/95 backdrop-blur-xs">
+          <div className={`${innerClass} flex items-center gap-1 h-10 overflow-x-auto scrollbar-none`}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange?.(tab.id)}
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-[4px] text-[11px] font-mono font-semibold uppercase tracking-wider transition-all ${
+                    isActive
+                      ? 'bg-[#121820] text-[#FAF7F2]'
+                      : 'text-[#5A687D] hover:text-[#121820] hover:bg-[#FAF7F2]/60'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile nav strip (no tabs version) ── */}
       <div className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#F4F1EB]/90 backdrop-blur-xs border-t border-[#E4DFD5] overflow-x-auto text-xs font-mono scrollbar-none">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;

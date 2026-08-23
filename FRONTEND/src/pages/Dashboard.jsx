@@ -9,35 +9,35 @@ const TOOLS = [
   {
     tag: 'CORE',
     name: 'Civic Navigator',
-    desc: 'RTI, Consumer, Tenant — 5-part structured answers grounded in 93 Bare Acts.',
+    desc: 'RTI, Consumer, Tenant — 5-part dossiers from 93 Bare Acts.',
     path: '/civic',
     accent: true,
   },
   {
     tag: 'RESEARCH',
     name: 'Kanoon Q&A',
-    desc: 'Grounded Q&A over Indian statutes, constitutional clauses, landmark judgments.',
+    desc: 'Statute-grounded answers to Indian law questions.',
     path: '/know-your-kanoon',
     accent: false,
   },
   {
     tag: 'DRAFTING',
     name: 'Legal Drafting',
-    desc: 'Generate Affidavits, Legal Notices, RTI Applications — with highlighted placeholders.',
+    desc: 'Generate Affidavits, Notices, RTI Applications.',
     path: '/dochub',
     accent: false,
   },
   {
     tag: 'ANALYSIS',
     name: 'Document Chat',
-    desc: 'Upload a contract or court order, extract clauses, identify red flags.',
+    desc: 'Upload a contract — extract clauses, identify red flags.',
     path: '/upload-chat',
     accent: false,
   },
   {
     tag: 'STRATEGY',
     name: 'Legal Reasoning',
-    desc: 'Construct arguments for both sides of a dispute, evaluate litigation risk.',
+    desc: 'Build arguments, evaluate litigation risk.',
     path: '/reasoning',
     accent: false,
   },
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
           {/* Tools */}
           <div className="lg:col-span-8">
-            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">CIVIC &amp; LEGAL TOOLS</span>
+            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">TOOLS</span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {TOOLS.map((tool, i) => (
                 <motion.div
@@ -105,7 +105,7 @@ export default function Dashboard() {
                 >
                   <Link
                     to={tool.path}
-                    className="flex flex-col justify-between p-5 bg-white/90 border border-[#E4DFD5] rounded-[4px] h-[160px] group transition-all duration-200 shadow-2xs hover:border-[#C84B31] hover:shadow-card hover:-translate-y-0.5"
+                    className="flex flex-col justify-between p-5 bg-white/90 border border-[#E4DFD5] rounded-[4px] group transition-all duration-200 shadow-[0_1px_2px_rgba(26,24,20,0.04)] hover:border-[#C84B31] hover:shadow-[0_2px_8px_rgba(26,24,20,0.08)] hover:-translate-y-0.5"
                   >
                     <div className="flex items-start justify-between">
                       <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border border-[#C84B31]/25 text-[#C84B31] bg-[#C84B31]/10">
@@ -113,9 +113,9 @@ export default function Dashboard() {
                       </span>
                       <span className="text-[#7A8699] group-hover:text-[#C84B31] group-hover:translate-x-1 transition-all font-mono">→</span>
                     </div>
-                    <div>
+                    <div className="mt-4">
                       <h3 className="font-sans text-[15px] font-bold text-[#121820] mb-1 group-hover:text-[#C84B31] transition-colors">{tool.name}</h3>
-                      <p className="text-[12px] leading-relaxed text-[#475467]">{tool.desc}</p>
+                      <p className="text-[12px] leading-snug text-[#475467] line-clamp-1">{tool.desc}</p>
                     </div>
                   </Link>
                 </motion.div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 font-mono">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono">
                 <DashboardField label="EMAIL" value={userProfile?.email || currentUser?.email} />
                 <DashboardField label="ROLE" value={ROLE_LABEL[userProfile?.role] || userProfile?.role} />
                 <DashboardField label="JOINED" value={formatDate(userProfile?.created_at)} />
