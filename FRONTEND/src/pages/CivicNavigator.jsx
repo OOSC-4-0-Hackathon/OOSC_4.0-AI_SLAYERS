@@ -103,7 +103,13 @@ export default function CivicNavigatorPage() {
               ].map(tab => (
                  <button
                    key={tab.id}
-                   onClick={() => setActiveTab(tab.id)}
+                   onClick={() => {
+                     if (tab.id === 'drafter') {
+                       navigate('/dochub');
+                     } else {
+                       setActiveTab(tab.id);
+                     }
+                   }}
                    className={`whitespace-nowrap py-3 text-xs font-mono font-bold tracking-wider border-b-2 transition-colors ${
                      activeTab === tab.id 
                        ? 'border-[#C84B31] text-[#C84B31]' 
@@ -122,8 +128,12 @@ export default function CivicNavigatorPage() {
           <StudioCivicNavigator
             initialQuery={presetQueryText}
             onNavigateToTab={(tab) => {
-              setActiveTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (tab === 'drafter') {
+                navigate('/dochub');
+              } else {
+                setActiveTab(tab);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
             onSaveDossier={handleSaveDossier}
             savedDocketIds={savedCases.map(c => c.docketNumber)}
@@ -156,7 +166,7 @@ export default function CivicNavigatorPage() {
             dossier={activeDossier}
             onUpdateSteps={handleUpdateSteps}
             onGoToNavigator={() => setActiveTab('navigator')}
-            onGoToDrafter={() => setActiveTab('drafter')}
+            onGoToDrafter={() => navigate('/dochub')}
           />
         )}
 
@@ -169,7 +179,11 @@ export default function CivicNavigatorPage() {
 
         {activeTab === 'bare_acts' && (
           <BareActsBrowser
-            onSelectActForQuery={() => setActiveTab('navigator')}
+            onSelectActForQuery={(act) => {
+              navigate('/know-your-kanoon', {
+                state: { presetQuery: `I have a question about the ${act.title}. ` }
+              });
+            }}
           />
         )}
       </main>

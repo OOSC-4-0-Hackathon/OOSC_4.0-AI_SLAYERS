@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BookOpen, AlertCircle } from 'lucide-react';
 import WorkspaceContainer from '../components/common/WorkspaceContainer';
 import ConversationLayout from '../components/chat/ConversationLayout';
@@ -10,9 +11,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 const KanoonChatArea = ({ refreshConversations }) => {
   const { currentUser } = useAuth();
+  const location = useLocation();
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(location.state?.presetQuery || '');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   

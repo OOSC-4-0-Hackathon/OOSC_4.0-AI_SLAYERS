@@ -34,7 +34,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedPersona, setSelectedPersona] = useState<BeneficiaryPersona>('ALL');
-  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>('ayushman-bharat-pmjay');
+  const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>('ab-pmjay');
   
   // Quick eligibility checker state
   const [checkAge, setCheckAge] = useState<string>('');
@@ -54,15 +54,15 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
       let matchesPersona = true;
       if (selectedPersona === 'GIG_WORKER') {
-        matchesPersona = scheme.category === 'WORKER_LABOR' || scheme.id.includes('eshram') || scheme.id.includes('svanidhi');
+        matchesPersona = scheme.category === 'SKILLS_EDUCATION' || scheme.id.includes('mgnrega') || scheme.id.includes('pm-v');
       } else if (selectedPersona === 'FARMER') {
-        matchesPersona = scheme.category === 'FINANCIAL_INCOME' || scheme.id.includes('kisan');
+        matchesPersona = scheme.category === 'AGRICULTURE_FOOD' || scheme.id.includes('kisan') || scheme.id.includes('pmfby');
       } else if (selectedPersona === 'WOMEN') {
-        matchesPersona = scheme.category === 'WOMEN_CHILD' || scheme.id.includes('sukanya') || scheme.id.includes('awas');
+        matchesPersona = scheme.category === 'HEALTH_MATERNITY' || scheme.id.includes('mksy') || scheme.id.includes('pmmvy') || scheme.id.includes('pmuy');
       } else if (selectedPersona === 'SENIOR') {
-        matchesPersona = scheme.category === 'SENIOR_PENSION' || scheme.id.includes('ayushman') || scheme.id.includes('nsap');
+        matchesPersona = scheme.category === 'PENSION_SOCIAL' || scheme.id.includes('ab-pmjay') || scheme.id.includes('nsap') || scheme.id.includes('ignoaps');
       } else if (selectedPersona === 'LOW_INCOME_URBAN') {
-        matchesPersona = scheme.category === 'HOUSING' || scheme.category === 'HEALTH' || scheme.id.includes('svanidhi');
+        matchesPersona = scheme.id.includes('pmay-u') || scheme.id.includes('nfsa-pds') || scheme.id.includes('pmjdy');
       }
 
       return matchesSearch && matchesCategory && matchesPersona;
@@ -76,9 +76,8 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
     const matched = WELFARE_SCHEMES_CATALOG.filter(scheme => {
       if (scheme.id.includes('nsap') && ageNum < 60) return false;
-      if (scheme.id.includes('sukanya') && ageNum > 10) return false;
-      if (scheme.id.includes('eshram') && (ageNum < 16 || ageNum > 59)) return false;
-      if (incomeNum > 800000 && (scheme.category === 'HOUSING' || scheme.category === 'SENIOR_PENSION')) return false;
+      if (scheme.id.includes('ignoaps') && ageNum < 60) return false;
+      if (incomeNum > 800000 && (scheme.category === 'HOUSING_RURAL' || scheme.category === 'PENSION_SOCIAL')) return false;
       return true;
     });
 
@@ -227,12 +226,12 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
             <div className="space-y-1.5">
               {[
                 { id: 'ALL', label: 'All Statutory Schemes' },
-                { id: 'HEALTH', label: '🏥 Health & Hospitalization' },
-                { id: 'WORKER_LABOR', label: '👷 Worker, Gig & Gratuity' },
-                { id: 'HOUSING', label: '🏠 Affordable Housing (PMAY)' },
-                { id: 'FINANCIAL_INCOME', label: '💰 Income Support (PM-KISAN)' },
-                { id: 'WOMEN_CHILD', label: '👧 Girl Child & Women (SSY)' },
-                { id: 'SENIOR_PENSION', label: '👵 Senior & Widow Pension' },
+                { id: 'HOUSING_RURAL', label: '🏠 Housing & Rural Development' },
+                { id: 'AGRICULTURE_FOOD', label: '🌾 Agriculture & Food' },
+                { id: 'HEALTH_MATERNITY', label: '🏥 Healthcare, Maternity & Welfare' },
+                { id: 'PENSION_SOCIAL', label: '👵 Pensions & Social Security' },
+                { id: 'FINANCIAL_INSURANCE', label: '💰 Financial Inclusion & Insurance' },
+                { id: 'SKILLS_EDUCATION', label: '🎓 Entrepreneurship, Skills & Education' },
               ].map(cat => (
                 <button
                   key={cat.id}
@@ -335,7 +334,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                           Statutory Benefit
                         </span>
                         <span className="font-serif font-bold text-sm sm:text-base text-[#C84B31]">
-                          {scheme.maxBenefit.split(' ')[0]} {scheme.maxBenefit.split(' ')[1] || ''}
+                          {scheme.benefitBadge}
                         </span>
                       </div>
                     </div>

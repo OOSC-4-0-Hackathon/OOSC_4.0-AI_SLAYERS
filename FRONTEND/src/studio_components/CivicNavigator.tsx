@@ -493,7 +493,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               {/* Statutory Quotes with Inspection Trigger */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider">
-                  <span>GROUNDED LEGISLATIVE SECTIONS (93 BARE ACTS):</span>
+                  <span>GROUNDED LEGISLATIVE SECTIONS:</span>
                   <span className="text-[11px] text-[#C84B31]">CLICK ANY TO INSPECT FULL ACT</span>
                 </div>
                 <div className="space-y-3">

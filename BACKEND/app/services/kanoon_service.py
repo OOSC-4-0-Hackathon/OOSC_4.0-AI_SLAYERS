@@ -75,21 +75,29 @@ class KanoonService:
         
         # Extract the Executive Summary explicitly if it exists
         # Extract the Executive Summary explicitly if it exists
-        exec_summary_match = re.search(r'(?i)##\s*Executive Summary\s*\n(.*?)(?=\n##|\Z)', raw_answer, re.DOTALL)
-        if exec_summary_match:
-            dynamic_summary = exec_summary_match.group(1).strip()
-            # Remove the Executive Summary from the raw_answer to prevent UI duplication
-            new_raw_answer = raw_answer[:exec_summary_match.start()] + raw_answer[exec_summary_match.end():]
-            if new_raw_answer.strip():
-                raw_answer = new_raw_answer.strip()
+        # Extract the Executive Summary explicitly if it exists
+        import re
+        dynamic_summary = "Response generated based on retrieved legal knowledge."
+        try:
+            parsed_ans = json.loads(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw_answer.strip()))
+            if "problemAndRights" in parsed_ans and "summary" in parsed_ans["problemAndRights"]:
+                dynamic_summary = parsed_ans["problemAndRights"]["summary"]
+        except Exception:
+            exec_summary_match = re.search(r'(?i)##\s*Executive Summary\s*\n(.*?)(?=\n##|\Z)', raw_answer, re.DOTALL)
+            if exec_summary_match:
+                dynamic_summary = exec_summary_match.group(1).strip()
+                # Remove the Executive Summary from the raw_answer to prevent UI duplication
+                new_raw_answer = raw_answer[:exec_summary_match.start()] + raw_answer[exec_summary_match.end():]
+                if new_raw_answer.strip():
+                    raw_answer = new_raw_answer.strip()
+                else:
+                    # If removing the summary leaves the answer completely empty, put it back or leave it as is
+                    raw_answer = dynamic_summary
             else:
-                # If removing the summary leaves the answer completely empty, put it back or leave it as is
-                raw_answer = dynamic_summary
-        else:
-            paragraphs = [p.strip() for p in raw_answer.split('\n') if p.strip() and not p.strip().startswith('#')]
-            dynamic_summary = paragraphs[0] if paragraphs else "Response generated based on retrieved legal knowledge."
-            if len(dynamic_summary) > 250:
-                dynamic_summary = dynamic_summary[:247] + "..."
+                paragraphs = [p.strip() for p in raw_answer.split('\n') if p.strip() and not p.strip().startswith('#') and not p.strip().startswith('{') and not p.strip().startswith('}')]
+                dynamic_summary = paragraphs[0] if paragraphs else dynamic_summary
+                if len(dynamic_summary) > 250:
+                    dynamic_summary = dynamic_summary[:247] + "..."
 
         final_json = {
             "answer": raw_answer,
@@ -195,14 +203,21 @@ class KanoonService:
             # Format the DB payload similar to the non-streaming one
             import re
             raw_answer = full_content
-            exec_summary_match = re.search(r'(?i)##\s*Executive Summary\s*\n(.*?)(?=\n##|\Z)', raw_answer, re.DOTALL)
-            if exec_summary_match:
-                dynamic_summary = exec_summary_match.group(1).strip()
-            else:
-                paragraphs = [p.strip() for p in raw_answer.split('\n') if p.strip() and not p.strip().startswith('#')]
-                dynamic_summary = paragraphs[0] if paragraphs else "Response generated based on retrieved legal knowledge."
-                if len(dynamic_summary) > 250:
-                    dynamic_summary = dynamic_summary[:247] + "..."
+            dynamic_summary = "Response generated based on retrieved legal knowledge."
+            try:
+                # If it's the new JSON format from CIVIC task
+                parsed_ans = json.loads(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw_answer.strip()))
+                if "problemAndRights" in parsed_ans and "summary" in parsed_ans["problemAndRights"]:
+                    dynamic_summary = parsed_ans["problemAndRights"]["summary"]
+            except Exception:
+                exec_summary_match = re.search(r'(?i)##\s*Executive Summary\s*\n(.*?)(?=\n##|\Z)', raw_answer, re.DOTALL)
+                if exec_summary_match:
+                    dynamic_summary = exec_summary_match.group(1).strip()
+                else:
+                    paragraphs = [p.strip() for p in raw_answer.split('\n') if p.strip() and not p.strip().startswith('#') and not p.strip().startswith('{') and not p.strip().startswith('}')]
+                    dynamic_summary = paragraphs[0] if paragraphs else dynamic_summary
+                    if len(dynamic_summary) > 250:
+                        dynamic_summary = dynamic_summary[:247] + "..."
             
             final_json = {
                 "answer": raw_answer,
@@ -226,3 +241,4 @@ class KanoonService:
         return stream_generator()
 
 kanoon_service = KanoonService()
+
