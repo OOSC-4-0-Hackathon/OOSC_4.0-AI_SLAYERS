@@ -1,7 +1,7 @@
 import os
 import uuid
 from pathlib import Path
-import fitz # PyMuPDF
+import pymupdf # PyMuPDF
 import docx
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.orm import Session
@@ -45,7 +45,7 @@ class DocumentService:
         
         try:
             if ext == ".pdf":
-                doc = fitz.open(filepath)
+                doc = pymupdf.open(filepath)
                 pages = len(doc)
                 if pages > 300:
                     doc.close()

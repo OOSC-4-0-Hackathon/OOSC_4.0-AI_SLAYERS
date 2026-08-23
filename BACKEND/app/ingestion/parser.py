@@ -15,8 +15,8 @@ def extract_text(file_path: str) -> Optional[str]:
     """
     try:
         if file_path.lower().endswith(".pdf"):
-            import fitz
-            doc = fitz.open(file_path)
+            import pymupdf
+            doc = pymupdf.open(file_path)
             text_content = []
             for page in doc:
                 # Extract blocks and sort top-to-bottom, left-to-right
