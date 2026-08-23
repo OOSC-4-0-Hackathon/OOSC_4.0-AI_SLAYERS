@@ -26,14 +26,16 @@ export const askCivicStream = async (payload, onMessage, onComplete, onError) =>
         let done = false;
 
         let accumulatedText = "";
+        let buffer = "";
         
         while (!done) {
             const { value, done: doneReading } = await reader.read();
             done = doneReading;
             
             if (value) {
-                const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // Keep the last incomplete line in the buffer
                 
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
@@ -56,7 +58,7 @@ export const askCivicStream = async (payload, onMessage, onComplete, onError) =>
                                 onMessage({ type: 'metadata', conversation_id: data.conversation_id });
                             }
                         } catch (e) {
-                            console.error("Failed to parse SSE data:", e);
+                            console.error("Failed to parse SSE data:", e, "Line:", line);
                         }
                     }
                 }

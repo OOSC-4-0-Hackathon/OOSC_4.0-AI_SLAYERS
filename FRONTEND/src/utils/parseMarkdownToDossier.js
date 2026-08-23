@@ -25,12 +25,11 @@ export function parseMarkdownToDossier(markdown, domain = 'GENERAL_CIVIL') {
     problemAndRights: {
       docketId: `DOC-${Math.floor(Math.random() * 10000)}`,
       domain: domain,
-      summary: parsed?.problemAndRights?.summary || gapMessage,
-      citizenProtections: Array.isArray(parsed?.problemAndRights?.citizenProtections) 
-        ? parsed.problemAndRights.citizenProtections : [],
-      relevantSections: Array.isArray(parsed?.problemAndRights?.relevantSections) 
-        ? parsed.problemAndRights.relevantSections : [],
-      keyTakeaway: parsed?.problemAndRights?.keyTakeaway || gapMessage
+      yourLegalProblem: parsed?.problemAndRights?.yourLegalProblem || gapMessage,
+      whatTheLawSays: parsed?.problemAndRights?.whatTheLawSays || gapMessage,
+      potentialRights: Array.isArray(parsed?.problemAndRights?.potentialRights) ? parsed.problemAndRights.potentialRights : [],
+      missingInformation: parsed?.problemAndRights?.missingInformation || "No missing information identified.",
+      criticalTakeaway: parsed?.problemAndRights?.criticalTakeaway || gapMessage
     },
     evidenceRequired: {
       minimumEvidentiaryThreshold: parsed?.evidenceRequired?.minimumEvidentiaryThreshold || gapMessage,
@@ -38,9 +37,10 @@ export function parseMarkdownToDossier(markdown, domain = 'GENERAL_CIVIL') {
         id: `ev-${idx+1}`,
         title: item.title || 'Evidence',
         description: item.description || '',
+        category: item.category || 'RECOMMENDED',
         isMandatory: item.isMandatory !== false, // default true
         evidentiaryWeight: item.evidentiaryWeight || 'SUPPORTING',
-        checked: false
+        checked: item.category === 'ALREADY PROVIDED' // Auto-check if provided
       })) : [],
       auditReadinessScore: 0 // calculated below
     },
@@ -59,6 +59,8 @@ export function parseMarkdownToDossier(markdown, domain = 'GENERAL_CIVIL') {
       steps: Array.isArray(parsed?.actionPlan?.steps) ? parsed.actionPlan.steps : []
     },
     documentGeneration: {
+      documentRecommended: parsed?.documentGeneration?.documentRecommended === true,
+      reasoning: parsed?.documentGeneration?.reasoning || gapMessage,
       documentType: parsed?.documentGeneration?.documentType || 'Notice/Application',
       title: parsed?.documentGeneration?.title || 'Formal Legal Draft',
       actReference: parsed?.documentGeneration?.actReference || gapMessage,

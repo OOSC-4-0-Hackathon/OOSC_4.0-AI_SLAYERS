@@ -71,14 +71,19 @@ Output ONLY the expanded search query, nothing else."""
         return signals >= 1
 
     def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
-        sys_prompt = """You are a legal query analyzer for Indian law. Analyze the query and return ONLY this JSON:
+        sys_prompt = """You are a legal case strategist. Analyze the user's query and decompose it into a structured CASE_OBJECT.
+Return ONLY this JSON:
 {
-  "sub_queries": ["string", ...],
+  "case_summary": "A clear, plain-language summary of the dispute.",
+  "legal_issues": ["Specific legal question 1", "Specific legal question 2"],
+  "material_facts": ["Fact 1", "Fact 2"],
+  "missing_facts": ["What critical information is missing? (e.g., State, Date of notice)"],
+  "sub_queries": ["Search query for issue 1", "Search query for issue 2"],
   "domains": {"Domain Name": 0.9},
   "explicit_sc_requested": true|false
 }
 Rules:
-- sub_queries: 1-5 concise retrieval strings for each legal sub-issue.
+- sub_queries: 1-5 concise retrieval strings optimized for a vector database.
 - domains: only Indian legal domains; confidence float (e.g. 0.9).
 - explicit_sc_requested: true only if user explicitly mentions SC/precedent/case law.
 Output ONLY the JSON. No explanation."""
@@ -106,7 +111,7 @@ Output ONLY the JSON. No explanation."""
             return json.loads(res.text)
         except Exception as e:
             logger.warning(f"Structured analysis failed: {e}")
-            return {"sub_queries": [question], "domains": {}, "explicit_sc_requested": False}
+            return {"case_summary": question, "legal_issues": [], "material_facts": [], "missing_facts": [], "sub_queries": [question], "domains": {}, "explicit_sc_requested": False}
 
     def _multi_query_retrieve(self, sub_queries: List[str], base_query_embedding: List[float], predicted_domains: Dict[str, float], doc_type_priority: str, filters: Dict[str, Any], explicit_sc_requested: bool) -> List[Dict[str, Any]]:
         if not sub_queries:
@@ -277,7 +282,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         if not guardrails.validate_input(question):
             return self._fallback_response("Your question violates safety or length policies.")
 
-        is_complex = self._estimate_complexity(question)
+        is_complex = True if task_type == "CIVIC" else self._estimate_complexity(question)
         query_analysis = {}
         
         if is_complex:
@@ -306,7 +311,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             retrieval_start = time.time()
             try:
                 chunks = self._multi_query_retrieve(
-                    query_analysis.get("sub_queries", [question]),
+                    (query_analysis.get("sub_queries") or [question]),
                     query_embedding,
                     predicted_domains,
                     doc_type_priority,
@@ -356,7 +361,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
 
         # 4. Prompt Construction
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, sub_issues=query_analysis.get("sub_queries", []) if is_complex else [])
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None)
         pc_latency = round(time.time() - pc_start, 2)
         
         gen_start = time.time()
@@ -480,12 +485,12 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             yield f"data: {json.dumps({'type': 'error', 'data': 'Your question violates safety or length policies.'})}\n\n"
             return
 
-        is_complex = self._estimate_complexity(question)
+        is_complex = True if task_type == "CIVIC" else self._estimate_complexity(question)
         query_analysis = {}
         
         if is_complex:
             query_analysis = self._analyze_query_structured(question, history)
-            search_query = query_analysis.get("sub_queries", [question])[0]
+            search_query = (query_analysis.get("sub_queries") or [question])[0]
             predicted_domains = query_analysis.get("domains", {})
             
             # Failsafe Domain Prediction
@@ -510,7 +515,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             retrieval_start = time.time()
             try:
                 chunks = self._multi_query_retrieve(
-                    query_analysis.get("sub_queries", [question]),
+                    (query_analysis.get("sub_queries") or [question]),
                     query_embedding,
                     predicted_domains,
                     doc_type_priority,
@@ -575,7 +580,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_payload})}\n\n"
 
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, sub_issues=query_analysis.get("sub_queries", []) if is_complex else [])
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None)
         pc_latency = round(time.time() - pc_start, 2)
         
         yield f"data: {json.dumps({'type': 'status', 'data': 'Generating response...'})}\n\n"
@@ -589,7 +594,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             current_key = key_rotator.get()
             config = types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                max_output_tokens=300,
+                max_output_tokens=2048,
             )
             # Disable thinking if possible
             try:
@@ -619,11 +624,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             t = threading.Thread(target=run_gen)
             t.start()
             
-            deadline = time.time() + 6.5
+            deadline = time.time() + 25
             while True:
                 time_left = deadline - time.time()
                 if time_left <= 0:
-                    yield f"data: {json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 7s SLA]'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 25s SLA]'})}\n\n"
                     break
                     
                 try:
@@ -633,7 +638,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                             ttft = time.time() - gen_start
                         if data:
                             full_text += data
-                            yield f"data: {json.dumps({'type': 'chunk', 'data': data})}\n\n"
+                            if task_type != "CIVIC":
+                                yield f"data: {json.dumps({'type': 'chunk', 'data': data})}\n\n"
                     elif msg_type == "done":
                         break
                     elif msg_type == "error":
@@ -682,6 +688,46 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                     "metadata": meta,
                     "full_relevant_text": chunk["document"]
                 })
+
+        if task_type == "CIVIC":
+            clean = full_text.strip()
+            if clean.startswith('```json'): clean = clean[7:]
+            elif clean.startswith('```'): clean = clean[3:]
+            if clean.endswith('```'): clean = clean[:-3]
+            clean = clean.strip()
+            
+            try:
+                j = json.loads(clean)
+                # False Success Detection
+                empty_count = 0
+                total_fields = 0
+                
+                # Check problemAndRights
+                pr = j.get('problemAndRights', {})
+                for k, v in pr.items():
+                    total_fields += 1
+                    if not v or "Not established" in str(v):
+                        empty_count += 1
+                        
+                # Check authority
+                ra = j.get('relevantAuthority', {})
+                for k, v in ra.items():
+                    total_fields += 1
+                    if not v or "Not established" in str(v):
+                        empty_count += 1
+                        
+                # If more than 60% of fields are "Not established" despite having user facts, reject it.
+                if total_fields > 0 and (empty_count / total_fields) > 0.6:
+                    logger.warning("Quality Gate Failed: High number of Not Established fields.")
+                    yield f"data: {json.dumps({'type': 'error', 'data': 'SYNTHESIS_FAILURE: The system could not confidently establish the legal facts from the retrieved authority.'})}\n\n"
+                    return
+                else:
+                    # Emit the whole validated JSON
+                    yield f"data: {json.dumps({'type': 'chunk', 'data': clean})}\n\n"
+            except Exception as e:
+                logger.error(f"Failed to parse CIVIC JSON: {e}")
+                yield f"data: {json.dumps({'type': 'error', 'data': 'SYNTHESIS_FAILURE: Failed to generate a structured case dossier.'})}\n\n"
+                return
 
         yield f"data: {json.dumps({'type': 'complete', 'citations': citations, 'metrics': metrics})}\n\n"
 

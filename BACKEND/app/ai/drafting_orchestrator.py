@@ -57,12 +57,8 @@ Respond strictly in JSON format matching this schema:
 }}{fields_hint}"""
         
         import time
-<<<<<<< HEAD
-        models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-lite-latest']
-=======
         from app.core.key_rotator import key_rotator
-        models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash']
->>>>>>> 4d79712 (Fix Rights Navigator inconsistency, General Source Identity bug, Legal Applicability, and chat title generation)
+        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
         max_retries = 3
         
         for attempt in range(max_retries):
@@ -95,12 +91,8 @@ Respond strictly in JSON format matching this schema:
         sys_prompt += f"\n\nOUTPUT FORMAT:\nYou MUST return a single JSON object strictly adhering to this schema:\n{json.dumps(schema_str, indent=2)}\nDo NOT include markdown wrapping like ```json."
         
         import time
-<<<<<<< HEAD
-        models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-lite-latest']
-=======
         from app.core.key_rotator import key_rotator
-        models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash']
->>>>>>> 4d79712 (Fix Rights Navigator inconsistency, General Source Identity bug, Legal Applicability, and chat title generation)
+        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
         
         for attempt in range(retries + 1):
             model_name = models_to_try[attempt % len(models_to_try)]

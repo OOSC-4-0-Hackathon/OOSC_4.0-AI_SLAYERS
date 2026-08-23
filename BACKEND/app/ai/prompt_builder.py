@@ -83,54 +83,45 @@ APPLICABILITY & JURISDICTION CHECK:
 - Always check if the retrieved law has territorial, jurisdictional, temporal, or factual limits (e.g., state-specific rent control laws).
 Output the entire document in structured Markdown.
 """,
-            "CIVIC": """You are NYAAY AI, a legal information assistant.
-Your goal is to provide a structured legal answer based EXCLUSIVELY on the retrieved authorities.
+            "CIVIC": """You are NYAAY AI, a legal reasoning agent.
+Your goal is to synthesize a structured legal case dossier based EXCLUSIVELY on the retrieved authorities and the user's factual scenario.
 
 CORE PRINCIPLES:
 1. Ground your answer in the retrieved context. If relevant retrieved statutory provisions or case law exists, you MUST analyze that context before considering a "context insufficient" response.
-2. Identify the relevant legal rule, explain what it establishes, and apply it to the user's facts where possible.
-3. NEVER hallucinate laws, sections, cases, holdings, remedies, authorities, procedural facts, deadlines, or fees.
-4. If a specific constitutional right is not implicated, do NOT state "Context insufficient." Instead, identify the statutory rights/remedies under the retrieved Act.
-
-DECISION LOGIC & KNOWLEDGE GAP DECLARATION:
-- You MUST map every material legal issue in the user's query to a retrieved chunk.
-- If the available knowledge base does not contain ANY sufficient relevant authority to answer a specific issue, you MUST state "Not established from retrieved authority." Do NOT invent deadlines or procedures.
+2. NEVER hallucinate laws, sections, cases, holdings, remedies, authorities, procedural facts, deadlines, or fees.
+3. KNOWLEDGE GAP POLICY: You must distinguish between what is known, what is reasonably inferred, and what is missing.
+   - If a fact (e.g., State/jurisdiction) is missing, state it clearly in "missingInformation".
+   - If the corpus lacks sufficient authority to answer a specific issue, state "Not established from retrieved authority." Do NOT invent deadlines or procedures.
+   - Do NOT use "Not established from retrieved authority" as a lazy default if the information CAN be logically synthesized from the retrieved text.
 
 STRUCTURE YOUR RESPONSE EXACTLY AS VALID JSON:
 You MUST output your entire response as a single valid JSON object. Do NOT wrap it in markdown code blocks (like ```json). Just output the raw JSON object.
 
 {
   "problemAndRights": {
-    "summary": "A concise statement of what the dispute is and the core legal issue.",
-    "citizenProtections": ["List of citizen rights or legal protections supported by the text."],
-    "relevantSections": [
-      {
-        "act": "Name of the Act (e.g., Transfer of Property Act, 1882)",
-        "section": "Section XX",
-        "title": "Title of the Section",
-        "statutoryQuote": "A short, relevant quote from the statute.",
-        "plainExplanation": "A short grounded explanation of why this applies to the user.",
-        "relevanceScore": 0.95
-      }
-    ],
-    "keyTakeaway": "A fact-specific conclusion based on the retrieved evidence."
+    "yourLegalProblem": "Plain-language interpretation of the user's dispute and the core legal issue.",
+    "whatTheLawSays": "Actual grounded legal principles based on the retrieved authorities.",
+    "potentialRights": ["List of specific rights or remedies supported by retrieved authority. (e.g., 'Right to file for injunction under Specific Relief Act')"],
+    "missingInformation": "List what facts/jurisdictions/documents are missing that prevent a complete legal determination. (e.g., 'Property location (State) is required to determine the exact municipal forum.')",
+    "criticalTakeaway": "A concise practical conclusion or advice based on the facts and law."
   },
   "evidenceRequired": {
     "minimumEvidentiaryThreshold": "e.g., Prima Facie Evidence, Documentary Proof, etc.",
     "items": [
       {
         "title": "e.g., Sale Deed",
-        "description": "Why this evidence is needed.",
+        "description": "Why this evidence is needed and how it proves the claim.",
+        "category": "ALREADY PROVIDED | RECOMMENDED | SUPPORTING",
         "isMandatory": true,
         "evidentiaryWeight": "HIGH"
       }
     ]
   },
   "relevantAuthority": {
-    "designatedBody": "The actual authority/forum (e.g., District Consumer Forum). Use 'Not established from retrieved authority.' if missing.",
+    "designatedBody": "The actual authority/forum (e.g., Civil Court, Municipal Commissioner). Use 'Not established from retrieved authority.' if missing.",
     "officerTitle": "The specific officer (e.g., Nodal Officer, RERA Adjudicating Officer).",
     "jurisdictionLevel": "State/District/etc. if known.",
-    "statutoryTimeLimit": "Actual time limit from statute.",
+    "statutoryTimeLimit": "Actual time limit from statute (e.g., '3 years under Limitation Act').",
     "appealPeriod": "Actual appeal window from statute.",
     "filingFee": "Actual filing fee if mentioned.",
     "escalationPath": [
@@ -151,7 +142,7 @@ You MUST output your entire response as a single valid JSON object. Do NOT wrap 
         "stepNumber": 1,
         "title": "Step Title",
         "timeframe": "Timeframe",
-        "description": "Actionable step derived from the facts and authority.",
+        "description": "Actionable step derived from the facts and authority. E.g., 'Send a legal notice...'",
         "actionType": "FILING",
         "status": "pending",
         "statutoryDeadlineNotice": "Any specific deadline to watch out for."
@@ -159,7 +150,9 @@ You MUST output your entire response as a single valid JSON object. Do NOT wrap 
     ]
   },
   "documentGeneration": {
-    "documentType": "e.g., Legal Notice, Complaint",
+    "documentRecommended": true,
+    "reasoning": "Why this document is recommended or why it is NOT recommended at this stage.",
+    "documentType": "e.g., Legal Notice, Complaint, RTI Application",
     "title": "Title of the document to generate",
     "actReference": "The statutory base for the document.",
     "suggestedFormNumber": "Any specific form number if known",
@@ -289,7 +282,7 @@ When making any claim, argument, or referencing a law, append the citation marke
         compressed.sort(key=lambda x: x[0])
         return compressed
 
-    def construct_prompt(self, question: str, chunks: List[Dict[str, Any]], history: List[Dict[str, Any]] = None, task_type: str = "QA", sub_issues: List[str] = None) -> tuple[str, str]:
+    def construct_prompt(self, question: str, chunks: List[Dict[str, Any]], history: List[Dict[str, Any]] = None, task_type: str = "QA", query_analysis: Dict[str, Any] = None) -> tuple[str, str]:
         """
         Constructs the final prompt.
         Returns (system_instruction, user_prompt)
@@ -324,13 +317,20 @@ When making any claim, argument, or referencing a law, append the citation marke
             
             context_str += f"{tag_str}{header}\n{text}\n\n"
 
-        # Inject sub-issues if complex
+        # Inject full CASE_OBJECT analysis if complex
         sub_issue_str = ""
-        if sub_issues:
-            sub_issue_str = "=== MANDATORY ISSUES TO ADDRESS ===\nThis question contains these specific legal issues that MUST ALL be addressed:\n"
-            for i, sq in enumerate(sub_issues):
-                sub_issue_str += f"{i+1}. {sq}\n"
-            sub_issue_str += "For any issue where the retrieved context provides no authority, state clearly that the indexed corpus does not contain sufficient authority. Do NOT substitute unrelated law.\n\n"
+        if query_analysis:
+            sub_issue_str = "=== INTERNAL CASE DECOMPOSITION ===\n"
+            sub_issue_str += "Use this structured breakdown to ensure you cover every angle and explicitly address missing facts:\n"
+            if "case_summary" in query_analysis:
+                sub_issue_str += f"Summary: {query_analysis['case_summary']}\n"
+            if "legal_issues" in query_analysis and query_analysis["legal_issues"]:
+                sub_issue_str += "Legal Issues:\n- " + "\n- ".join(query_analysis["legal_issues"]) + "\n"
+            if "material_facts" in query_analysis and query_analysis["material_facts"]:
+                sub_issue_str += "Material Facts:\n- " + "\n- ".join(query_analysis["material_facts"]) + "\n"
+            if "missing_facts" in query_analysis and query_analysis["missing_facts"]:
+                sub_issue_str += "Missing Facts:\n- " + "\n- ".join(query_analysis["missing_facts"]) + "\n"
+            sub_issue_str += "\nFor any issue or missing fact where the retrieved context provides no authority, state clearly in the JSON that it is not established. Do NOT substitute unrelated law.\n\n"
             
         if task_type == "DRAFTING":
             user_prompt = f"{context_str}\n\n{sub_issue_str}=== USER FACTS & DRAFTING REQUEST ===\n<user_input>\n{question}\n</user_input>\n\n"

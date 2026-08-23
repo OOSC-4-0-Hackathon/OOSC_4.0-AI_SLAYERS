@@ -13,6 +13,7 @@ export interface EvidenceItem {
   id: string;
   title: string;
   description: string;
+  category?: 'ALREADY PROVIDED' | 'RECOMMENDED' | 'SUPPORTING';
   isMandatory: boolean;
   evidentiaryWeight: 'CRITICAL' | 'HIGH' | 'SUPPORTING';
   checked: boolean;
@@ -50,6 +51,8 @@ export interface ActionPlanStep {
 }
 
 export interface DocumentDraftData {
+  documentRecommended: boolean;
+  reasoning: string;
   documentType: string;
   title: string;
   actReference: string;
@@ -63,10 +66,11 @@ export interface FivePartCaseDossier {
   problemAndRights: {
     docketId: string;
     domain: DomainCategory;
-    summary: string;
-    citizenProtections: string[];
-    relevantSections: StatutorySection[];
-    keyTakeaway: string;
+    yourLegalProblem: string;
+    whatTheLawSays: string;
+    potentialRights: string[];
+    missingInformation: string;
+    criticalTakeaway: string;
   };
   evidenceRequired: {
     minimumEvidentiaryThreshold: string;

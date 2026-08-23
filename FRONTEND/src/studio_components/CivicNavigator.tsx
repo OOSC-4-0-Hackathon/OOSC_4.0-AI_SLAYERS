@@ -461,71 +461,38 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                 <span className="font-mono text-xs text-[#556377]">|</span>
                 <span className="font-serif font-bold text-base text-[#121820]">Problem & Citizen Rights</span>
               </div>
-              <button
-                onClick={() => handleCopyText(activeDossier.problemAndRights.summary, 'p1')}
-                className="text-xs font-mono text-[#7A8699] hover:text-[#121820] flex items-center space-x-1 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
-              >
-                {copiedSection === 'p1' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedSection === 'p1' ? 'COPIED' : 'COPY'}</span>
-              </button>
             </div>
 
             <div className="p-6 sm:p-8 space-y-6">
-              <p className="text-base text-[#121820] font-sans leading-relaxed font-medium">
-                {activeDossier.problemAndRights.summary}
-              </p>
-
-              {/* Citizen Rights List */}
+              
               <div className="space-y-2">
-                <div className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider">
-                  STATUTORY CITIZEN PROTECTIONS:
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {activeDossier.problemAndRights.citizenProtections.map((right, idx) => (
-                    <div key={idx} className="p-3 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] flex items-start space-x-2.5">
-                      <ShieldCheck className="w-4 h-4 text-[#C84B31] shrink-0 mt-0.5" />
-                      <span className="text-xs text-[#121820] font-sans">{right}</span>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR LEGAL PROBLEM</h3>
+                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier.problemAndRights.yourLegalProblem}</p>
               </div>
 
-              {/* Statutory Quotes with Inspection Trigger */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider">
-                  <span>GROUNDED LEGISLATIVE SECTIONS:</span>
-                  <span className="text-[11px] text-[#C84B31]">CLICK ANY TO INSPECT FULL ACT</span>
-                </div>
-                <div className="space-y-3">
-                  {activeDossier.problemAndRights.relevantSections.map((sec, idx) => {
-                    const matchedAct = BARE_ACTS_CATALOG.find(a => a.title.toLowerCase().includes(sec.act.toLowerCase().slice(0, 8)));
-                    return (
-                      <div 
-                        key={idx} 
-                        className="p-4 bg-[#FAF7F2] border-l-3 border-[#121820] border-y border-r border-[#E4DFD5] space-y-2 group hover:border-[#C84B31] transition-colors cursor-pointer"
-                        onClick={() => {
-                          if (matchedAct) setInspectingAct(matchedAct);
-                        }}
-                      >
-                        <div className="flex items-center justify-between font-mono text-xs">
-                          <span className="font-bold text-[#C84B31]">{sec.act} — {sec.section}</span>
-                          <span className="text-[11px] font-mono text-[#7A8699] group-hover:text-[#121820] flex items-center space-x-1">
-                            <span>INSPECT ACT</span>
-                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                          </span>
-                        </div>
-                        <div className="font-serif font-bold text-sm text-[#121820]">{sec.title}</div>
-                        <p className="text-xs text-[#475467] font-serif italic bg-white p-2.5 border border-[#E4DFD5] rounded-[2px]">
-                          "{sec.statutoryQuote}"
-                        </p>
-                        <p className="text-xs text-[#121820] font-sans">
-                          <strong className="font-mono text-[11px] text-[#556377]">IMPLICATION: </strong>
-                          {sec.plainExplanation}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="space-y-2">
+                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT THE LAW APPEARS TO SAY</h3>
+                <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier.problemAndRights.whatTheLawSays}</p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR POTENTIAL RIGHTS / REMEDIES</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  {activeDossier.problemAndRights.potentialRights.length > 0 ? (
+                    activeDossier.problemAndRights.potentialRights.map((right, idx) => (
+                      <li key={idx} className="text-sm text-[#121820] font-sans">{right}</li>
+                    ))
+                  ) : (
+                    <li className="text-sm text-[#475467] font-sans italic">Not established from retrieved authority.</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT IS NOT YET ESTABLISHED</h3>
+                <p className="text-sm text-[#C84B31] font-sans leading-relaxed font-medium">
+                  {activeDossier.problemAndRights.missingInformation}
+                </p>
               </div>
 
               {/* Key Takeaway Callout */}
@@ -533,11 +500,12 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                 <Sparkles className="w-4 h-4 text-[#C84B31] shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <span className="font-mono text-[10px] text-[#C84B31] uppercase tracking-wider font-bold">CRITICAL TAKEAWAY</span>
-                  <p className="text-xs text-[#FAF7F2] font-sans leading-relaxed">
-                    {activeDossier.problemAndRights.keyTakeaway}
+                  <p className="text-sm text-[#FAF7F2] font-sans leading-relaxed">
+                    {activeDossier.problemAndRights.criticalTakeaway}
                   </p>
                 </div>
               </div>
+
             </div>
           </div>
 
@@ -590,7 +558,18 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                     />
                     <div className="flex-1 space-y-0.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-serif font-bold text-sm text-[#121820]">{item.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-serif font-bold text-sm text-[#121820]">{item.title}</span>
+                            {item.category && (
+                              <span className={`text-[9px] font-sans font-bold px-1.5 py-0.5 rounded-[2px] ${
+                                item.category === 'ALREADY PROVIDED' ? 'bg-[#D1FADF] text-[#027A48]' :
+                                item.category === 'RECOMMENDED' ? 'bg-[#FEF0C7] text-[#B54708]' :
+                                'bg-[#F2F4F7] text-[#344054]'
+                              }`}>
+                                {item.category}
+                              </span>
+                            )}
+                          </div>
                         <span className={`text-[10px] font-mono font-bold px-2 py-0.2 rounded-[2px] ${
                           item.isMandatory ? 'bg-[#121820] text-white' : 'bg-[#E4DFD5] text-[#556377]'
                         }`}>
@@ -733,41 +712,60 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             </div>
 
             <div className="p-6 sm:p-8 space-y-6">
-              <div>
-                <span className="font-mono text-[11px] text-[#C84B31] font-bold uppercase tracking-wider">
-                  TARGET JUDICIAL TEMPLATE // {activeDossier.documentGeneration.suggestedFormNumber}
-                </span>
-                <h3 className="font-serif text-xl font-bold text-[#121820] mt-1">
-                  {activeDossier.documentGeneration.title}
-                </h3>
-                <p className="text-xs font-mono text-[#556377] mt-0.5">
-                  Statutory Base: {activeDossier.documentGeneration.actReference}
-                </p>
-              </div>
+              <div className="space-y-6">
+                
+                {/* Recommendation Status */}
+                <div className={`p-4 border rounded-[2px] flex items-start space-x-3 ${activeDossier.documentGeneration.documentRecommended ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+                  {activeDossier.documentGeneration.documentRecommended ? (
+                    <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  )}
+                  <div className="space-y-1">
+                    <span className={`font-mono text-xs font-bold uppercase tracking-wider ${activeDossier.documentGeneration.documentRecommended ? 'text-emerald-800' : 'text-amber-800'}`}>
+                      DOCUMENT RECOMMENDED: {activeDossier.documentGeneration.documentRecommended ? 'YES' : 'NO'}
+                    </span>
+                    <p className={`text-sm font-sans leading-relaxed ${activeDossier.documentGeneration.documentRecommended ? 'text-emerald-900' : 'text-amber-900'}`}>
+                      {activeDossier.documentGeneration.reasoning}
+                    </p>
+                  </div>
+                </div>
 
-              {/* Highlighted Placeholder Notice */}
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-[2px] text-xs font-mono text-amber-900 flex items-center justify-between">
-                <span>⚡ DYNAMIC TOKENS DETECTED: {Object.keys(activeDossier.documentGeneration.placeholders).length} PLACEHOLDERS READY TO FILL</span>
-                <span className="font-bold text-[#C84B31]">{activeDossier.documentGeneration.documentType}</span>
-              </div>
+                {activeDossier.documentGeneration.documentRecommended && (
+                  <>
+                    <div>
+                      <span className="font-mono text-[11px] text-[#C84B31] font-bold uppercase tracking-wider">
+                        TARGET JUDICIAL TEMPLATE // {activeDossier.documentGeneration.suggestedFormNumber}
+                      </span>
+                      <h3 className="font-serif text-xl font-bold text-[#121820] mt-1">
+                        {activeDossier.documentGeneration.title}
+                      </h3>
+                      <p className="text-xs font-mono text-[#556377] mt-0.5">
+                        Statutory Base: {activeDossier.documentGeneration.actReference}
+                      </p>
+                    </div>
 
-              {/* Preview Body */}
-              <div className="p-4 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] font-mono text-xs text-[#121820] leading-relaxed max-h-60 overflow-y-auto whitespace-pre-wrap">
-                {activeDossier.documentGeneration.templateBody.slice(0, 500)}...
-              </div>
+                    {/* Highlighted Placeholder Notice */}
+                    <div className="p-3 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] text-xs font-mono text-[#121820] flex items-center justify-between">
+                      <span>⚡ DYNAMIC TOKENS DETECTED: {Object.keys(activeDossier.documentGeneration.placeholders).length} PLACEHOLDERS READY TO FILL</span>
+                      <span className="font-bold text-[#C84B31]">{activeDossier.documentGeneration.documentType}</span>
+                    </div>
 
-              {/* Launch CTA */}
-              <div className="pt-2 flex items-center justify-between">
-                <span className="text-xs font-sans text-[#7A8699]">
-                  Edit party names, dispute dates, addresses, and prayers in real-time.
-                </span>
-                <button
-                  onClick={() => onNavigateToTab('drafter')}
-                  className="px-5 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
-                >
-                  <span>PROCEED TO DOCUMENT DRAFTING</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#C84B31]" />
-                </button>
+                    {/* Launch CTA */}
+                    <div className="pt-2 flex items-center justify-between">
+                      <span className="text-xs font-sans text-[#7A8699]">
+                        Edit party names, dispute dates, addresses, and prayers in real-time.
+                      </span>
+                      <button
+                        onClick={() => onNavigateToTab('drafter')}
+                        className="px-5 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                      >
+                        <span>PROCEED TO DOCUMENT DRAFTING</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#C84B31]" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
