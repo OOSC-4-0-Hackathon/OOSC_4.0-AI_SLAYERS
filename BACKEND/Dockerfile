@@ -8,12 +8,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+# Install CPU version of PyTorch first to save space
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+# Install remaining dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Pre-download the embedding and reranker models during build to prevent slow cold starts
+RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncoder; SentenceTransformer('BAAI/bge-base-en-v1.5', device='cpu'); CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2', device='cpu')"
 
 COPY . .
 
-# Expose port
-EXPOSE 8000
-
-# Run Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run Uvicorn using the PORT environment variable provided by Render, defaulting to 8000
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
