@@ -628,7 +628,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             while True:
                 time_left = deadline - time.time()
                 if time_left <= 0:
-                    yield f"data: {json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 25s SLA]'})}\n\n"
+                    err_json = json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 25s SLA]'})
+                    yield f"data: {err_json}\n\n"
                     break
                     
                 try:
