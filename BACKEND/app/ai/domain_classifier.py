@@ -20,17 +20,19 @@ class DomainClassifier:
         # Rule-based dictionary for fast path
         # Keys are domains, values are lists of regex patterns
         self.rules = {
-            "Consumer Law": [r"\bconsumer\b", r"\bdefective\b", r"\becommerce\b", r"\be-commerce\b", r"\brefund\b", r"\bwarranty\b", r"\bseller\b", r"\bonline shopping\b", r"\bunfair trade\b", r"\bccpa\b", r"\bncdrc\b", r"\bdistrict forum\b"],
-            "RTI & Transparency": [r"\brti\b", r"\bright to information\b", r"\bpio\b", r"\bpublic information officer\b", r"\bfirst appeal\b", r"\bsecond appeal\b", r"\bcic\b", r"\bsic\b"],
-            "Tenant & Rent Law": [r"\btenant\b", r"\blandlord\b", r"\brent\b", r"\blease\b", r"\beviction\b", r"\bsecurity deposit\b", r"\brent agreement\b", r"\bmodel tenancy\b", r"\bpagdi\b", r"\brent control\b"],
-            "Labour & Employment": [r"\bemployer\b", r"\bemployee\b", r"\bsalary\b", r"\bwages\b", r"\bovertime\b", r"\bpf\b", r"\bprovident fund\b", r"\bgratuity\b", r"\bharassment at workplace\b", r"\bposh\b", r"\btermination\b", r"\bnotice period\b"],
+            "Consumer & Product Liability": [r"\bconsumer\b", r"\bdefective\b", r"\becommerce\b", r"\be-commerce\b", r"\brefund\b", r"\bwarranty\b", r"\bseller\b", r"\bonline shopping\b", r"\bunfair trade\b", r"\bccpa\b", r"\bncdrc\b", r"\bdistrict forum\b"],
+            "Constitutional & Administrative": [r"\bfundamental rights\b", r"\bwrit\b", r"\bhigh court\b", r"\bsupreme court\b", r"\bconstitution\b", r"\bmunicipal\b", r"\bgarbage\b", r"\bsanitation\b", r"\bpanchayat\b", r"\bpublic health\b", r"\bmandamus\b", r"\brti\b", r"\bright to information\b", r"\bpio\b", r"\bcic\b"],
+            "Tenant & Housing": [r"\btenant\b", r"\blandlord\b", r"\brent\b", r"\blease\b", r"\beviction\b", r"\bsecurity deposit\b", r"\brent agreement\b", r"\bmodel tenancy\b", r"\bpagdi\b", r"\brent control\b"],
+            "Labour & Employment": [r"\bemployer\b", r"\bemployee\b", r"\bsalary\b", r"\bwages\b", r"\bovertime\b", r"\bpf\b", r"\bprovident fund\b", r"\bgratuity\b", r"\bharassment at workplace\b", r"\bposh\b", r"\btermination\b", r"\bnotice period\b", r"\bdisciplinary\b", r"\bnatural justice\b"],
             "Criminal Law": [r"\bpolice\b", r"\bfir\b", r"\bbail\b", r"\barrest\b", r"\btheft\b", r"\bmurder\b", r"\bassault\b", r"\bbns\b", r"\bbnss\b", r"\bbsa\b", r"\bipc\b", r"\bcrpc\b"],
-            "Constitutional Law": [r"\bfundamental rights\b", r"\bwrit\b", r"\bhigh court\b", r"\bsupreme court\b", r"\bconstitution\b"],
             "Family Law": [r"\bdivorce\b", r"\bmarriage\b", r"\bmaintenance\b", r"\bchild custody\b", r"\balimony\b", r"\bhindu marriage act\b", r"\bspecial marriage act\b"],
-            "Corporate Law": [r"\bcompany\b", r"\bdirector\b", r"\bshareholder\b", r"\bincorporation\b", r"\bmca\b"],
+            "Contract & Commercial Law": [r"\bcompany\b", r"\bdirector\b", r"\bshareholder\b", r"\bincorporation\b", r"\bmca\b", r"\bcontract\b", r"\bbreach\b", r"\bagreement\b", r"\bspecific performance\b"],
             "Tax Law": [r"\bincome tax\b", r"\bgst\b", r"\btds\b", r"\bassessment\b"],
-            "Contract Law": [r"\bcontract\b", r"\bbreach\b", r"\bagreement\b", r"\bspecific performance\b"],
-            "Property Law": [r"\bproperty\b", r"\bsale deed\b", r"\bregistration\b", r"\bmutation\b", r"\bencumbrance\b", r"\btransfer of property\b"]
+            "Property & Real Estate": [r"\bproperty\b", r"\bsale deed\b", r"\bregistration\b", r"\bmutation\b", r"\bencumbrance\b", r"\btransfer of property\b", r"\bdeveloper\b", r"\brera\b", r"\bpossession\b", r"\bbuilder\b", r"\bflat\b", r"\bapartment\b"],
+            "Civil & Procedural Law": [r"\blimitation\b", r"\bcpc\b", r"\bcivil procedure\b", r"\bcontempt\b", r"\binjunction\b"],
+            "Environment & Land": [r"\benvironment\b", r"\bpollution\b", r"\bwildlife\b", r"\bforest\b"],
+            "Evidence Law": [r"\bconsent\b", r"\bcorroboration\b", r"\bprosecutrix\b", r"\bfir delay\b", r"\badmissibility\b", r"\bwitness\b"],
+            "Administrative Law": [r"\baudi alteram partem\b", r"\bnatural justice\b", r"\blicence cancell\b", r"\bregulatory\b", r"\bpre-decisional\b", r"\bpost-decisional\b", r"\bshow cause\b"]
         }
         
         # Heuristics for unsupported jurisdictions
@@ -98,18 +100,23 @@ class DomainClassifier:
                 default_response["is_supported"] = False
                 return default_response
 
-        # A deterministic match is both faster and more reliable than a
-        # second model call. It also keeps the retrieval path available when
-        # the external classifier service is unavailable.
-        rule_domain = self._rule_based_classification(query)
-        if rule_domain != "UNKNOWN":
+        # Compute scores for all domains
+        domain_scores = {}
+        for domain, patterns in self.rules.items():
+            count = sum(1 for p in patterns if re.search(p, query_lower))
+            if count >= 1:
+                # 1 match = 0.6, 2 = 0.75, 3+ = 0.9
+                conf = min(0.6 + (count - 1) * 0.15, 0.9)
+                domain_scores[domain] = conf
+                
+        if domain_scores:
             return {
-                "domains": {rule_domain: 0.9},
+                "domains": domain_scores,
                 "document_type_priority": "statute" if re.search(r"\b(section|sections|act|code|rule|rules|punishment)\b", query_lower) else "any",
                 "is_supported": True,
             }
                 
-        # If unknown, just return default immediately - save 2s latency and LLM rate limit
+        # If unknown, just return default immediately
         return default_response
 
 domain_classifier = DomainClassifier()

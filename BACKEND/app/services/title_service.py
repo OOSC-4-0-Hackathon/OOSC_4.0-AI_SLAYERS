@@ -8,32 +8,25 @@ logger = logging.getLogger(__name__)
 def generate_deterministic_title(prompt: str) -> str:
     """
     Deterministic local title generator.
-    0 LLM calls, <1ms processing, 5-7 words max.
+    0 LLM calls, <1ms processing, 5-8 words max.
+    Extracts directly from the user's original wording.
     """
     prompt = prompt.strip()
     if not prompt:
-        return "New Civic Inquiry"
+        return "New Conversation"
         
-    # Rules based on keywords
-    lower_prompt = prompt.lower()
-    if "landlord" in lower_prompt or "rent" in lower_prompt or "tenant" in lower_prompt:
-        if "lock" in lower_prompt or "evict" in lower_prompt:
-            return "Landlord Eviction / Lockout"
-        return "Tenant Rights Inquiry"
-    elif "rti" in lower_prompt or "information" in lower_prompt:
-        return "RTI Application Inquiry"
-    elif "amazon" in lower_prompt or "flipkart" in lower_prompt or "refund" in lower_prompt or "defective" in lower_prompt or "broken" in lower_prompt or "seller" in lower_prompt:
-        return "Consumer Dispute / Refund"
-    elif "salary" in lower_prompt or "employer" in lower_prompt or "work" in lower_prompt:
-        return "Workplace Rights Inquiry"
-    
-    # Fallback: clean up the prompt and take first 5 words
-    cleaned = re.sub(r'[^a-zA-Z0-9\s]', '', prompt)
-    words = cleaned.split()
+    # Split by whitespace (automatically handles excessive spaces)
+    words = prompt.split()
     if not words:
-        return "New Civic Inquiry"
+        return "New Conversation"
         
-    title = " ".join(words[:5]).title()
+    # Take the first ~7-8 words
+    title_words = words[:8]
+    title = " ".join(title_words)
+    
+    # Remove trailing punctuation from the cut string
+    title = title.rstrip(".,;:!?")
+    
     return title
 
 def generate_conversation_title_async(conversation_id: str, prompt: str):

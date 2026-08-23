@@ -7,9 +7,9 @@
 @layer base {
   :root {
     --ink: #1A1814;
-    --paper: #F5F0E8;
-    --paper-warm: #EDE8DD;
-    --paper-rule: #D4CFC4;
+    --paper: #FFFFFF;
+    --paper-warm: #F9F8F5;
+    --paper-rule: #E4DFD5;
     --amber: #C8821A;
     --amber-light: #F9EDD5;
     

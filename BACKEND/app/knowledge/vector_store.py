@@ -70,13 +70,25 @@ class VectorStore:
         results = do_search(self.collection, n_results, where)
         
         if search_sc:
-            # Drop where clause for SC collection since schema differs
+            # Normalize where clause for SC collection (remove tenant_id, keep legal_domain)
             sc_where = None
+            if where:
+                sc_where = {}
+                if "legal_domain" in where:
+                    sc_where["legal_domain"] = where["legal_domain"]
+                if "$and" in where:
+                    valid_conds = [c for c in where["$and"] if "tenant_id" not in c]
+                    if valid_conds:
+                        sc_where["$and"] = valid_conds
+                if not sc_where:
+                    sc_where = None
+
+            # Retrieve equal number of SC results to guarantee representation
             sc_results = do_search(self.sc_collection, n_results, sc_where)
             results.extend(sc_results)
             # Re-sort by distance (lower is better for cosine distance in Chroma)
             results.sort(key=lambda x: x["distance"])
-            results = results[:n_results]
+            # Return all (up to 2 * n_results) so RRF has access to both sets fully
         
         return results
         

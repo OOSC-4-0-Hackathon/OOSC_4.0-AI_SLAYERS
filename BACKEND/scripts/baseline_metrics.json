@@ -1,0 +1,1012 @@
+[
+    {
+        "query_id": "T1_rape_consent",
+        "query_text": "My client was convicted for rape. The complainant delayed filing the FIR by 3 months, and there were no physical injuries. We have evidence of subsequent friendly WhatsApp chats showing consent. Are there Supreme Court judgments on this?",
+        "latency_analysis": 6.31739354133606,
+        "latency_embedding": 6.505969047546387,
+        "latency_retrieval": 7.126912832260132,
+        "total_time": 19.950275421142578,
+        "sc_chunks_in_top10": 7,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.026881720430107527,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.02761904761904762,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.016666666666666666,
+                "method": "sparse"
+            },
+            {
+                "rank": 4,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.028588564574170333,
+                "method": "hybrid"
+            },
+            {
+                "rank": 5,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.0236360698125404,
+                "method": "hybrid"
+            },
+            {
+                "rank": 6,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.02629419191919192,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.031917791992418856,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01653846153846154,
+                "method": "sparse"
+            },
+            {
+                "rank": 9,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.02728073117558276,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02499273783587509,
+                "method": "hybrid"
+            }
+        ]
+    },
+    {
+        "query_id": "T2_illegal_detention",
+        "query_text": "Police arrested my brother yesterday evening and have not produced him before a magistrate. They have held him for more than 24 hours without a warrant. What are his rights? Are there Supreme Court precedent?",
+        "latency_analysis": 8.778605937957764,
+        "latency_embedding": 0.18341469764709473,
+        "latency_retrieval": 2.062788724899292,
+        "total_time": 11.02480936050415,
+        "sc_chunks_in_top10": 0,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03121325192220715,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03215456674473068,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03147511312217195,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03240942028985507,
+                "method": "hybrid"
+            },
+            {
+                "rank": 5,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.017580645161290324,
+                "method": "dense"
+            },
+            {
+                "rank": 6,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03148114493412085,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03396825396825397,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.028497949419002053,
+                "method": "hybrid"
+            },
+            {
+                "rank": 9,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03342469262295082,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02750952380952381,
+                "method": "hybrid"
+            }
+        ]
+    },
+    {
+        "query_id": "T3_homebuyer_rera",
+        "query_text": "I paid 80 lakh to a builder for a flat in 2019. Possession was promised in 2022. The builder is claiming force majeure. I want a full refund with interest and want to stop paying EMIs. What does RERA say and are there Supreme Court judgments?",
+        "latency_analysis": 8.635061264038086,
+        "latency_embedding": 0.22506046295166016,
+        "latency_retrieval": 1.9502696990966797,
+        "total_time": 10.810391426086426,
+        "sc_chunks_in_top10": 5,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "DLF HOME DEVELOPERS LIMITED v. RAJAPURA HOMES PRIVATE LIMITED",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.02878726010616578,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "DLF HOME DEVELOPERS LIMITED v. RAJAPURA HOMES PRIVATE LIMITED",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.015873015873015872,
+                "method": "dense"
+            },
+            {
+                "rank": 3,
+                "source": "DLF HOME DEVELOPERS LIMITED v. RAJAPURA HOMES PRIVATE LIMITED",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.016666666666666666,
+                "method": "dense"
+            },
+            {
+                "rank": 4,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.015625,
+                "method": "dense"
+            },
+            {
+                "rank": 5,
+                "source": "DLF HOME DEVELOPERS LIMITED v. RAJAPURA HOMES PRIVATE LIMITED",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.01639344262295082,
+                "method": "dense"
+            },
+            {
+                "rank": 6,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016515151515151517,
+                "method": "sparse"
+            },
+            {
+                "rank": 7,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01703125,
+                "method": "sparse"
+            },
+            {
+                "rank": 8,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015384615384615385,
+                "method": "sparse"
+            },
+            {
+                "rank": 9,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015797101449275364,
+                "method": "sparse"
+            },
+            {
+                "rank": 10,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015352112676056339,
+                "method": "sparse"
+            }
+        ]
+    },
+    {
+        "query_id": "T4_natural_justice",
+        "query_text": "A government regulatory authority cancelled my business licence without issuing any show cause notice or giving me a chance to be heard. They are offering a post-decisional hearing. Is this a violation of natural justice? I need Supreme Court precedent.",
+        "latency_analysis": 5.8214545249938965,
+        "latency_embedding": 0.14212346076965332,
+        "latency_retrieval": 1.5795979499816895,
+        "total_time": 7.543175935745239,
+        "sc_chunks_in_top10": 6,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.02481203007518797,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.03047794966520434,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.03279569892473118,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015873015873015872,
+                "method": "dense"
+            },
+            {
+                "rank": 5,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015625,
+                "method": "dense"
+            },
+            {
+                "rank": 6,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.0288981288981289,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.030330882352941176,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "CODE_OF_CIVIL_PROCEDURE_1908",
+                "domain": "Civil & Procedural Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016129032258064516,
+                "method": "dense"
+            },
+            {
+                "rank": 9,
+                "source": "CUSTOMS_ACT_1962",
+                "domain": "Tax Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.025849212924606464,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "U.P. FINANCIAL CORPORATION v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.015151515151515152,
+                "method": "sparse"
+            }
+        ]
+    },
+    {
+        "query_id": "T5_adverse_possession",
+        "query_text": "My family has been living on a piece of land since 1985. The original owner never asked us to leave, but now they are filing a case. Can we claim adverse possession if our possession was permissive? Any Supreme Court judgment?",
+        "latency_analysis": 6.37688946723938,
+        "latency_embedding": 0.14409494400024414,
+        "latency_retrieval": 1.4990005493164062,
+        "total_time": 8.01998496055603,
+        "sc_chunks_in_top10": 2,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "PANCHUGOPAL BARUA & ORS. v. UMESH CHANDRA GOSWAMI & ORS.",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.01639344262295082,
+                "method": "sparse"
+            },
+            {
+                "rank": 2,
+                "source": "LIMITATION_ACT_1963",
+                "domain": "Civil & Procedural Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016666666666666666,
+                "method": "sparse"
+            },
+            {
+                "rank": 3,
+                "source": "MAHARASHTRA_RENT_CONTROL_ACT_1999",
+                "domain": "Tenant & Housing",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015384615384615385,
+                "method": "sparse"
+            },
+            {
+                "rank": 4,
+                "source": "MAHARASHTRA_RENT_CONTROL_ACT_1999",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015151515151515152,
+                "method": "sparse"
+            },
+            {
+                "rank": 5,
+                "source": "INDIAN_EVIDENCE_ACT_1872",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.027544420753375976,
+                "method": "hybrid"
+            },
+            {
+                "rank": 6,
+                "source": "LIMITATION_ACT_1963",
+                "domain": "Civil & Procedural Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015151515151515152,
+                "method": "dense"
+            },
+            {
+                "rank": 7,
+                "source": "EASEMENTS_ACT_1882",
+                "domain": "Property & Real Estate",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015362318840579712,
+                "method": "dense"
+            },
+            {
+                "rank": 8,
+                "source": "LIMITATION_ACT_1963",
+                "domain": "Civil & Procedural Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03149801587301587,
+                "method": "hybrid"
+            },
+            {
+                "rank": 9,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.024827586206896554,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "INDIAN_EVIDENCE_ACT_1872",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016129032258064516,
+                "method": "sparse"
+            }
+        ]
+    },
+    {
+        "query_id": "S1_anticipatory_bail",
+        "query_text": "What are the conditions for granting anticipatory bail?",
+        "latency_analysis": 5.618267774581909,
+        "latency_embedding": 0.2752723693847656,
+        "latency_retrieval": 2.1078248023986816,
+        "total_time": 8.001364946365356,
+        "sc_chunks_in_top10": 0,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03404569892473118,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.032163461538461544,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03401639344262295,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03321172555043522,
+                "method": "hybrid"
+            },
+            {
+                "rank": 5,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03152290239726027,
+                "method": "hybrid"
+            },
+            {
+                "rank": 6,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.025696969696969697,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "DRUGS_AND_COSMETICS_ACT_1940",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015384615384615385,
+                "method": "sparse"
+            },
+            {
+                "rank": 8,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02867176386913229,
+                "method": "hybrid"
+            },
+            {
+                "rank": 9,
+                "source": "PREVENTION_OF_MONEY_LAUNDERING_ACT_2002",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01628787878787879,
+                "method": "sparse"
+            },
+            {
+                "rank": 10,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.025725744843391903,
+                "method": "hybrid"
+            }
+        ]
+    },
+    {
+        "query_id": "S2_murder",
+        "query_text": "What is the difference between murder and culpable homicide under Indian law?",
+        "latency_analysis": 5.035780191421509,
+        "latency_embedding": 0.20244455337524414,
+        "latency_retrieval": 2.1867949962615967,
+        "total_time": 7.42501974105835,
+        "sc_chunks_in_top10": 0,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.033541666666666664,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.033732152300370175,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "BHARATIYA_NYAYA_SANHITA_2023",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.033084753787878785,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03193785578747628,
+                "method": "hybrid"
+            },
+            {
+                "rank": 5,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.029482276119402982,
+                "method": "hybrid"
+            },
+            {
+                "rank": 6,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.029953560371517026,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.0342896174863388,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.028748440007131393,
+                "method": "hybrid"
+            },
+            {
+                "rank": 9,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03258323765786453,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "INDIAN_PENAL_CODE_1860",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.029540749105966498,
+                "method": "hybrid"
+            }
+        ]
+    },
+    {
+        "query_id": "S3_fir_refusal",
+        "query_text": "Police refused to register my FIR. What can I do?",
+        "latency_analysis": 6.824048042297363,
+        "latency_embedding": 0.14092326164245605,
+        "latency_retrieval": 1.7713143825531006,
+        "total_time": 8.73628568649292,
+        "sc_chunks_in_top10": 0,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03361005692599621,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "judgment_lalita_kumari",
+                "domain": "General Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03306010928961749,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "judgment_lalita_kumari",
+                "domain": "General Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.03306010928961749,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.030857256778309413,
+                "method": "hybrid"
+            },
+            {
+                "rank": 5,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01513888888888889,
+                "method": "dense"
+            },
+            {
+                "rank": 6,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.0173015873015873,
+                "method": "dense"
+            },
+            {
+                "rank": 7,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016029411764705882,
+                "method": "dense"
+            },
+            {
+                "rank": 8,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01626865671641791,
+                "method": "sparse"
+            },
+            {
+                "rank": 9,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02791710758377425,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "CODE_OF_CRIMINAL_PROCEDURE_1973",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016515151515151517,
+                "method": "sparse"
+            }
+        ]
+    },
+    {
+        "query_id": "S4_consumer_defective",
+        "query_text": "I bought a defective product. Under the Consumer Protection Act, what rights do I have and which commission should I approach?",
+        "latency_analysis": 1.982036828994751,
+        "latency_embedding": 0.05909299850463867,
+        "latency_retrieval": 1.1107978820800781,
+        "total_time": 3.1519277095794678,
+        "sc_chunks_in_top10": 0,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "Consumer_Protection_Act",
+                "domain": "General Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02790262172284644,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.031204710144927535,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02967032967032967,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.017916666666666664,
+                "method": "sparse"
+            },
+            {
+                "rank": 5,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.01639344262295082,
+                "method": "sparse"
+            },
+            {
+                "rank": 6,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.030855059655324788,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.029386529386529386,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.028691399040236248,
+                "method": "hybrid"
+            },
+            {
+                "rank": 9,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.027119252873563218,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "CONSUMER_PROTECTION_ACT_2019",
+                "domain": "Consumer & Product Liability",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.02942655935613682,
+                "method": "hybrid"
+            }
+        ]
+    },
+    {
+        "query_id": "S5_fundamental_rights",
+        "query_text": "What are the fundamental rights regarding freedom of speech and expression in India?",
+        "latency_analysis": 1.6512327194213867,
+        "latency_embedding": 0.05312633514404297,
+        "latency_retrieval": 1.369039535522461,
+        "total_time": 3.0733985900878906,
+        "sc_chunks_in_top10": 1,
+        "top_10": [
+            {
+                "rank": 1,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.034333333333333334,
+                "method": "hybrid"
+            },
+            {
+                "rank": 2,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.033197944702715934,
+                "method": "hybrid"
+            },
+            {
+                "rank": 3,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.032685009487666034,
+                "method": "hybrid"
+            },
+            {
+                "rank": 4,
+                "source": "BHARATIYA_NYAYA_SANHITA_2023",
+                "domain": "Criminal Law",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015873015873015872,
+                "method": "dense"
+            },
+            {
+                "rank": 5,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.016825396825396827,
+                "method": "sparse"
+            },
+            {
+                "rank": 6,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.033125,
+                "method": "hybrid"
+            },
+            {
+                "rank": 7,
+                "source": "Case: None v. Unknown Respondent",
+                "domain": "Unknown",
+                "type": "Unknown",
+                "court": "Supreme Court",
+                "rrf_score": 0.023399014778325122,
+                "method": "hybrid"
+            },
+            {
+                "rank": 8,
+                "source": "COPYRIGHT_ACT_1957",
+                "domain": "Intellectual Property",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015151515151515152,
+                "method": "dense"
+            },
+            {
+                "rank": 9,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.027862318840579714,
+                "method": "hybrid"
+            },
+            {
+                "rank": 10,
+                "source": "CONSTITUTION_OF_INDIA",
+                "domain": "Constitutional & Administrative",
+                "type": "Unknown",
+                "court": "Unknown",
+                "rrf_score": 0.015142857142857144,
+                "method": "dense"
+            }
+        ]
+    }
+]

@@ -21,6 +21,27 @@ class BM25Manager:
     def __init__(self):
         os.makedirs(BM25_CACHE_DIR, exist_ok=True)
         self._memory_cache = {}
+        
+        # Initialize stopwords once
+        self.LEGAL_STOPWORDS = {
+            'authority', 'person', 'order', 
+            'law', 'proceedings', 'application', 'rule', 'rules', 'shall', 'may', 
+            'government', 'state', 'central', 'india', 'indian', 'board', 'committee',
+            'tribunal', 'judge', 'appeal', 'petition', 'case', 'v.', 'vs'
+        }
+        try:
+            from nltk.corpus import stopwords
+            self.english_stopwords = set(stopwords.words('english'))
+        except LookupError:
+            nltk.download('stopwords', quiet=True)
+            from nltk.corpus import stopwords
+            self.english_stopwords = set(stopwords.words('english'))
+            
+        self.all_stopwords = self.english_stopwords.union(self.LEGAL_STOPWORDS)
+
+    def tokenize_text(self, text: str) -> List[str]:
+        tokens = nltk.word_tokenize(text.lower())
+        return [t for t in tokens if t.isalnum() and t not in self.all_stopwords]
 
     def _get_cache_path(self, tenant_id: str) -> str:
         safe_tenant = "".join([c if c.isalnum() else "_" for c in tenant_id])
@@ -55,7 +76,7 @@ class BM25Manager:
             logger.warning(f"No documents found for tenant {tenant_id} to build BM25.")
             return
 
-        tokenized_corpus = [nltk.word_tokenize(doc.lower()) for doc in corpus_docs]
+        tokenized_corpus = [self.tokenize_text(doc) for doc in corpus_docs]
         bm25 = BM25Okapi(tokenized_corpus)
         
         # Save to disk

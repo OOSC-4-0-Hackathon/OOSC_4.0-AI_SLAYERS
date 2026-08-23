@@ -115,7 +115,7 @@ class DocumentService:
         logger = logging.getLogger(__name__)
         
         max_retries = 4
-        models_to_try = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest']
+        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
         
         for attempt in range(max_retries):
             model_name = models_to_try[attempt % len(models_to_try)]

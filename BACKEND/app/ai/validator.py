@@ -1,32 +1,47 @@
 import re
 
-def calculate_retrieval_confidence(chunks):
+def calculate_retrieval_confidence(chunks, query_analysis=None):
     if not chunks:
         return 0, "🔴 Insufficient", "No relevant authority was found in the indexed knowledge base.", 0.0, 0.0
     
     scores = [c['metadata'].get('rrf_score', 0) for c in chunks]
-    avg_score = sum(scores) / len(scores)
-    max_score = max(scores)
+    avg_score = sum(scores) / len(scores) if scores else 0
+    max_score = max(scores) if scores else 0
     
-    # New Confidence Logic based on actual presence of governing authorities
-    has_statute = any("Act" in c['metadata'].get("source_name", "") or "Code" in c['metadata'].get("source_name", "") or "Sanhita" in c['metadata'].get("source_name", "") or c['metadata'].get('document_type') == 'statute' for c in chunks)
-    has_judgment = any("Judgment" in c['metadata'].get("legal_domain", "") or "Supreme Court" in c['metadata'].get("source_name", "") or "SC" in c['metadata'].get("source_name", "") or c['metadata'].get('document_type') == 'judgment' for c in chunks)
+    from app.knowledge.metadata_utils import get_canonical_source_name
+    
+    def get_src(c):
+        return get_canonical_source_name(c.get('metadata', {}))
 
-    if has_statute and has_judgment:
-        score = 95
-        label = "🟢 High"
-        reason = "Multiple directly applicable statutory provisions and binding judgments support this conclusion."
-    elif has_statute:
-        score = 80
-        label = "🟢 High"
-        reason = "Direct statutory provisions govern this issue, providing strong legal support."
+    has_statute = any("Act" in get_src(c) or "Code" in get_src(c) or "Sanhita" in get_src(c) or c['metadata'].get('document_type') == 'statute' for c in chunks)
+    has_judgment = any("Judgment" in c['metadata'].get("legal_domain", "") or "Supreme Court" in get_src(c) or "SC" in get_src(c) or c['metadata'].get('document_type') == 'judgment' or c['metadata'].get('court_level') == 'Supreme Court' for c in chunks)
+
+    predicted_domains = (query_analysis or {}).get("domains", {})
+    domain_matched = False
+    if predicted_domains:
+        domain_matched = any(c['metadata'].get('legal_domain', '') in predicted_domains for c in chunks)
+    else:
+        domain_matched = True # Not a complex query, default to True for this check
+        
+    sc_requested = (query_analysis or {}).get("explicit_sc_requested", False)
+    
+    if has_statute and has_judgment and domain_matched:
+        score, label = 95, "🟢 High"
+        reason = "Directly applicable statutory provisions and binding judgments retrieved."
+    elif has_statute and domain_matched:
+        score, label = 80, "🟢 High"
+        reason = "Direct statutory provisions govern this issue."
+    elif has_statute and not domain_matched:
+        score, label = 55, "🟡 Moderate"
+        reason = "Statutory provisions retrieved but may not be the primary governing authority."
+    elif sc_requested and not has_judgment:
+        score, label = 40, "🟠 Limited"
+        reason = "Supreme Court precedent requested but not found in indexed corpus."
     elif has_judgment:
-        score = 75
-        label = "🟡 Moderate"
+        score, label = 75, "🟡 Moderate"
         reason = "Case law supports this conclusion, but primary statutory texts were not retrieved."
     else:
-        score = 60
-        label = "🟠 Limited"
+        score, label = 60, "🟠 Limited"
         reason = "Only indirect or related authorities were retrieved. The conclusion relies on analogy."
 
     return score, label, reason, avg_score, max_score

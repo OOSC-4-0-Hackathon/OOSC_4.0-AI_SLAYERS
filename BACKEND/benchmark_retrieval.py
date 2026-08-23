@@ -15,6 +15,7 @@ benchmark_queries = {
     "Property/Tenancy": "Landlord is trying to evict me without notice and cut off essential services like water.",
     "Municipal": "A municipal authority has repeatedly failed to collect garbage from my residential area for several weeks, resulting in accumulated waste, foul smell, and serious sanitation problems.",
     "Administrative": "Public authority failure to perform statutory duty, seeking writ of mandamus.",
+    "Homebuyer": "Developer delayed possession by 4 years, refuses to refund money or pay interest. Force majeure clause being misused. Supreme Court precedent.",
     "Supreme Court precedent": "Supreme Court judgments explaining natural justice, audi alteram partem, and fair hearing before disciplinary dismissal."
 }
 

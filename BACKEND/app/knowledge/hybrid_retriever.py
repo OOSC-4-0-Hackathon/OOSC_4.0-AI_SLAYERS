@@ -23,9 +23,9 @@ class HybridRetriever:
         self._bm25_cache = {}
         self._corpus_cache = {}
 
-    def search(self, query: str, query_embedding: List[float], n_results: int = 10, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any") -> List[Dict[str, Any]]:
-        # 1. Dense Retrieval (ChromaDB) - Broaden to Top 12 (reduced for latency)
-        initial_k = max(12, int(n_results * 1.5))
+    def search(self, query: str, query_embedding: List[float], n_results: int = 10, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any", domain_multiplier_weight: float = 0.10) -> List[Dict[str, Any]]:
+        # 1. Dense Retrieval (ChromaDB) - Broaden to Top 20 for each collection
+        initial_k = 20
         dense_results = vector_store.search(query_embedding, n_results=initial_k, where=where, search_sc=True)
         
         # 2. Fetch corpus and BM25 index from Manager
@@ -44,7 +44,7 @@ class HybridRetriever:
         if not bm25 or not corpus_docs:
             return dense_results[:n_results]
 
-        tokenized_query = nltk.word_tokenize(query.lower())
+        tokenized_query = bm25_manager.tokenize_text(query)
         
         # Get BM25 scores
         bm25_scores = bm25.get_scores(tokenized_query)
@@ -60,7 +60,7 @@ class HybridRetriever:
             # Domain Match Bonus (Proportional to LLM confidence)
             chunk_domain = metadata.get("legal_domain", "")
             if chunk_domain in predicted_domains:
-                multiplier += 0.10 * predicted_domains[chunk_domain]
+                multiplier += domain_multiplier_weight * predicted_domains[chunk_domain]
                 
             # Document Type Bonus
             chunk_type = metadata.get("document_type", "")
@@ -76,9 +76,9 @@ class HybridRetriever:
             multiplier = calculate_metadata_multiplier(res["metadata"])
             rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0) + (base_rrf * multiplier)
             
-        # Rank Sparse
+        # Rank Sparse (Top 30 from BM25)
         sparse_ranking = sorted(range(len(bm25_scores)), key=lambda i: bm25_scores[i], reverse=True)
-        for rank, idx in enumerate(sparse_ranking[:20]):
+        for rank, idx in enumerate(sparse_ranking[:30]):
             chunk_id = corpus_ids[idx]
             base_rrf = (1.0 / (60 + rank))
             
@@ -95,11 +95,11 @@ class HybridRetriever:
         threshold = getattr(settings, "MIN_RETRIEVAL_THRESHOLD", 0.005)
         filtered_ids = [item[0] for item in sorted_rrf if item[1] >= threshold]
         
-        # Take up to n_results
-        top_ids = filtered_ids[:n_results]
+        # Take up to 20 for reranking
+        top_ids = filtered_ids[:20]
         
-        # Reconstruct the final list of dicts
-        final_results = []
+        # Reconstruct the candidate list of dicts
+        candidate_results = []
         for rank, cid in enumerate(top_ids):
             found_dense = None
             for res in dense_results:
@@ -108,7 +108,7 @@ class HybridRetriever:
                     break
             
             is_sparse = False
-            for idx in sparse_ranking[:20]:
+            for idx in sparse_ranking[:30]:
                 if corpus_ids[idx] == cid:
                     is_sparse = True
                     break
@@ -117,23 +117,113 @@ class HybridRetriever:
             
             if found_dense:
                 found_dense["metadata"]["retrieval_method"] = retrieval_method
-                found_dense["metadata"]["retrieval_rank"] = rank + 1
+                found_dense["metadata"]["rrf_rank"] = rank + 1
                 found_dense["metadata"]["rrf_score"] = rrf_scores[cid]
-                final_results.append(found_dense)
+                candidate_results.append(found_dense)
             else:
                 idx = corpus_ids.index(cid)
-                final_results.append({
+                candidate_results.append({
                     "id": cid,
                     "document": corpus_docs[idx],
                     "metadata": {
                         **corpus_metadatas[idx],
                         "retrieval_method": retrieval_method,
-                        "retrieval_rank": rank + 1,
+                        "rrf_rank": rank + 1,
                         "rrf_score": rrf_scores[cid]
                     },
                     "distance": 0.0 
                 })
                 
+        # 5. Cross-Encoder Reranking
+        if candidate_results:
+            from app.knowledge.reranker import reranker_service
+            # Rerank and return top N
+            final_results = reranker_service.rerank(query, candidate_results, top_k=n_results)
+        else:
+            final_results = []
+            
         return final_results
 
+
+    def search_sc_only(self, query: str, query_embedding: List[float], n_results: int = 10, predicted_domains: Dict[str, float] = None) -> List[Dict[str, Any]]:
+        initial_k = 30
+        
+        # 1. Build where clause for domain filtering
+        where = None
+        if predicted_domains:
+            top_domain = max(predicted_domains.items(), key=lambda x: x[1])
+            if top_domain[1] > 0.4:
+                where = {"legal_domain": top_domain[0]}
+
+        # 2. Dense search (search_sc=True pulls from SC collection via vector_store.py)
+        dense_results = vector_store.search(query_embedding, n_results=initial_k, where=where, search_sc=True)
+        dense_sc = [r for r in dense_results if 'SC_' in r['id'] or r['metadata'].get('court_level') == 'Supreme Court']
+        
+        # 3. BM25 Search
+        bm25, corpus_ids, corpus_docs, corpus_metadatas = bm25_manager.get_index("global")
+        bm25_sc = []
+        if bm25 and corpus_docs:
+            query_tokens = bm25_manager.tokenize_text(query)
+            # Remove stopwords from query tokens so BM25 isn't dominated by generic terms
+            stop_words = {"supreme", "court", "precedent", "judgment", "case", "law", "the", "a", "an", "is", "of", "and", "in", "to", "for", "with", "on", "by"}
+            filtered_tokens = [t for t in query_tokens if t not in stop_words]
+            if not filtered_tokens:
+                filtered_tokens = query_tokens
+                
+            doc_scores = bm25.get_scores(filtered_tokens)
+            top_bm25_indices = sorted(range(len(doc_scores)), key=lambda i: doc_scores[i], reverse=True)[:initial_k*2]
+            
+            for idx in top_bm25_indices:
+                score = doc_scores[idx]
+                if score <= 0: continue
+                c_id = corpus_ids[idx]
+                meta = corpus_metadatas[idx]
+                # Filter by SC and Domain
+                is_sc = 'SC_' in c_id or meta.get('court_level') == 'Supreme Court'
+                if not is_sc: continue
+                
+                if where and "legal_domain" in where:
+                    if meta.get("legal_domain") != where["legal_domain"]:
+                        continue
+                        
+                bm25_sc.append({
+                    "id": c_id,
+                    "document": corpus_docs[idx],
+                    "metadata": meta,
+                    "bm25_score": score
+                })
+        
+        # 4. RRF Merging
+        merged = {}
+        def add_to_rrf(results, score_field, method_name):
+            for rank, res in enumerate(results):
+                doc_id = res['id']
+                if doc_id not in merged:
+                    merged[doc_id] = {
+                        "id": doc_id,
+                        "document": res['document'],
+                        "metadata": res['metadata'].copy(),
+                        "rrf_score": 0.0,
+                        "sources": []
+                    }
+                merged[doc_id]["rrf_score"] += 1.0 / (60 + rank + 1)
+                merged[doc_id]["sources"].append(method_name)
+                merged[doc_id]["metadata"]["retrieval_method"] = "+".join(merged[doc_id]["sources"])
+
+        add_to_rrf(dense_sc, "distance", "dense")
+        add_to_rrf(bm25_sc, "bm25_score", "bm25")
+        
+        candidate_results = sorted(list(merged.values()), key=lambda x: x["rrf_score"], reverse=True)
+        
+        # 5. Rerank
+        if candidate_results:
+            from app.knowledge.reranker import reranker_service
+            ranked_sc = reranker_service.rerank(query, candidate_results, top_k=n_results)
+            for chunk in ranked_sc:
+                # Map reranker score to rrf_score to prevent truncation
+                chunk["metadata"]["rrf_score"] = max(0.01, chunk["metadata"].get("reranker_score", 0.0))
+            return ranked_sc
+        return []
+
 hybrid_retriever = HybridRetriever()
+

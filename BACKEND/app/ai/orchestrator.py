@@ -3,7 +3,9 @@ from app.knowledge.embeddings import embedding_service
 from app.core.config import settings
 from app.core.key_rotator import key_rotator
 import re
+import time
 from typing import Dict, Any, List
+from app.knowledge.metadata_utils import get_canonical_source_name
 from app.core.logger import logger
 import concurrent.futures
 from google import genai
@@ -41,7 +43,7 @@ Output ONLY the expanded search query, nothing else."""
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
-                        model='gemini-1.5-flash',
+                        model='gemini-3.6-flash',
                         contents=user_prompt,
                         config=types.GenerateContentConfig(system_instruction=sys_prompt)
                     )
@@ -58,6 +60,157 @@ Output ONLY the expanded search query, nothing else."""
             logger.warning(f"Query expansion failed: {e}")
             return question
 
+
+    def _estimate_complexity(self, question: str) -> bool:
+        q = question.lower()
+        has_sc_request = bool(re.search(r'\b(supreme court|sc judgment|precedent|case law|held)\b', q))
+        has_multi_domain = bool(re.search(r'\b(rera|consumer|constitutional|fundamental right|natural justice)\b', q)) and bool(re.search(r'\b(compensation|refund|criminal|arrest|bail)\b', q))
+        word_count = len(question.split())
+        is_very_long = word_count > 100
+        signals = sum([has_sc_request, has_multi_domain, is_very_long])
+        return signals >= 1
+
+    def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+        sys_prompt = """You are a legal query analyzer for Indian law. Analyze the query and return ONLY this JSON:
+{
+  "sub_queries": ["string", ...],
+  "domains": {"Domain Name": 0.9},
+  "explicit_sc_requested": true|false
+}
+Rules:
+- sub_queries: 1-5 concise retrieval strings for each legal sub-issue.
+- domains: only Indian legal domains; confidence float (e.g. 0.9).
+- explicit_sc_requested: true only if user explicitly mentions SC/precedent/case law.
+Output ONLY the JSON. No explanation."""
+        user_prompt = f"User Query: {question}\nJSON Output:"
+        try:
+            temp_client = genai.Client(api_key=key_rotator.get())
+            import time
+            import json
+            for attempt in range(3):
+                try:
+                    res = temp_client.models.generate_content(
+                        model='gemini-3.6-flash',
+                        contents=user_prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=sys_prompt,
+                            response_mime_type="application/json"
+                        )
+                    )
+                    break
+                except Exception as e:
+                    if "503" in str(e) and attempt < 2:
+                        time.sleep(2)
+                        continue
+                    raise e
+            return json.loads(res.text)
+        except Exception as e:
+            logger.warning(f"Structured analysis failed: {e}")
+            return {"sub_queries": [question], "domains": {}, "explicit_sc_requested": False}
+
+    def _multi_query_retrieve(self, sub_queries: List[str], base_query_embedding: List[float], predicted_domains: Dict[str, float], doc_type_priority: str, filters: Dict[str, Any], explicit_sc_requested: bool) -> List[Dict[str, Any]]:
+        if not sub_queries:
+            return []
+            
+        import concurrent.futures
+        
+        embeddings = []
+        for sq in sub_queries:
+            try:
+                emb = embedding_service.embed_query(sq)
+                embeddings.append(emb)
+            except:
+                embeddings.append(base_query_embedding)
+                
+        all_results = []
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as ex:
+            future_to_sq_idx = {}
+            for i, sq in enumerate(sub_queries):
+                f = ex.submit(
+                    hybrid_retriever.search,
+                    query=sq,
+                    query_embedding=embeddings[i],
+                    n_results=10,
+                    where=filters,
+                    predicted_domains=predicted_domains,
+                    document_type_priority=doc_type_priority
+                )
+                future_to_sq_idx[f] = i
+                
+            if explicit_sc_requested:
+                if hasattr(hybrid_retriever, 'search_sc_only'):
+                    for i, sq in enumerate(sub_queries):
+                        f = ex.submit(
+                            hybrid_retriever.search_sc_only,
+                            query=sq,
+                            query_embedding=embeddings[i],
+                            n_results=5,  # 5 per sub_query to prevent overloading context
+                            predicted_domains=predicted_domains
+                        )
+                        future_to_sq_idx[f] = i
+                    
+            for f in concurrent.futures.as_completed(future_to_sq_idx):
+                sq_idx = future_to_sq_idx[f]
+                try:
+                    res = f.result()
+                    for r in res:
+                        if "sub_issue_ids" not in r["metadata"]:
+                            r["metadata"]["sub_issue_ids"] = set()
+                        r["metadata"]["sub_issue_ids"].add(sq_idx)
+                    all_results.extend(res)
+                except Exception as e:
+                    logger.warning(f"Parallel retrieval failed: {e}")
+                    
+        dedup_map = {}
+        for r in all_results:
+            cid = r["id"]
+            if cid not in dedup_map:
+                dedup_map[cid] = r
+            else:
+                dedup_map[cid]["metadata"]["sub_issue_ids"].update(r["metadata"]["sub_issue_ids"])
+                if r.get("metadata", {}).get("rrf_score", 0) > dedup_map[cid].get("metadata", {}).get("rrf_score", 0):
+                    # Keep the higher score, but maintain merged sub_issue_ids
+                    merged_issues = dedup_map[cid]["metadata"]["sub_issue_ids"]
+                    dedup_map[cid] = r
+                    dedup_map[cid]["metadata"]["sub_issue_ids"] = merged_issues
+                    
+        unique_results = list(dedup_map.values())
+        
+        # Fair Allocation: Pick top N per sub_issue to guarantee issue coverage
+        final_selected = []
+        selected_ids = set()
+        
+        # Round-robin selection across sub-queries
+        for r in unique_results:
+            r['metadata']['sub_issue_ids'] = list(r['metadata']['sub_issue_ids'])
+            
+        unique_results.sort(key=lambda x: x.get("metadata", {}).get("rrf_score", 0), reverse=True)
+        
+        target_total = 20
+        per_issue_target = max(1, target_total // len(sub_queries))
+        
+        issue_counts = {i: 0 for i in range(len(sub_queries))}
+        
+        # 1. Fill minimum per issue
+        for i in range(len(sub_queries)):
+            for r in unique_results:
+                if r["id"] not in selected_ids and i in r["metadata"]["sub_issue_ids"]:
+                    if issue_counts[i] < per_issue_target:
+                        final_selected.append(r)
+                        selected_ids.add(r["id"])
+                        issue_counts[i] += 1
+                        
+        # 2. Fill remaining with highest overall scores
+        for r in unique_results:
+            if len(final_selected) >= target_total:
+                break
+            if r["id"] not in selected_ids:
+                final_selected.append(r)
+                selected_ids.add(r["id"])
+                
+        return final_selected
+
     def _filter_relevant_chunks(self, question: str, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not chunks:
             return chunks
@@ -65,18 +218,19 @@ Output ONLY the expanded search query, nothing else."""
         sys_prompt = """You are a Legal Relevance Evaluator for a RAG system.
 Evaluate each retrieved legal document chunk against the user's query.
 
-A chunk is DIRECTLY_APPLICABLE if it directly governs the legal issue.
-A chunk is POTENTIALLY_RELEVANT if it provides useful background law, establishes procedural rules, or contains Supreme Court precedents discussing analogical principles (e.g., writ of mandamus, natural justice, procedural fairness) that could inform the issue.
-A chunk is IRRELEVANT only if it is entirely disconnected from the legal principles at hand (e.g., defining 'local authority' in the RTE Act when the query is about garbage collection).
+A chunk is PRIMARY_GOVERNING if it directly governs the core legal issue.
+A chunk is SUPPORTING if it provides useful background law or establishes procedural rules that are actually applicable to the specific domain.
+A chunk is IRRELEVANT if it is disconnected from the legal principles at hand OR if it is a procedural rule from an entirely unrelated domain (e.g., retrieving the Arms Act for a general "natural justice" query).
 
-CRITICAL INSTRUCTION: When in doubt, especially for Constitutional provisions, Supreme Court judgments, or procedural codes (like CrPC/BNS), err on the side of retaining the chunk as POTENTIALLY_RELEVANT. Do not over-filter.
+CRITICAL INSTRUCTION: Do NOT retain a chunk as SUPPORTING merely because it shares a procedural term (like 'opportunity of being heard') if the statute itself (e.g. THOT Act, Arms Act) has nothing to do with the user's facts. Err on the side of IRRELEVANT for unrelated statutes.
 
 Respond with a valid JSON array of objects, where each object has 'id' (the chunk index provided), 'classification' (one of the 3 labels), and 'reasoning' (a brief explanation)."""
 
+        from app.knowledge.metadata_utils import get_canonical_source_name
         user_prompt = f"User's Legal Query: {question}\\n\\n"
         for i, chunk in enumerate(chunks):
             meta = chunk.get("metadata", {})
-            src = meta.get("source_name", "Unknown")
+            src = get_canonical_source_name(meta)
             user_prompt += f"--- Chunk ID: {i} | Source: {src} ---\\n{chunk['document'][:800]}\\n\\n"
             
         try:
@@ -85,7 +239,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
-                        model='gemini-1.5-flash',
+                        model='gemini-3.6-flash',
                         contents=user_prompt,
                         config=types.GenerateContentConfig(
                             system_instruction=sys_prompt,
@@ -103,7 +257,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             
             valid_indices = set()
             for item in classifications:
-                if item.get("classification") in ["DIRECTLY_APPLICABLE", "POTENTIALLY_RELEVANT"]:
+                if item.get("classification") in ["PRIMARY_GOVERNING", "SUPPORTING"]:
                     valid_indices.add(item.get("id"))
                     
             filtered_chunks = [chunks[i] for i in range(len(chunks)) if i in valid_indices]
@@ -123,53 +277,86 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         if not guardrails.validate_input(question):
             return self._fallback_response("Your question violates safety or length policies.")
 
-        # 1.5 Conversational Query Rewriting
-        search_query = self._analyze_and_expand_query(question, history)
-
-        # 2. Embedding
-        emb_start = time.time()
-        try:
-            query_embedding = embedding_service.embed_query(search_query)
-        except Exception as e:
-            logger.error(f"Failed to embed query: {e}")
-            return self._fallback_response("Internal error while processing your question.")
-        emb_latency = round(time.time() - emb_start, 2)
-
-        if not query_embedding:
-            return self._fallback_response("Failed to process question text.")
+        is_complex = self._estimate_complexity(question)
+        query_analysis = {}
+        
+        if is_complex:
+            query_analysis = self._analyze_query_structured(question, history)
+            search_query = query_analysis.get("sub_queries", [question])[0]
+            predicted_domains = query_analysis.get("domains", {})
             
-        # 2.5 Pre-Search Domain Classification
-        from app.ai.domain_classifier import domain_classifier
-        domain_predictions = domain_classifier.predict_domain(search_query)
-        predicted_domains = domain_predictions.get("domains", {})
-        doc_type_priority = domain_predictions.get("document_type_priority", "any")
-
-        # 3. Hybrid Retrieval with Metadata Re-ranking
-        retrieval_start = time.time()
-        try:
-            chunks = hybrid_retriever.search(
-                query=search_query, 
-                query_embedding=query_embedding, 
-                n_results=10, 
-                where=filters,
-                predicted_domains=predicted_domains,
-                document_type_priority=doc_type_priority
-            )
-        except Exception as e:
-            logger.error(f"Vector search failed: {e}")
-            return self._fallback_response("Failed to retrieve context.")
+            # Failsafe Domain Prediction
+            if not predicted_domains:
+                from app.ai.domain_classifier import domain_classifier
+                logger.info("Structured domains empty. Falling back to domain_classifier.")
+                domain_preds = domain_classifier.predict_domain(search_query)
+                predicted_domains = domain_preds.get("domains", {})
+                
+            doc_type_priority = "any"
+            explicit_sc = query_analysis.get("explicit_sc_requested", False)
             
-        # 3.5 LEGAL RELEVANCE GATE
-        chunks = self._filter_relevant_chunks(question, chunks)
+            emb_start = time.time()
+            try:
+                query_embedding = embedding_service.embed_query(search_query)
+            except Exception as e:
+                logger.error(f"Failed to embed query: {e}")
+                return self._fallback_response("Internal error while processing your question.")
+            emb_latency = round(time.time() - emb_start, 2)
+            
+            retrieval_start = time.time()
+            try:
+                chunks = self._multi_query_retrieve(
+                    query_analysis.get("sub_queries", [question]),
+                    query_embedding,
+                    predicted_domains,
+                    doc_type_priority,
+                    filters,
+                    explicit_sc
+                )
+            except Exception as e:
+                logger.error(f"Vector search failed: {e}")
+                return self._fallback_response("Failed to retrieve context.")
+                
+        else:
+            search_query = self._analyze_and_expand_query(question, history)
+            
+            emb_start = time.time()
+            try:
+                query_embedding = embedding_service.embed_query(search_query)
+            except Exception as e:
+                logger.error(f"Failed to embed query: {e}")
+                return self._fallback_response("Internal error while processing your question.")
+            emb_latency = round(time.time() - emb_start, 2)
+            
+            if not query_embedding:
+                return self._fallback_response("Failed to process question text.")
+                
+            from app.ai.domain_classifier import domain_classifier
+            domain_predictions = domain_classifier.predict_domain(search_query)
+            predicted_domains = domain_predictions.get("domains", {})
+            doc_type_priority = domain_predictions.get("document_type_priority", "any")
 
+            retrieval_start = time.time()
+            try:
+                chunks = hybrid_retriever.search(
+                    query=search_query, 
+                    query_embedding=query_embedding, 
+                    n_results=10, 
+                    where=filters,
+                    predicted_domains=predicted_domains,
+                    document_type_priority=doc_type_priority
+                )
+            except Exception as e:
+                logger.error(f"Vector search failed: {e}")
+                return self._fallback_response("Failed to retrieve context.")
         retrieval_latency = round(time.time() - retrieval_start, 2)
         
         # Calculate Retrieval Confidence (Python Scoring)
-        r_conf_score, r_conf_label, r_conf_reason, avg_score, max_score = calculate_retrieval_confidence(chunks)
+        r_conf_score, r_conf_label, r_conf_reason, avg_score, max_score = calculate_retrieval_confidence(chunks, query_analysis if is_complex else None)
 
         # 4. Prompt Construction
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type)
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, sub_issues=query_analysis.get("sub_queries", []) if is_complex else [])
         pc_latency = round(time.time() - pc_start, 2)
         
         gen_start = time.time()
@@ -211,7 +398,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         # 7. Extract Reasoning Confidence & Append Metadata
         rs_score, rs_label = extract_reasoning_confidence(raw_answer)
         
-        used_citations = set(re.findall(r'\[(\d+)\]', raw_answer))
+        # Extract all numbers from inside brackets (e.g. [4], [4, 7])
+        used_citations = set()
+        for bracket_content in re.findall(r'\[([^\]]+)\]', raw_answer):
+            used_citations.update(re.findall(r'\d+', bracket_content))
+            
         auth_retrieved = len(chunks)
         auth_used = len(used_citations)
         
@@ -222,8 +413,9 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         for i, chunk in enumerate(chunks):
             marker_num = str(i + 1)
             if marker_num in used_citations:
+                from app.knowledge.metadata_utils import get_canonical_source_name
                 meta = chunk.get("metadata", {})
-                src_name = meta.get("source_name", "Unknown")
+                src_name = get_canonical_source_name(meta)
                 domain = meta.get("legal_domain", "")
                 
                 if meta.get("document_type") == "statute" or "Act" in src_name or "Sanhita" in src_name:
@@ -273,8 +465,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
 
     def trigger_pipeline_stream(self, question: str, filters: Dict[str, Any] = None, history: List[Dict[str, Any]] = None, task_type: str = "QA"):
         import time
-        import json
+        import re
+        import random
+        from app.knowledge.metadata_utils import get_canonical_source_name
         import asyncio
+        import json
         from app.core.config import settings
         
         overall_start = time.time()
@@ -285,46 +480,81 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             yield f"data: {json.dumps({'type': 'error', 'data': 'Your question violates safety or length policies.'})}\n\n"
             return
 
-        search_query = self._analyze_and_expand_query(question, history)
-
-        yield f"data: {json.dumps({'type': 'status', 'data': 'Searching legal corpus...'})}\n\n"
+        is_complex = self._estimate_complexity(question)
+        query_analysis = {}
         
-        emb_start = time.time()
-        try:
-            query_embedding = embedding_service.embed_query(search_query)
-        except Exception as e:
-            logger.error(f"Failed to embed query: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
-            return
-        emb_latency = round(time.time() - emb_start, 2)
-
-        if not query_embedding:
-            yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to process question text.'})}\n\n"
-            return
+        if is_complex:
+            query_analysis = self._analyze_query_structured(question, history)
+            search_query = query_analysis.get("sub_queries", [question])[0]
+            predicted_domains = query_analysis.get("domains", {})
             
-        from app.ai.domain_classifier import domain_classifier
-        domain_predictions = domain_classifier.predict_domain(search_query)
-        predicted_domains = domain_predictions.get("domains", {})
-        doc_type_priority = domain_predictions.get("document_type_priority", "any")
-
-        retrieval_start = time.time()
-        try:
-            chunks = hybrid_retriever.search(
-                query=search_query, 
-                query_embedding=query_embedding, 
-                n_results=12, # Kept at 12 to preserve accuracy
-                where=filters,
-                predicted_domains=predicted_domains,
-                document_type_priority=doc_type_priority
-            )
-        except Exception as e:
-            logger.error(f"Vector search failed: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to retrieve context.'})}\n\n"
-            return
+            # Failsafe Domain Prediction
+            if not predicted_domains:
+                from app.ai.domain_classifier import domain_classifier
+                logger.info("Structured domains empty. Falling back to domain_classifier.")
+                domain_preds = domain_classifier.predict_domain(search_query)
+                predicted_domains = domain_preds.get("domains", {})
+                
+            doc_type_priority = "any"
+            explicit_sc = query_analysis.get("explicit_sc_requested", False)
             
-        # 3.5 LEGAL RELEVANCE GATE
-        chunks = self._filter_relevant_chunks(question, chunks)
+            yield f"data: {json.dumps({'type': 'status', 'data': 'Searching legal corpus...'})}\n\n"
+            emb_start = time.time()
+            try:
+                query_embedding = embedding_service.embed_query(search_query)
+            except:
+                yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
+                return
+            emb_latency = round(time.time() - emb_start, 2)
+            
+            retrieval_start = time.time()
+            try:
+                chunks = self._multi_query_retrieve(
+                    query_analysis.get("sub_queries", [question]),
+                    query_embedding,
+                    predicted_domains,
+                    doc_type_priority,
+                    filters,
+                    explicit_sc
+                )
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to retrieve context.'})}\n\n"
+                return
+                
+        else:
+            search_query = self._analyze_and_expand_query(question, history)
+            
+            yield f"data: {json.dumps({'type': 'status', 'data': 'Searching legal corpus...'})}\n\n"
+            emb_start = time.time()
+            try:
+                query_embedding = embedding_service.embed_query(search_query)
+            except:
+                yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
+                return
+            emb_latency = round(time.time() - emb_start, 2)
+            
+            if not query_embedding:
+                yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to process question text.'})}\n\n"
+                return
+                
+            from app.ai.domain_classifier import domain_classifier
+            domain_predictions = domain_classifier.predict_domain(search_query)
+            predicted_domains = domain_predictions.get("domains", {})
+            doc_type_priority = domain_predictions.get("document_type_priority", "any")
 
+            retrieval_start = time.time()
+            try:
+                chunks = hybrid_retriever.search(
+                    query=search_query, 
+                    query_embedding=query_embedding, 
+                    n_results=12, 
+                    where=filters,
+                    predicted_domains=predicted_domains,
+                    document_type_priority=doc_type_priority
+                )
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to retrieve context.'})}\n\n"
+                return
         retrieval_latency = round(time.time() - retrieval_start, 2)
         
         # EXTRACT DETERMINISTIC METADATA EARLY
@@ -345,7 +575,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_payload})}\n\n"
 
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type)
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, sub_issues=query_analysis.get("sub_queries", []) if is_complex else [])
         pc_latency = round(time.time() - pc_start, 2)
         
         yield f"data: {json.dumps({'type': 'status', 'data': 'Generating response...'})}\n\n"
@@ -433,7 +663,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             "total_latency": total_latency
         }
         
-        used_citations = set(re.findall(r'\[(\d+)\]', full_text))
+        # Extract all numbers from inside brackets (e.g. [4], [4, 7])
+        used_citations = set()
+        for bracket_content in re.findall(r'\[([^\]]+)\]', full_text):
+            used_citations.update(re.findall(r'\d+', bracket_content))
+        
         citations = []
         for i, chunk in enumerate(chunks):
             marker_num = str(i + 1)
@@ -442,7 +676,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                 citations.append({
                     "marker": f"[{marker_num}]",
                     "text_snippet": chunk["document"][:150] + "...",
-                    "source_name": meta.get("source_name", "Unknown"),
+                    "source_name": get_canonical_source_name(meta),
                     "article_or_section": meta.get("section", meta.get("article", "Unknown")),
                     "legal_domain": meta.get("legal_domain", ""),
                     "metadata": meta,

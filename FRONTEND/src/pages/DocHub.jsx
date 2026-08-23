@@ -76,7 +76,10 @@ export default function DocHub() {
       if (!token) throw new Error('Please sign in to generate a draft.');
       const result = await generateDraft(token, userFacts, providedFields);
 
-      
+      // Set isGenerating false BEFORE updating step/draftResult
+      // so the Step 4 preview condition (step===4 && !isGenerating && draftResult)
+      // is never in a bad intermediate state that causes a blank screen.
+      setIsGenerating(false);
 
       if (result.status === "MISSING_INFO") {
 
@@ -118,11 +121,9 @@ export default function DocHub() {
 
       setError("Failed to generate draft. Please try again.");
 
-      setStep(1);
-
-    } finally {
-
       setIsGenerating(false);
+
+      setStep(1);
 
     }
 
@@ -271,11 +272,19 @@ export default function DocHub() {
 
     if (!draftResult) return null;
 
+    // Safely normalise parties: handle both Dict<str,str> and Array formats
+    const partiesEntries = Array.isArray(draftResult.parties)
+      ? draftResult.parties.map((p) => [p.role || p.name || 'Party', p.name || p.details || ''])
+      : Object.entries(draftResult.parties || {});
+
+    // Safely normalise body: handle both plain strings and section objects
+    const bodyParagraphs = (draftResult.body || []).map((item) =>
+      typeof item === 'string' ? item : item.content || item.section_title || JSON.stringify(item)
+    );
+
     return (
 
       <div className="w-[210mm] min-h-[297mm] bg-white text-black p-[25.4mm] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] mx-auto font-serif text-[12pt] leading-normal mb-10 relative">
-
-        {/* Subtle page texture/grain could go here, but keeping it clean for now */}
 
         {draftResult.title && (
 
@@ -283,17 +292,15 @@ export default function DocHub() {
 
         )}
 
-        
-
         <div className="mb-6 space-y-2">
 
-          {Object.entries(draftResult.parties).map(([key, value], idx) => (
+          {partiesEntries.map(([key, value], idx) => (
 
             <div key={idx} className="flex">
 
-              <span className="font-bold mr-2 capitalize">{key.replace('_', ' ')}:</span>
+              <span className="font-bold mr-2 capitalize">{String(key).replace(/_/g, ' ')}:</span>
 
-              <span>{value}</span>
+              <span>{String(value)}</span>
 
             </div>
 
@@ -301,19 +308,19 @@ export default function DocHub() {
 
         </div>
 
-        
-
         <div className="space-y-4 text-justify">
 
-          {draftResult.body.map((para, idx) => (
-
-            <p key={idx} className="indent-8">{para}</p>
-
-          ))}
+          {bodyParagraphs.length > 0 ? (
+            bodyParagraphs.map((para, idx) => (
+              <p key={idx} className="indent-8">{para}</p>
+            ))
+          ) : (
+            <p className="text-gray-400 italic text-center py-8">
+              No document content was returned. Please try again with more details.
+            </p>
+          )}
 
         </div>
-
-        
 
         {draftResult.verification && draftResult.verification.text && (
 
@@ -335,8 +342,6 @@ export default function DocHub() {
 
         )}
 
-        
-
         {draftResult.signature_blocks && draftResult.signature_blocks.length > 0 && (
 
           <div className="mt-16 flex flex-col items-end gap-12">
@@ -356,8 +361,6 @@ export default function DocHub() {
           </div>
 
         )}
-
-        
 
         {draftResult.annexures && draftResult.annexures.length > 0 && (
 

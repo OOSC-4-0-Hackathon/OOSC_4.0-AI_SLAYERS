@@ -99,7 +99,9 @@ class LegalStructuralChunker:
         
         # Build context string for the text itself to help Dense Retrieval
         context_prefix = []
-        if metadata.get("source_name"): context_prefix.append(metadata["source_name"])
+        from app.knowledge.metadata_utils import get_canonical_source_name
+        src_name = get_canonical_source_name(metadata)
+        if src_name and src_name != "Unknown": context_prefix.append(src_name)
         if context["Chapter"]: context_prefix.append(f"Chapter {context['Chapter']}")
         if context["Section"]: context_prefix.append(f"Section {context['Section']}")
         if context["Article"]: context_prefix.append(f"Article {context['Article']}")

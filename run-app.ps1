@@ -35,7 +35,7 @@ if (-not (Test-PortOpen 3000)) {
     Start-ServiceProcess 'frontend' 'npm.cmd' @('run', 'dev', '--', '--host', '127.0.0.1') $frontend
 }
 
-$deadline = (Get-Date).AddSeconds(30)
+$deadline = (Get-Date).AddSeconds(60)
 while ((Get-Date) -lt $deadline) {
     if ((Test-PortOpen 8000) -and (Test-PortOpen 3000)) {
         Write-Host "NYAAY AI is running at $url"
@@ -45,4 +45,4 @@ while ((Get-Date) -lt $deadline) {
     Start-Sleep -Milliseconds 500
 }
 
-throw 'NYAAY AI did not start within 30 seconds. Check BACKEND\logs and FRONTEND\logs.'
+throw 'NYAAY AI did not start within 60 seconds. Check BACKEND\logs and FRONTEND\logs.'

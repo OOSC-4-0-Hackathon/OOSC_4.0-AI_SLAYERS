@@ -57,13 +57,19 @@ Respond strictly in JSON format matching this schema:
 }}{fields_hint}"""
         
         import time
+<<<<<<< HEAD
         models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-lite-latest']
+=======
+        from app.core.key_rotator import key_rotator
+        models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash']
+>>>>>>> 4d79712 (Fix Rights Navigator inconsistency, General Source Identity bug, Legal Applicability, and chat title generation)
         max_retries = 3
         
         for attempt in range(max_retries):
             model_name = models_to_try[attempt % len(models_to_try)]
             try:
-                response = self.client.models.generate_content(
+                temp_client = genai.Client(api_key=key_rotator.get())
+                response = temp_client.models.generate_content(
                     model=model_name,
                     contents=user_facts,
                     config=types.GenerateContentConfig(
@@ -89,12 +95,18 @@ Respond strictly in JSON format matching this schema:
         sys_prompt += f"\n\nOUTPUT FORMAT:\nYou MUST return a single JSON object strictly adhering to this schema:\n{json.dumps(schema_str, indent=2)}\nDo NOT include markdown wrapping like ```json."
         
         import time
+<<<<<<< HEAD
         models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-lite-latest']
+=======
+        from app.core.key_rotator import key_rotator
+        models_to_try = ['gemini-3.6-flash', 'gemini-2.5-flash']
+>>>>>>> 4d79712 (Fix Rights Navigator inconsistency, General Source Identity bug, Legal Applicability, and chat title generation)
         
         for attempt in range(retries + 1):
             model_name = models_to_try[attempt % len(models_to_try)]
             try:
-                response = self.client.models.generate_content(
+                temp_client = genai.Client(api_key=key_rotator.get())
+                response = temp_client.models.generate_content(
                     model=model_name,
                     contents=prompt,
                     config=types.GenerateContentConfig(
@@ -186,25 +198,36 @@ If the user facts miss ANY of the mandatory fields for the chosen template, list
 OUTPUT FORMAT:
 You MUST return a JSON object strictly adhering to this schema:
 {{
-  "document_type": "string (the selected template name)",
-  "missing_essential_fields": ["list of strings", "empty if all mandatory fields present"],
+  "document_type": "string (the selected template name, e.g. LEGAL_NOTICE)",
+  "missing_essential_fields": ["list of strings, empty array if all fields present"],
   "document_object": {{
-      // MUST MATCH StructuredDocumentObject Schema exactly
-      "metadata": {{"title": "string", "version": 1, "document_type": "string"}},
-      "parties": [{{"role": "string", "name": "string", "details": "string"}}],
-      "body": [{{"section_title": "string", "content": "string", "is_editable": true}}]
+      "document_type": "string (same as above, e.g. LEGAL_NOTICE)",
+      "title": "string (full formal title of the document)",
+      "metadata": {{"version": 1, "created_at": "ISO datetime string", "language": "en"}},
+      "parties": {{"complainant": "Full name and address", "respondent": "Full name and address"}},
+      "body": ["Paragraph 1 as a plain string", "Paragraph 2 as a plain string", "...more paragraphs"],
+      "annexures": ["Annexure A - Description", "Annexure B - Description"],
+      "signature_blocks": ["Complainant / Petitioner", "Advocate (if applicable)"],
+      "verification": {{"date": "[Date]", "place": "[Place]", "text": "Verification paragraph text"}},
+      "missing_fields": [],
+      "citations_used": ["Section X of Act Y"]
   }}
 }}
-Do NOT include markdown wrapping like ```json.
+IMPORTANT:
+- `parties` MUST be a flat key-value dictionary (object), NOT an array.
+- `body` MUST be a flat array of plain paragraph strings, NOT objects with section_title/content keys.
+- Do NOT include markdown wrapping like ```json.
 """
         import time
-        max_retries = 2
+        max_retries = 3
+        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
         for attempt in range(max_retries):
+            model_name = models_to_try[attempt % len(models_to_try)]
             try:
                 from app.core.key_rotator import key_rotator
                 temp_client = genai.Client(api_key=key_rotator.get())
                 response = temp_client.models.generate_content(
-                    model='gemini-1.5-flash',
+                    model=model_name,
                     contents=f"User Facts:\n{user_facts}\n\n{context_str}",
                     config=types.GenerateContentConfig(
                         system_instruction=sys_prompt,

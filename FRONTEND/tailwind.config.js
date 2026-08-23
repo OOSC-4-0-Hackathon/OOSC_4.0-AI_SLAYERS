@@ -20,10 +20,10 @@ export default {
           fog: '#A8A39A',
         },
         paper: {
-          DEFAULT: '#F5F0E8',
-          warm: '#EDE8DD',
-          rule: '#D4CFC4',
-          border: '#C8C3B8',
+          DEFAULT: '#FFFFFF',
+          warm: '#F9F8F5',
+          rule: '#E4DFD5',
+          border: '#D4CFC4',
         },
         amber: {
           DEFAULT: '#C8821A',
@@ -32,19 +32,19 @@ export default {
           dark: '#7A4F0D',
         },
         // Semantic aliases (keep old names working for untouched pages)
-        background: '#F5F0E8',
-        surface: '#EDE8DD',
+        background: '#FFFFFF',
+        surface: '#F9F8F5',
         primary: {
           DEFAULT: '#1A1814',
           hover: '#2C2A26',
         },
         secondary: {
-          DEFAULT: '#EDE8DD',
-          hover: '#D4CFC4',
+          DEFAULT: '#F9F8F5',
+          hover: '#E4DFD5',
         },
         border: {
-          DEFAULT: '#D4CFC4',
-          hover: '#C8C3B8',
+          DEFAULT: '#E4DFD5',
+          hover: '#D4CFC4',
         },
         text: {
           primary: '#1A1814',
