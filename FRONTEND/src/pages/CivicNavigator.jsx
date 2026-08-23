@@ -101,7 +101,7 @@ export default function CivicNavigatorPage() {
         onTabChange={handleTabChange}
       />
 
-      <main className="flex-1 bg-[#F9F8F5] pt-[104px]">
+      <main className="flex-1 bg-[#F9F8F5] pt-[104px] min-h-[calc(100vh-104px)] flex flex-col justify-between">
         {activeTab === 'navigator' && (
           <StudioCivicNavigator
             initialQuery={presetQueryText}

@@ -61,7 +61,9 @@ interface Props {
   onOpenDossierInNavigator?: (query: string) => void;
 }
 
-export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Props) {
+function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>('typing');
   const [typed, setTyped] = useState('');
@@ -72,6 +74,18 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
   const cardRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => setIsVisible(entry.isIntersecting));
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const scenario = SCENARIOS[scenarioIdx];
 
@@ -93,6 +107,7 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
 
   useEffect(() => {
     clearTimers();
+    if (!isVisible) return;
 
     if (phase === 'typing') {
       let i = typed.length;
@@ -166,11 +181,63 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
 
   const isComplete = phase === 'done';
 
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+  // Compute active pipeline stage index (0..4) for progress rail
+  const currentStageIndex = 
+    phase === 'done' || phase === 'parts' || phase === 'ttft' ? 4 :
+    phase === 'funnel' ? (funnelStep >= 2 ? 3 : 2) :
+    typed.length > 20 ? 1 : 0;
 
-      {/* LEFT: Input + Funnel */}
-      <div className="space-y-4">
+  const STAGES = [
+    { num: '01', name: 'Query', sub: 'Input Intake' },
+    { num: '02', name: 'Classify', sub: '0ms Regex Route' },
+    { num: '03', name: 'Retrieve', sub: 'Chroma Dense' },
+    { num: '04', name: 'Rank', sub: 'BM25 + RRF' },
+    { num: '05', name: 'Stream', sub: '5-Part Dossier' },
+  ];
+
+  return (
+    <div ref={containerRef} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+
+      {/* ZONE 1: Vertical Progress Rail */}
+      <div className="hidden lg:flex lg:col-span-2 flex-col space-y-3 p-4 bg-white border border-[#E4DFD5] rounded-[4px] shadow-2xs">
+        <div className="font-mono text-[10px] font-bold text-[#7A8699] uppercase tracking-wider pb-2 border-b border-[#E4DFD5]">
+          PIPELINE STAGE
+        </div>
+        <div className="relative space-y-4 pt-1">
+          {STAGES.map((stg, idx) => {
+            const isCurrent = currentStageIndex === idx;
+            const isPassed = currentStageIndex > idx;
+            return (
+              <div key={stg.num} className="flex items-start space-x-3 relative group">
+                {/* Status Dot */}
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[9px] font-bold border transition-all shrink-0 mt-0.5 ${
+                  isCurrent
+                    ? 'bg-[#C84B31] text-white border-[#C84B31] shadow-xs'
+                    : isPassed
+                    ? 'bg-[#121820] text-white border-[#121820]'
+                    : 'bg-[#F2EFE9] text-[#7A8699] border-[#DDD6C9]'
+                }`}>
+                  {isPassed ? '✓' : stg.num}
+                </div>
+                {/* Stage Text */}
+                <div className="space-y-0.5">
+                  <div className={`font-mono text-xs font-bold transition-colors ${
+                    isCurrent ? 'text-[#C84B31]' : isPassed ? 'text-[#121820]' : 'text-[#7A8699]'
+                  }`}>
+                    {stg.name}
+                  </div>
+                  <div className="font-mono text-[9px] text-[#7A8699] leading-tight">
+                    {stg.sub}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ZONE 2: Input + Funnel */}
+      <div className="lg:col-span-4 space-y-4">
         {/* Faux terminal input */}
         <div className="bg-[#F9F8F5] border border-[#E4DFD5] rounded-[4px] p-4">
           <div className="font-mono text-[10px] text-[#7A8699] uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -197,7 +264,7 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
           {[
             { step: 0, label: 'ACTS', from: 93, to: 93, desc: 'Indexed corpus' },
             { step: 1, label: 'CHUNKS', from: 1400, to: 34, desc: 'RRF retrieved' },
-            { step: 2, label: 'MATCH', from: null, to: 1, desc: '// ROUTING' },
+            { step: 2, label: 'MATCH', from: null, to: 1, desc: 'ROUTING' },
           ].map(({ step, label, to, desc }) => {
             const isActive = funnelStep >= step;
             return (
@@ -247,7 +314,7 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
         )}
       </div>
 
-      {/* RIGHT: 5-Part Dossier Preview with parallax tilt */}
+      {/* ZONE 3: 5-Part Dossier Preview with parallax tilt */}
       <div
         ref={cardRef}
         onMouseMove={handleMouseMove}
@@ -256,7 +323,7 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
           transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
           transition: 'transform 120ms ease',
         }}
-        className="border border-[#E4DFD5] bg-white rounded-[4px] overflow-hidden shadow-sm"
+        className="lg:col-span-6 border border-[#E4DFD5] bg-white rounded-[4px] overflow-hidden shadow-sm"
       >
         {/* Header */}
         <div className="bg-[#121820] px-4 py-3 flex items-center justify-between">
@@ -308,3 +375,6 @@ export default function HeroPipelineAnimation({ onOpenDossierInNavigator }: Prop
     </div>
   );
 }
+
+export default React.memo(HeroPipelineAnimationComponent);
+

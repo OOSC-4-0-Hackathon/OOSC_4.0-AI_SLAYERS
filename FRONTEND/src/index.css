@@ -66,6 +66,15 @@
 }
 
 @layer utilities {
+  /* GPU Hardware Acceleration for smooth scrolling and animations */
+  .transform-gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  .will-change-transform {
+    will-change: transform;
+  }
+
   /* Case file label treatment */
   .label-stamp {
     font-family: 'Inter', sans-serif;

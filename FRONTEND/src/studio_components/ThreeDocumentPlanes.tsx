@@ -101,7 +101,7 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
   return texture;
 }
 
-export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
+const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   activeActId = 'rti-2005',
   isConverging = true,
   onSelectAct,
@@ -349,12 +349,26 @@ export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
     domEl.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointerup', handlePointerUp);
 
+    // Intersection Observer to pause rendering when offscreen
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          isVisible = entry.isIntersecting;
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
     // Animation Loop
     let animationFrameId: number;
     let clock = new THREE.Clock();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+      if (!isVisible) return; // Skip rendering when scrolled offscreen!
+
       const elapsedTime = clock.getElapsedTime();
 
       // Smooth camera/group rotational sway + drag inertia
@@ -368,15 +382,18 @@ export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
         const isActive = p.act.id === selectedActState;
         const isHovered = hoveredAct?.id === p.act.id;
 
-        // Recalculate target positions if activeAct changed
+        const desiredTex = isActive ? p.activeTexture : p.texture;
+        if (p.mat.map !== desiredTex) {
+          p.mat.map = desiredTex;
+          p.mat.needsUpdate = true;
+        }
+
         let targetP: THREE.Vector3;
         let targetR: THREE.Euler;
 
         if (isActive) {
           targetP = new THREE.Vector3(0, 0.45, 3.5);
           targetR = new THREE.Euler(0, 0, 0);
-          p.mat.map = p.activeTexture;
-          p.mat.needsUpdate = true;
           (p.border.material as THREE.LineBasicMaterial).color.setHex(0xC84B31);
           (p.border.material as THREE.LineBasicMaterial).opacity = 1.0;
         } else {
@@ -392,7 +409,6 @@ export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
             (p.border.material as THREE.LineBasicMaterial).color.setHex(0x121820);
             (p.border.material as THREE.LineBasicMaterial).opacity = 0.9;
           } else {
-            p.mat.map = p.texture;
             (p.border.material as THREE.LineBasicMaterial).color.setHex(0x8896A6);
             (p.border.material as THREE.LineBasicMaterial).opacity = 0.4;
           }
@@ -427,6 +443,7 @@ export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
     resizeObserver.observe(container);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       domEl.removeEventListener('pointermove', handlePointerMove);
@@ -600,3 +617,5 @@ export const ThreeDocumentPlanes: React.FC<ThreeDocumentPlanesProps> = ({
     </div>
   );
 };
+
+export const ThreeDocumentPlanes = React.memo(ThreeDocumentPlanesComponent);
