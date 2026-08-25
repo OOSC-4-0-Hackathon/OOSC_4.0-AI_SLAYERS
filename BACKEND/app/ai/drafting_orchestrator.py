@@ -58,7 +58,7 @@ Respond strictly in JSON format matching this schema:
         
         import time
         from app.core.key_rotator import key_rotator
-        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
+        models_to_try = ['gemini-3.6-flash', 'gemini-flash-lite-latest']
         max_retries = 3
         
         for attempt in range(max_retries):
@@ -92,7 +92,7 @@ Respond strictly in JSON format matching this schema:
         
         import time
         from app.core.key_rotator import key_rotator
-        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
+        models_to_try = ['gemini-3.6-flash', 'gemini-flash-lite-latest']
         
         for attempt in range(retries + 1):
             model_name = models_to_try[attempt % len(models_to_try)]
@@ -212,7 +212,7 @@ IMPORTANT:
 """
         import time
         max_retries = 3
-        models_to_try = ['gemini-3.6-flash', 'gemini-3.6-pro']
+        models_to_try = ['gemini-3.6-flash', 'gemini-flash-lite-latest']
         for attempt in range(max_retries):
             model_name = models_to_try[attempt % len(models_to_try)]
             try:

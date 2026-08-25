@@ -18,10 +18,12 @@ class RerankerService:
         
         try:
             scores = self.model.predict(pairs)
-            
+            import math
             # Attach scores and sort
             for i, chunk in enumerate(chunks):
-                chunk["metadata"]["reranker_score"] = float(scores[i])
+                logit = float(scores[i])
+                chunk["metadata"]["reranker_score"] = logit
+                chunk["metadata"]["final_score"] = 1.0 / (1.0 + math.exp(-logit))
                 
             # Sort by descending score
             ranked_chunks = sorted(chunks, key=lambda x: x["metadata"]["reranker_score"], reverse=True)

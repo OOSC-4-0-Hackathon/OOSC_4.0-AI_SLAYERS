@@ -1,14 +1,6 @@
 import logging
 from typing import List, Dict, Any, Optional
-from rank_bm25 import BM25Okapi
-import nltk
-
-# Ensure nltk punkt is downloaded for tokenization
-try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt', quiet=True)
-    nltk.download('punkt_tab', quiet=True)
+import numpy as np
 
 from app.knowledge.vector_store import vector_store
 from app.knowledge.bm25_manager import bm25_manager
@@ -19,12 +11,10 @@ from app.core.config import settings
 
 class HybridRetriever:
     def __init__(self):
-        # We could cache BM25 indices here, keyed by tenant_id or document_id
-        self._bm25_cache = {}
-        self._corpus_cache = {}
+        pass # removed unused _bm25_cache and _corpus_cache per out-of-scope cleanup
 
     def search(self, query: str, query_embedding: List[float], n_results: int = 10, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any", domain_multiplier_weight: float = 0.10) -> List[Dict[str, Any]]:
-        # 1. Dense Retrieval (ChromaDB) - Broaden to Top 20 for each collection
+        # 1. Dense Retrieval (ChromaDB)
         initial_k = 20
         dense_results = vector_store.search(query_embedding, n_results=initial_k, where=where, search_sc=True)
         
@@ -39,7 +29,7 @@ class HybridRetriever:
                         tenant_id = cond["tenant_id"]
                         break
 
-        bm25, corpus_ids, corpus_docs, corpus_metadatas = bm25_manager.get_index(tenant_id)
+        bm25, corpus_ids, corpus_docs, corpus_metadatas, id_to_index = bm25_manager.get_index(tenant_id)
         
         if not bm25 or not corpus_docs:
             return dense_results[:n_results]
@@ -74,44 +64,36 @@ class HybridRetriever:
             chunk_id = res["id"]
             base_rrf = (1.0 / (60 + rank))
             multiplier = calculate_metadata_multiplier(res["metadata"])
-            rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0) + (base_rrf * multiplier)
+            rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0.0) + (base_rrf * multiplier)
             
-        # Rank Sparse (Top 30 from BM25)
-        sparse_ranking = sorted(range(len(bm25_scores)), key=lambda i: bm25_scores[i], reverse=True)
-        for rank, idx in enumerate(sparse_ranking[:30]):
+        # Rank Sparse (Top 30 from BM25) - using partial sort (B3) and correct multiplier (A2)
+        k_sparse = 30
+        if len(bm25_scores) > k_sparse:
+            top_idx = np.argpartition(bm25_scores, -k_sparse)[-k_sparse:]
+            sparse_ranking = top_idx[np.argsort(bm25_scores[top_idx])[::-1]]
+        else:
+            sparse_ranking = np.argsort(bm25_scores)[::-1]
+
+        for rank, idx in enumerate(sparse_ranking):
+            idx = int(idx)
             chunk_id = corpus_ids[idx]
-            base_rrf = (1.0 / (60 + rank))
+            base_rrf = 1.0 / (60 + rank)
+            multiplier = calculate_metadata_multiplier(corpus_metadatas[idx])
+            rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0.0) + (base_rrf * multiplier)
             
-            # Avoid double-counting the multiplier if it was already seen in dense
-            if chunk_id not in rrf_scores:
-                multiplier = calculate_metadata_multiplier(corpus_metadatas[idx])
-                rrf_scores[chunk_id] = (base_rrf * multiplier)
-            else:
-                rrf_scores[chunk_id] += (base_rrf * multiplier)
-            
-        # 4. Sort and apply Confidence Threshold
+        # 4. Sort and apply Candidate Pool limit (A1)
         sorted_rrf = sorted(rrf_scores.items(), key=lambda item: item[1], reverse=True)
+        candidate_pool = getattr(settings, "RERANK_CANDIDATE_POOL", 30)
+        top_ids = [cid for cid, _ in sorted_rrf[:candidate_pool]]
         
-        threshold = getattr(settings, "MIN_RETRIEVAL_THRESHOLD", 0.005)
-        filtered_ids = [item[0] for item in sorted_rrf if item[1] >= threshold]
+        # 5. Reconstruct the candidate list of dicts (O(K) lookups) (B7)
+        dense_by_id = {r["id"]: r for r in dense_results}
+        sparse_id_set = {corpus_ids[int(i)] for i in sparse_ranking}
         
-        # Take up to 20 for reranking
-        top_ids = filtered_ids[:20]
-        
-        # Reconstruct the candidate list of dicts
         candidate_results = []
         for rank, cid in enumerate(top_ids):
-            found_dense = None
-            for res in dense_results:
-                if res["id"] == cid:
-                    found_dense = res
-                    break
-            
-            is_sparse = False
-            for idx in sparse_ranking[:30]:
-                if corpus_ids[idx] == cid:
-                    is_sparse = True
-                    break
+            found_dense = dense_by_id.get(cid)
+            is_sparse = cid in sparse_id_set
             
             retrieval_method = "hybrid" if (found_dense and is_sparse) else "dense" if found_dense else "sparse"
             
@@ -121,24 +103,27 @@ class HybridRetriever:
                 found_dense["metadata"]["rrf_score"] = rrf_scores[cid]
                 candidate_results.append(found_dense)
             else:
-                idx = corpus_ids.index(cid)
-                candidate_results.append({
-                    "id": cid,
-                    "document": corpus_docs[idx],
-                    "metadata": {
-                        **corpus_metadatas[idx],
-                        "retrieval_method": retrieval_method,
-                        "rrf_rank": rank + 1,
-                        "rrf_score": rrf_scores[cid]
-                    },
-                    "distance": 0.0 
-                })
+                idx = id_to_index.get(cid)
+                if idx is not None:
+                    candidate_results.append({
+                        "id": cid,
+                        "document": corpus_docs[idx],
+                        "metadata": {
+                            **corpus_metadatas[idx],
+                            "retrieval_method": retrieval_method,
+                            "rrf_rank": rank + 1,
+                            "rrf_score": rrf_scores[cid]
+                        },
+                        "distance": 0.0 
+                    })
                 
-        # 5. Cross-Encoder Reranking
+        # 6. Cross-Encoder Reranking
         if candidate_results:
             from app.knowledge.reranker import reranker_service
-            # Rerank and return top N
             final_results = reranker_service.rerank(query, candidate_results, top_k=n_results)
+            # A3/A4: Mirror final_score to rrf_score for downstream compat
+            for r in final_results:
+                r["metadata"]["rrf_score"] = r["metadata"].get("final_score", r["metadata"].get("rrf_score", 0.0))
         else:
             final_results = []
             
@@ -160,7 +145,7 @@ class HybridRetriever:
         dense_sc = [r for r in dense_results if 'SC_' in r['id'] or r['metadata'].get('court_level') == 'Supreme Court']
         
         # 3. BM25 Search
-        bm25, corpus_ids, corpus_docs, corpus_metadatas = bm25_manager.get_index("global")
+        bm25, corpus_ids, corpus_docs, corpus_metadatas, id_to_index = bm25_manager.get_index("global")
         bm25_sc = []
         if bm25 and corpus_docs:
             query_tokens = bm25_manager.tokenize_text(query)
@@ -171,9 +156,16 @@ class HybridRetriever:
                 filtered_tokens = query_tokens
                 
             doc_scores = bm25.get_scores(filtered_tokens)
-            top_bm25_indices = sorted(range(len(doc_scores)), key=lambda i: doc_scores[i], reverse=True)[:initial_k*2]
+            # B3: use argpartition for SC as well
+            k_sc = initial_k * 2
+            if len(doc_scores) > k_sc:
+                top_idx = np.argpartition(doc_scores, -k_sc)[-k_sc:]
+                top_bm25_indices = top_idx[np.argsort(doc_scores[top_idx])[::-1]]
+            else:
+                top_bm25_indices = np.argsort(doc_scores)[::-1]
             
             for idx in top_bm25_indices:
+                idx = int(idx)
                 score = doc_scores[idx]
                 if score <= 0: continue
                 c_id = corpus_ids[idx]
@@ -220,10 +212,9 @@ class HybridRetriever:
             from app.knowledge.reranker import reranker_service
             ranked_sc = reranker_service.rerank(query, candidate_results, top_k=n_results)
             for chunk in ranked_sc:
-                # Map reranker score to rrf_score to prevent truncation
-                chunk["metadata"]["rrf_score"] = max(0.01, chunk["metadata"].get("reranker_score", 0.0))
+                # A3/A4: Mirror final_score to rrf_score to prevent truncation against real RRF scores
+                chunk["metadata"]["rrf_score"] = chunk["metadata"].get("final_score", 0.0)
             return ranked_sc
         return []
 
 hybrid_retriever = HybridRetriever()
-
