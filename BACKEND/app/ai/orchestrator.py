@@ -119,13 +119,11 @@ Output ONLY the JSON. No explanation."""
             
         import concurrent.futures
         
-        embeddings = []
-        for sq in sub_queries:
-            try:
-                emb = embedding_service.embed_query(sq)
-                embeddings.append(emb)
-            except:
-                embeddings.append(base_query_embedding)
+        prefix = "Represent this sentence for searching relevant passages: "
+        try:
+            embeddings = embedding_service.embed_texts([prefix + sq for sq in sub_queries])
+        except Exception:
+            embeddings = [base_query_embedding] * len(sub_queries)
                 
         all_results = []
         
@@ -174,7 +172,7 @@ Output ONLY the JSON. No explanation."""
                 dedup_map[cid] = r
             else:
                 dedup_map[cid]["metadata"]["sub_issue_ids"].update(r["metadata"]["sub_issue_ids"])
-                if r.get("metadata", {}).get("rrf_score", 0) > dedup_map[cid].get("metadata", {}).get("rrf_score", 0):
+                if r.get("metadata", {}).get("final_score", 0) > dedup_map[cid].get("metadata", {}).get("final_score", 0):
                     # Keep the higher score, but maintain merged sub_issue_ids
                     merged_issues = dedup_map[cid]["metadata"]["sub_issue_ids"]
                     dedup_map[cid] = r
@@ -190,7 +188,7 @@ Output ONLY the JSON. No explanation."""
         for r in unique_results:
             r['metadata']['sub_issue_ids'] = list(r['metadata']['sub_issue_ids'])
             
-        unique_results.sort(key=lambda x: x.get("metadata", {}).get("rrf_score", 0), reverse=True)
+        unique_results.sort(key=lambda x: x.get("metadata", {}).get("final_score", 0), reverse=True)
         
         target_total = 20
         per_issue_target = max(1, target_total // len(sub_queries))
