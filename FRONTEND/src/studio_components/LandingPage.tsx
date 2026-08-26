@@ -561,7 +561,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       {fivePartArchitecture[activeStepPinned].badge}
                     </span>
                   </div>
-                  <div className="font-mono text-[11px] text-[#667085]">
+                  {/* On #121820, #667085 is 3.70:1 — fails AA. #7A8699 is 4.84:1
+                      and still reads below the #A2B1C6 badge beside it. */}
+                  <div className="font-mono text-[11px] text-[#7A8699]">
                     GROUNDED DOSSIER VIEW
                   </div>
                 </div>
@@ -803,7 +805,7 @@ const ScrollRevealSection: React.FC = React.memo(() => {
           </p>
         </div>
 
-        <div className="pt-8 border-t border-[#2B3542] flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#667085]">
+        <div className="pt-8 border-t border-[#2B3542] flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#7A8699]">
           <div>NYAAY ENGINE: RETRIEVAL-AUGMENTED STATUTORY DOSSIER</div>
           <div className="text-[#C84B31] font-semibold">DETERMINISTIC JURISDICTION ROUTING</div>
         </div>
