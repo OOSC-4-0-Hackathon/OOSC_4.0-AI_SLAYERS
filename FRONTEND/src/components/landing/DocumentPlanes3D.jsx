@@ -20,22 +20,22 @@ const STATIC_FALLBACK = (
           x={20 + i * 6} y={20 + i * 8}
           width={200} height={150}
           rx="2"
-          fill={i === 7 ? '#F9EDD5' : '#EDE8DD'}
-          stroke={i === 7 ? '#C8821A' : '#D4CFC4'}
+          fill={i === 7 ? '#FAEAE7' : '#F2EFE9'}
+          stroke={i === 7 ? '#C84B31' : '#D5CEC2'}
           strokeWidth={i === 7 ? 1.5 : 0.75}
           opacity={0.4 + i * 0.075}
         />
       ))}
       {/* Highlighted "retrieved" plane */}
       <rect x={32} y={42} width={200} height={150} rx="2"
-        fill="#F9EDD5" stroke="#C8821A" strokeWidth="1.5"
+        fill="#FAEAE7" stroke="#C84B31" strokeWidth="1.5"
       />
-      <line x1={52} y1={70} x2={212} y2={70} stroke="#D4CFC4" strokeWidth="1"/>
-      <line x1={52} y1={88} x2={180} y2={88} stroke="#D4CFC4" strokeWidth="1"/>
-      <line x1={52} y1={106} x2={196} y2={106} stroke="#D4CFC4" strokeWidth="1"/>
-      <rect x={52} y={128} width={60} height={14} rx="2" fill="#C8821A" opacity="0.15"/>
-      <line x1={52} y1={135} x2={108} y2={135} stroke="#C8821A" strokeWidth="1.5"/>
-      <text x={52} y={58} fontFamily="monospace" fontSize="8" fill="#7A7469" letterSpacing="1">RTI ACT, 2005 — SEC. 7</text>
+      <line x1={52} y1={70} x2={212} y2={70} stroke="#D5CEC2" strokeWidth="1"/>
+      <line x1={52} y1={88} x2={180} y2={88} stroke="#D5CEC2" strokeWidth="1"/>
+      <line x1={52} y1={106} x2={196} y2={106} stroke="#D5CEC2" strokeWidth="1"/>
+      <rect x={52} y={128} width={60} height={14} rx="2" fill="#C84B31" opacity="0.15"/>
+      <line x1={52} y1={135} x2={108} y2={135} stroke="#C84B31" strokeWidth="1.5"/>
+      <text x={52} y={58} fontFamily="monospace" fontSize="8" fill="#667085" letterSpacing="1">RTI ACT, 2005 — SEC. 7</text>
     </svg>
   </div>
 );

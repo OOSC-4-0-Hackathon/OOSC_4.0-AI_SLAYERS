@@ -108,7 +108,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
             <EmptyState
-              icon={<span className="font-serif italic text-[22px] font-bold text-[#C8821A]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
+              icon={<span className="font-serif italic text-[22px] font-bold text-[#C84B31]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
               eyebrow="KANOON Q&A"
               title={<>Ask any legal question.<br /><span className="italic font-normal">Get a statute-grounded answer.</span></>}
               subtitle="Indian law, grounded in statute."

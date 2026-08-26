@@ -94,7 +94,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         
         <div className="max-w-3xl relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-[#EFECE6] text-xs font-mono text-[#8C271E] font-bold mb-3">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-[#F2EFE9] text-xs font-mono text-[#8C271E] font-bold mb-3">
             <ShieldCheck className="w-3.5 h-3.5 text-[#C84B31]" />
             <span>STATUTORY & WELFARE ENTITLEMENT READER</span>
           </div>
@@ -108,7 +108,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
           {/* Persona Quick Filters */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-mono text-[#718096] mr-1 flex items-center gap-1">
+            <span className="text-xs font-mono text-[#556377] mr-1 flex items-center gap-1">
               <Filter className="w-3 h-3" /> Filter by Profile:
             </span>
             {[
@@ -143,7 +143,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
         <div className="lg:col-span-4 space-y-6">
           {/* Quick Profile Audit Box */}
           <div className="bg-white border border-[#E4DFD5] rounded-xl p-5 shadow-xs">
-            <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-[#EFECE6]">
+            <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-[#F2EFE9]">
               <Sparkles className="w-4 h-4 text-[#C84B31]" />
               <h2 className="font-serif font-bold text-base text-[#121820]">
                 Instant Plain-Language Audit
@@ -220,7 +220,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
           {/* Category Filter Pills */}
           <div className="bg-[#FAF7F2] border border-[#E4DFD5] rounded-xl p-4 text-xs font-mono">
-            <span className="text-[#718096] block mb-2 font-bold uppercase tracking-wider">
+            <span className="text-[#556377] block mb-2 font-bold uppercase tracking-wider">
               Statutory Categories
             </span>
             <div className="space-y-1.5">
@@ -239,7 +239,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
                     selectedCategory === cat.id
                       ? 'bg-white border border-[#121820] text-[#121820] font-bold shadow-xs'
-                      : 'text-[#556377] hover:bg-[#EFECE6]'
+                      : 'text-[#556377] hover:bg-[#F2EFE9]'
                   }`}
                 >
                   <span>{cat.label}</span>
@@ -265,7 +265,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
         <div className="lg:col-span-8 space-y-6">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#718096]" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#556377]" />
             <input
               type="text"
               placeholder="Search scheme name, ministry, keyword (e.g. 'hospital', 'gratuity', '₹6000', 'housing', 'daughter')..."
@@ -279,7 +279,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
           <div className="space-y-4">
             {filteredSchemes.length === 0 ? (
               <div className="p-8 text-center bg-white border border-[#E4DFD5] rounded-xl">
-                <p className="text-sm text-[#718096]">No welfare schemes matched your search criteria.</p>
+                <p className="text-sm text-[#556377]">No welfare schemes matched your search criteria.</p>
                 <button
                   onClick={() => {
                     setSearchQuery('');
@@ -314,7 +314,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                           <span className="px-2.5 py-0.5 rounded bg-[#FAF7F2] text-[#8C271E] font-mono text-xs font-bold border border-[#E4DFD5]">
                             {scheme.code}
                           </span>
-                          <span className="text-xs font-mono text-[#718096]">
+                          <span className="text-xs font-mono text-[#556377]">
                             {scheme.ministry}
                           </span>
                         </div>
@@ -330,7 +330,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
                       {/* Right Benefit Badge */}
                       <div className="sm:text-right shrink-0 bg-[#FAF7F2] sm:bg-transparent p-3 sm:p-0 rounded-lg sm:rounded-none border sm:border-0 border-[#E4DFD5]">
-                        <span className="text-[11px] font-mono uppercase text-[#718096] block">
+                        <span className="text-[11px] font-mono uppercase text-[#556377] block">
                           Statutory Benefit
                         </span>
                         <span className="font-serif font-bold text-sm sm:text-base text-[#C84B31]">
@@ -341,11 +341,11 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
 
                     {/* Expanded Detail Panel */}
                     {isExpanded && (
-                      <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-[#EFECE6] space-y-6 text-sm">
+                      <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-[#F2EFE9] space-y-6 text-sm">
                         {/* Target & Benefit Breakdown */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#FAF7F2] p-4 rounded-xl border border-[#E4DFD5]">
                           <div>
-                            <span className="text-xs font-mono font-bold text-[#718096] uppercase block mb-1">
+                            <span className="text-xs font-mono font-bold text-[#556377] uppercase block mb-1">
                               Target Beneficiaries
                             </span>
                             <p className="text-xs text-[#121820] leading-relaxed">
@@ -353,7 +353,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                             </p>
                           </div>
                           <div>
-                            <span className="text-xs font-mono font-bold text-[#718096] uppercase block mb-1">
+                            <span className="text-xs font-mono font-bold text-[#556377] uppercase block mb-1">
                               Max Entitlement Cap
                             </span>
                             <p className="text-xs text-[#121820] font-medium leading-relaxed">
@@ -399,7 +399,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                             {scheme.requiredDocuments.map((doc, idx) => (
                               <div 
                                 key={idx}
-                                className="flex items-center space-x-2 p-2.5 rounded-lg border border-[#E4DFD5] bg-white text-xs text-[#2D3748]"
+                                className="flex items-center space-x-2 p-2.5 rounded-lg border border-[#E4DFD5] bg-white text-xs text-[#475467]"
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#C84B31] shrink-0" />
                                 <span>{doc}</span>
@@ -428,7 +428,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                         </div>
 
                         {/* Action Footer Bar */}
-                        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[#EFECE6]">
+                        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[#F2EFE9]">
                           <div className="flex items-center space-x-2 text-xs font-mono text-[#556377]">
                             <Phone className="w-3.5 h-3.5 text-[#C84B31]" />
                             <span>Official Helpline: <strong>{scheme.helplineNumber}</strong></span>
@@ -448,7 +448,7 @@ export const SchemeEligibilityReader: React.FC<SchemeEligibilityReaderProps> = (
                             {onGoToFormFiller && (
                               <button
                                 onClick={() => onGoToFormFiller(scheme.code)}
-                                className="px-4 py-2 rounded-lg bg-[#121820] text-white text-xs font-mono font-medium hover:bg-[#242F3E] transition-colors inline-flex items-center space-x-1.5 shadow-xs"
+                                className="px-4 py-2 rounded-lg bg-[#121820] text-white text-xs font-mono font-medium hover:bg-[#2B3542] transition-colors inline-flex items-center space-x-1.5 shadow-xs"
                               >
                                 <span>Fill Form Live</span>
                                 <ArrowRight className="w-3 h-3" />

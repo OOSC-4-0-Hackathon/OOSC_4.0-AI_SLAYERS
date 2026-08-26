@@ -74,7 +74,7 @@ export default function Signup() {
   const displayError = validationError || authError;
 
   return (
-    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820]">
+    <div className="min-h-screen bg-[#FAF7F2] ledger-grid text-[#121820]">
       <Navbar />
       <div className="flex items-center justify-center min-h-screen px-4 pt-24 pb-12">
         <motion.div
@@ -92,7 +92,7 @@ export default function Signup() {
             >
               Open your<br /><span className="text-[#C84B31] italic font-normal">case file.</span>
             </h1>
-            <p className="text-[12px] font-mono text-[#7A8699] mt-2">Free during OOSC 4.0 hackathon period.</p>
+            <p className="text-[12px] font-mono text-[#667085] mt-2">Free during OOSC 4.0 hackathon period.</p>
           </div>
 
           {displayError && (
@@ -122,7 +122,7 @@ export default function Signup() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#121820] hover:bg-[#222C3A] disabled:opacity-50 text-[#FAF7F2] font-mono font-bold rounded-[2px] text-[13px] transition-colors shadow-xs mt-1"
+              className="w-full py-3 bg-[#121820] hover:bg-[#2B3542] disabled:opacity-50 text-[#FAF7F2] font-mono font-bold rounded-[2px] text-[13px] transition-colors shadow-xs mt-1"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
@@ -130,19 +130,19 @@ export default function Signup() {
 
           <div className="flex items-center gap-3 my-5">
             <div className="h-px bg-[#E4DFD5] flex-grow" />
-            <span className="font-mono text-[10px] text-[#7A8699]">OR</span>
+            <span className="font-mono text-[10px] text-[#667085]">OR</span>
             <div className="h-px bg-[#E4DFD5] flex-grow" />
           </div>
 
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full py-3 bg-[#F4F1EB] hover:bg-[#EFECE6] border border-[#DDD6C9] rounded-[2px] text-[13px] font-mono font-medium text-[#121820] transition-colors"
+            className="w-full py-3 bg-[#F2EFE9] hover:bg-[#F2EFE9] border border-[#D5CEC2] rounded-[2px] text-[13px] font-mono font-medium text-[#121820] transition-colors"
           >
             Continue with Google
           </button>
 
-          <p className="text-center text-[13px] text-[#7A8699] mt-6">
+          <p className="text-center text-[13px] text-[#667085] mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-[#C84B31] hover:underline font-semibold">
               Sign in

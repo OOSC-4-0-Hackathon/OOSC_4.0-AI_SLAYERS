@@ -34,7 +34,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     <div className="fixed inset-0 z-50 bg-[#121820]/70 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white border border-[#121820] max-w-md w-full rounded-[2px] shadow-lg overflow-hidden animate-stamp">
         {/* Header */}
-        <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3.5 flex items-center justify-between border-b border-[#242F3E]">
+        <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3.5 flex items-center justify-between border-b border-[#2B3542]">
           <div className="flex items-center space-x-2 font-mono text-xs">
             <ShieldCheck className="w-4 h-4 text-[#C84B31]" />
             <span className="font-bold tracking-wider uppercase">FIREBASE CITIZEN AUTHENTICATION</span>
@@ -53,7 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
               <div>
                 <h3 className="font-serif text-xl font-bold text-[#121820]">Authenticated Citizen Account</h3>
-                <p className="text-xs font-mono text-[#5A687D] mt-1">{userEmail}</p>
+                <p className="text-xs font-mono text-[#556377] mt-1">{userEmail}</p>
               </div>
               <div className="pt-2">
                 <button
@@ -73,7 +73,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <h3 className="font-serif text-xl font-black text-[#121820]">
                   {mode === 'LOGIN' ? 'Sign in to Case File Docket' : 'Create Citizen Account'}
                 </h3>
-                <p className="text-xs text-[#5A687D] font-sans">
+                <p className="text-xs text-[#556377] font-sans">
                   Secure local & Firebase persistent session for your active legal dockets and evidentiary checklists.
                 </p>
               </div>
@@ -84,7 +84,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     EMAIL ADDRESS:
                   </label>
                   <div className="relative">
-                    <Mail className="w-3.5 h-3.5 text-[#7A8699] absolute left-3 top-3" />
+                    <Mail className="w-3.5 h-3.5 text-[#667085] absolute left-3 top-3" />
                     <input
                       type="email"
                       value={email}
@@ -100,7 +100,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     PASSWORD:
                   </label>
                   <div className="relative">
-                    <Lock className="w-3.5 h-3.5 text-[#7A8699] absolute left-3 top-3" />
+                    <Lock className="w-3.5 h-3.5 text-[#667085] absolute left-3 top-3" />
                     <input
                       type="password"
                       value={password}

@@ -94,7 +94,7 @@ export default function SettingsModal({ isOpen, onClose }) {
       <div className="bg-surface rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col md:flex-row min-h-[500px]">
         
         {/* Sidebar */}
-        <div className="w-full md:w-64 bg-[#F9F9F8] border-b md:border-b-0 md:border-r border-border p-6 flex flex-col">
+        <div className="w-full md:w-64 bg-[#FAF7F2] border-b md:border-b-0 md:border-r border-border p-6 flex flex-col">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-semibold tracking-tight text-primary">Settings</h2>
             <button onClick={onClose} className="md:hidden text-text-secondary hover:text-primary">
@@ -126,7 +126,7 @@ export default function SettingsModal({ isOpen, onClose }) {
         <div className="flex-1 p-6 md:p-8 relative">
           <button 
             onClick={onClose} 
-            className="absolute top-6 right-6 hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-surface border border-border text-text-secondary hover:bg-[#F9F9F8] hover:text-primary transition-colors shadow-sm"
+            className="absolute top-6 right-6 hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-surface border border-border text-text-secondary hover:bg-[#FAF7F2] hover:text-primary transition-colors shadow-sm"
           >
             <span className="material-symbols-outlined text-[16px]">close</span>
           </button>
@@ -164,7 +164,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                     type="email" 
                     disabled 
                     value={currentUser?.email || ''} 
-                    className="w-full bg-[#F9F9F8] border border-border rounded-xl px-4 py-2.5 text-sm text-primary cursor-not-allowed focus:outline-none"
+                    className="w-full bg-[#FAF7F2] border border-border rounded-xl px-4 py-2.5 text-sm text-primary cursor-not-allowed focus:outline-none"
                   />
                 </div>
 
@@ -289,7 +289,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                   <span className="text-sm font-semibold text-primary">Light Mode</span>
                 </button>
                 
-                <button className="flex flex-col gap-3 p-4 rounded-2xl border border-border bg-surface hover:bg-[#F9F9F8] items-center transition-colors opacity-50 cursor-not-allowed" title="Coming soon">
+                <button className="flex flex-col gap-3 p-4 rounded-2xl border border-border bg-surface hover:bg-[#FAF7F2] items-center transition-colors opacity-50 cursor-not-allowed" title="Coming soon">
                   <div className="w-16 h-12 rounded bg-zinc-900 border border-zinc-700 flex flex-col overflow-hidden shadow-sm">
                      <div className="h-3 bg-primary-hover"></div>
                      <div className="flex-1 flex p-1 gap-1">

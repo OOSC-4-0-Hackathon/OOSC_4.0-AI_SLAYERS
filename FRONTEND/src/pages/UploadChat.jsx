@@ -185,19 +185,19 @@ const UploadChatArea = ({ refreshConversations }) => {
                 {/* Icon + heading via shared pattern */}
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="w-14 h-14 bg-paper border border-paper-rule rounded-[4px] flex items-center justify-center mb-6 shadow-[0_1px_3px_rgba(26,24,20,0.06)]">
-                    <UploadCloud className="w-6 h-6 text-[#C8821A]" />
+                    <UploadCloud className="w-6 h-6 text-[#C84B31]" />
                   </div>
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#A8A39A] mb-3 block">DOCUMENT UPLOAD</span>
-                  <h2 className="text-[22px] font-bold text-[#1A1814] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">DOCUMENT UPLOAD</span>
+                  <h2 className="text-[22px] font-bold text-[#121820] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
                     Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
                   </h2>
-                  <p className="text-[13px] text-[#7A7469] leading-relaxed">
+                  <p className="text-[13px] text-[#667085] leading-relaxed">
                     Upload a PDF or DOCX to extract clauses and red flags.
                   </p>
                 </div>
 
                 {/* Upload zone */}
-                <div className="border-2 border-dashed border-[#D4CFC4] hover:border-[#C8821A]/40 rounded-[4px] p-6 transition-colors">
+                <div className="border-2 border-dashed border-[#D5CEC2] hover:border-[#C84B31]/40 rounded-[4px] p-6 transition-colors">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -208,21 +208,21 @@ const UploadChatArea = ({ refreshConversations }) => {
 
                   {file ? (
                     <div className="text-center space-y-3">
-                      <p className="font-mono text-[11px] font-medium text-[#C8821A] bg-[#F9EDD5] inline-block px-3 py-1 rounded-[3px] border border-[#C8821A]/30">
+                      <p className="font-mono text-[11px] font-medium text-[#C84B31] bg-[#FAEAE7] inline-block px-3 py-1 rounded-[3px] border border-[#C84B31]/30">
                         {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                       <div className="flex gap-2 justify-center">
                         <button
                           onClick={() => fileInputRef.current?.click()}
                           disabled={uploading}
-                          className="px-4 py-2 bg-[#F2EFE9] border border-[#D4CFC4] text-[#1A1814] rounded-[3px] hover:border-[#1A1814] font-medium text-[13px] transition-colors"
+                          className="px-4 py-2 bg-[#F2EFE9] border border-[#D5CEC2] text-[#121820] rounded-[3px] hover:border-[#121820] font-medium text-[13px] transition-colors"
                         >
                           Change
                         </button>
                         <button
                           onClick={handleUpload}
                           disabled={uploading}
-                          className="px-5 py-2 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
+                          className="px-5 py-2 bg-[#121820] hover:bg-[#2B3542] text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
                         >
                           {uploading ? (
                             <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Uploading...</>
@@ -235,16 +235,16 @@ const UploadChatArea = ({ refreshConversations }) => {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="px-6 py-2.5 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors"
+                        className="px-6 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-white rounded-[3px] font-semibold text-[13px] transition-colors"
                       >
                         Select File
                       </button>
-                      <p className="mt-3 font-mono text-[11px] text-[#A8A39A]">PDF or DOCX · max 10MB</p>
+                      <p className="mt-3 font-mono text-[11px] text-[#667085]">PDF or DOCX · max 10MB</p>
                     </div>
                   )}
 
                   {uploadError && (
-                    <p className="text-[#B83A2A] text-[13px] mt-4 bg-[#FAEAE8] py-2 px-3 rounded-[3px] border border-[#B83A2A]/30 text-center">
+                    <p className="text-[#A83C25] text-[13px] mt-4 bg-[#FAEAE7] py-2 px-3 rounded-[3px] border border-[#A83C25]/30 text-center">
                       {uploadError}
                     </p>
                   )}

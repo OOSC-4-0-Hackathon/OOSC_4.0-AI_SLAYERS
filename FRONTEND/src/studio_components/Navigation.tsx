@@ -79,15 +79,15 @@ export const Navigation: React.FC<NavigationProps> = ({
               <span className="font-mono text-[9px] uppercase tracking-widest px-1 py-0.5 rounded bg-[#C84B31]/10 text-[#C84B31] font-bold border border-[#C84B31]/20">
                 AI
               </span>
-              <span className="hidden xl:inline text-[#DDD6C9] font-light">|</span>
-              <span className="hidden xl:inline text-[11px] font-mono text-[#7A8699] uppercase tracking-wider">
+              <span className="hidden xl:inline text-[#D5CEC2] font-light">|</span>
+              <span className="hidden xl:inline text-[11px] font-mono text-[#667085] uppercase tracking-wider">
                 CIVIC LEGAL OS
               </span>
             </div>
           </div>
 
           {/* Center: Clean Segmented Pill Navigation */}
-          <nav className="hidden lg:flex items-center p-1 bg-[#EFECE6]/80 rounded-[6px] border border-[#E4DFD5]/90 shadow-inner" aria-label="Main Navigation">
+          <nav className="hidden lg:flex items-center p-1 bg-[#F2EFE9]/80 rounded-[6px] border border-[#E4DFD5]/90 shadow-inner" aria-label="Main Navigation">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -98,10 +98,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                   className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-xs font-mono transition-all duration-150 cursor-pointer ${
                     isActive
                       ? 'bg-[#121820] text-[#FAF7F2] font-semibold shadow-xs'
-                      : 'text-[#5A687D] hover:text-[#121820] hover:bg-[#FAF7F2]/60'
+                      : 'text-[#556377] hover:text-[#121820] hover:bg-[#FAF7F2]/60'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C84B31]' : 'text-[#7A8699]'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C84B31]' : 'text-[#667085]'}`} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -113,10 +113,10 @@ export const Navigation: React.FC<NavigationProps> = ({
             {/* Saved Dockets Button */}
             <button
               onClick={onOpenSavedModal}
-              className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#DDD6C9] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs cursor-pointer"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#D5CEC2] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs cursor-pointer"
               title="View Saved Case Dockets"
             >
-              <FolderArchive className="w-3.5 h-3.5 text-[#5A687D]" />
+              <FolderArchive className="w-3.5 h-3.5 text-[#556377]" />
               <span className="hidden md:inline">Dockets</span>
               <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-bold rounded-full bg-[#121820] text-white">
                 {savedCasesCount}
@@ -126,7 +126,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             {/* Citizen Auth Button */}
             <button
               onClick={onOpenAuthModal}
-              className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#DDD6C9] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs cursor-pointer"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-white/90 hover:bg-white text-[#121820] border border-[#D5CEC2] hover:border-[#121820] text-xs font-mono rounded-[4px] transition-all shadow-2xs cursor-pointer"
               title="Citizen Authentication / Profile"
             >
               <User className="w-3.5 h-3.5 text-[#C84B31]" />
@@ -140,7 +140,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       </div>
 
       {/* Mobile / Tablet Horizontal Navigation Strip */}
-      <div className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#F4F1EB]/90 backdrop-blur-xs border-t border-[#E4DFD5]/80 overflow-x-auto text-xs font-mono scrollbar-none">
+      <div className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#F2EFE9]/90 backdrop-blur-xs border-t border-[#E4DFD5]/80 overflow-x-auto text-xs font-mono scrollbar-none">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -151,10 +151,10 @@ export const Navigation: React.FC<NavigationProps> = ({
               className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-[4px] shrink-0 transition-all ${
                 isActive
                   ? 'bg-[#121820] text-white font-medium shadow-xs'
-                  : 'bg-white/70 text-[#5A687D] hover:text-[#121820] border border-[#E4DFD5]'
+                  : 'bg-white/70 text-[#556377] hover:text-[#121820] border border-[#E4DFD5]'
               }`}
             >
-              <Icon className={`w-3 h-3 ${isActive ? 'text-[#C84B31]' : 'text-[#7A8699]'}`} />
+              <Icon className={`w-3 h-3 ${isActive ? 'text-[#C84B31]' : 'text-[#667085]'}`} />
               <span>{item.shortLabel}</span>
             </button>
           );

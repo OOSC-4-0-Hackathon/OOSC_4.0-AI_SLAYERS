@@ -25,7 +25,7 @@ export default function DocumentToolbar({
   const zoomPct = Math.round(zoom * 100);
 
   return (
-    <div className="no-print sticky top-0 z-20 bg-[#404040] text-white px-4 py-2 flex flex-wrap items-center gap-2 shadow-lg select-none">
+    <div className="no-print sticky top-0 z-20 bg-[#2B3542] text-white px-4 py-2 flex flex-wrap items-center gap-2 shadow-lg select-none">
 
       {/* ── Back ──────────────────────────── */}
       <button onClick={onStartOver} className="toolbar-btn toolbar-btn--text" title="Start Over">

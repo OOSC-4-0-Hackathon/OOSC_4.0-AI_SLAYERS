@@ -176,7 +176,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
     <div className="fixed bottom-4 left-4 right-4 z-50 max-w-5xl mx-auto">
       <div className="bg-[#121820] text-[#FAF7F2] border-2 border-[#C84B31] rounded-[2px] shadow-2xl overflow-hidden animate-stamp">
         {/* Top Progress Bar */}
-        <div className="w-full bg-[#242F3E] h-1.5 overflow-hidden">
+        <div className="w-full bg-[#2B3542] h-1.5 overflow-hidden">
           <div 
             className="bg-[#C84B31] h-full transition-all duration-300"
             style={{ 
@@ -186,7 +186,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
         </div>
 
         {/* Header Bar */}
-        <div className="px-4 sm:px-6 py-2.5 bg-[#1E2633] border-b border-[#2B3542] flex items-center justify-between text-xs font-mono">
+        <div className="px-4 sm:px-6 py-2.5 bg-[#1A222D] border-b border-[#2B3542] flex items-center justify-between text-xs font-mono">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-[#C84B31] animate-pulse" />
             <span className="font-bold tracking-wider text-white uppercase">
@@ -230,7 +230,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
         </div>
 
         {/* Step Navigation Pill Strip */}
-        <div className="bg-[#171F2B] px-4 py-2 border-b border-[#242F3E] flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
+        <div className="bg-[#1A222D] px-4 py-2 border-b border-[#2B3542] flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
           {DEMO_FLOW_STEPS.map((s, idx) => (
             <button
               key={s.id}
@@ -239,8 +239,8 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
                 currentStepIndex === idx
                   ? 'bg-[#C84B31] text-white font-bold'
                   : currentStepIndex > idx
-                    ? 'bg-[#242F3E] text-emerald-400'
-                    : 'bg-[#1E2633] text-[#7A8699] hover:text-[#A2B1C6]'
+                    ? 'bg-[#2B3542] text-emerald-400'
+                    : 'bg-[#1A222D] text-[#667085] hover:text-[#A2B1C6]'
               }`}
             >
               <span>{idx + 1}. {s.badge}</span>
@@ -265,7 +265,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
               {step.description}
             </p>
 
-            <div className="text-[11px] font-mono text-emerald-400 bg-[#171F2B] px-2.5 py-1 border border-[#242F3E] rounded-[2px] inline-block">
+            <div className="text-[11px] font-mono text-emerald-400 bg-[#1A222D] px-2.5 py-1 border border-[#2B3542] rounded-[2px] inline-block">
               JUDICIAL BENCHMARK: {step.judicialProof}
             </div>
           </div>
@@ -275,7 +275,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
             <button
               onClick={handlePrev}
               disabled={currentStepIndex === 0}
-              className="px-3 py-2 border border-[#475467] disabled:opacity-40 hover:bg-[#242F3E] text-white font-mono text-xs rounded-[2px] transition-colors flex items-center space-x-1"
+              className="px-3 py-2 border border-[#475467] disabled:opacity-40 hover:bg-[#2B3542] text-white font-mono text-xs rounded-[2px] transition-colors flex items-center space-x-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>PREV</span>
@@ -284,7 +284,7 @@ export const UnbrokenDemoFlowController: React.FC<UnbrokenDemoFlowControllerProp
             {currentStepIndex < DEMO_FLOW_STEPS.length - 1 ? (
               <button
                 onClick={handleNext}
-                className="px-4 py-2 bg-[#C84B31] hover:bg-[#B33D24] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-4 py-2 bg-[#C84B31] hover:bg-[#A83C25] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <span>NEXT STEP</span>
                 <ArrowRight className="w-3.5 h-3.5" />

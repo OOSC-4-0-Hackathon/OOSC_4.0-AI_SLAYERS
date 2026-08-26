@@ -223,7 +223,7 @@ const LegalAnalysisRenderer = ({ content }) => {
         if (!parsedData[key]) return null;
         
         // Give all accordion panels a uniform light greyish color
-        let accentClass = "bg-[#F8F8F7] border-border";
+        let accentClass = "bg-[#FAF7F2] border-border";
 
         return (
           <AnalysisCard 

@@ -1,45 +1,92 @@
-import React from 'react';
+import React, { useEffect, useRef, useId } from 'react';
 import Button from './Button';
 
+/**
+ * ConfirmationModal.
+ *
+ * Was `rounded-2xl` with `text-zinc-900` / `bg-zinc-50` / `border-zinc-100` —
+ * default-Tailwind grey in a warm-paper product with 2-6px radii. Restyled.
+ *
+ * Also added the behaviour a dialog is expected to have and did not have:
+ * Escape to cancel, backdrop click to cancel, background scroll lock, initial
+ * focus on the confirm action, and aria-labelledby/describedby wiring.
+ */
 export default function ConfirmationModal({
   isOpen,
   title,
   body,
   onConfirm,
   onCancel,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   isDestructive = false,
   loading = false,
 }) {
+  const confirmRef = useRef(null);
+  const id = useId();
+
+  /* Escape to cancel + scroll lock */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape' && !loading) onCancel?.();
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    confirmRef.current?.focus();
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, loading, onCancel]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-      <div 
-        className="bg-surface rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all scale-100 opacity-100"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121820]/60 backdrop-blur-[2px]"
+      onClick={() => !loading && onCancel?.()}
+    >
+      <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby={`${id}-title`}
+        aria-describedby={body ? `${id}-body` : undefined}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#FFFFFF] border border-[#E4DFD5] rounded-[6px] shadow-modal w-full max-w-md overflow-hidden animate-stamp"
       >
+        {/* Accent edge — matches the stamped-document language */}
+        <div className={`h-[3px] ${isDestructive ? 'bg-[#B42318]' : 'bg-[#C84B31]'}`} />
+
         <div className="p-6">
-          <h3 className="text-xl font-semibold text-zinc-900 mb-2">{title}</h3>
-          <p className="text-zinc-500 text-sm">{body}</p>
-        </div>
-        
-        <div className="bg-zinc-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-zinc-100">
-          <Button 
-            variant="secondary" 
-            onClick={onCancel}
-            disabled={loading}
-            className="!px-4 !py-2 !text-sm"
+          <h2
+            id={`${id}-title`}
+            className="font-serif text-lg font-bold text-[#121820] leading-snug"
           >
+            {title}
+          </h2>
+          {body && (
+            <p id={`${id}-body`} className="mt-2 text-[14px] text-[#475467] leading-relaxed">
+              {body}
+            </p>
+          )}
+        </div>
+
+        <div className="bg-[#F2EFE9] px-6 py-4 flex items-center justify-end gap-3 border-t border-[#E4DFD5]">
+          <Button variant="ghost" size="sm" onClick={onCancel} disabled={loading}>
             {cancelText}
           </Button>
-          <Button 
-            variant={isDestructive ? 'danger' : 'primary'} 
+          <Button
+            ref={confirmRef}
+            variant={isDestructive ? 'danger' : 'primary'}
+            size="sm"
             onClick={onConfirm}
             loading={loading}
-            className="!px-4 !py-2 !text-sm"
           >
             {confirmText}
           </Button>

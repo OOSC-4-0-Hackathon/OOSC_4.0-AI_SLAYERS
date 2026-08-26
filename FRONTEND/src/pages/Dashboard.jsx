@@ -65,7 +65,7 @@ export default function Dashboard() {
   const displayName = userProfile?.name || currentUser?.displayName || 'Counselor';
 
   return (
-    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FAF7F2] ledger-grid text-[#121820] flex flex-col font-sans">
       <Navbar />
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 pt-24 pb-20 flex-grow">
 
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
           {/* Tools */}
           <div className="lg:col-span-8">
-            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">TOOLS</span>
+            <span className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider block mb-4">TOOLS</span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {TOOLS.map((tool, i) => (
                 <motion.div
@@ -111,7 +111,7 @@ export default function Dashboard() {
                       <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border border-[#C84B31]/25 text-[#C84B31] bg-[#C84B31]/10">
                         {tool.tag}
                       </span>
-                      <span className="text-[#7A8699] group-hover:text-[#C84B31] group-hover:translate-x-1 transition-all font-mono">→</span>
+                      <span className="text-[#667085] group-hover:text-[#C84B31] group-hover:translate-x-1 transition-all font-mono">→</span>
                     </div>
                     <div className="mt-4">
                       <h3 className="font-sans text-[15px] font-bold text-[#121820] mb-1 group-hover:text-[#C84B31] transition-colors">{tool.name}</h3>
@@ -125,7 +125,7 @@ export default function Dashboard() {
 
           {/* Account sidebar */}
           <div className="lg:col-span-4">
-            <span className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider block mb-4">CASE FILE ACCOUNT</span>
+            <span className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider block mb-4">CASE FILE ACCOUNT</span>
             <div className="bg-white/90 border border-[#E4DFD5] rounded-[4px] p-6 flex flex-col gap-4 shadow-2xs">
               {/* Avatar */}
               <div className="flex items-center gap-3 pb-4 border-b border-[#E4DFD5]">
@@ -134,7 +134,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <p className="text-[14px] font-bold text-[#121820]">{displayName}</p>
-                  <p className="font-mono text-[10px] text-[#7A8699] truncate max-w-[160px]">{currentUser?.uid || 'mock-uid'}</p>
+                  <p className="font-mono text-[10px] text-[#667085] truncate max-w-[160px]">{currentUser?.uid || 'mock-uid'}</p>
                 </div>
               </div>
 
@@ -148,7 +148,7 @@ export default function Dashboard() {
               <div className="pt-3 border-t border-[#E4DFD5]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0" />
-                  <span className="text-[12px] font-mono text-[#7A8699]">NYAAY RAG Engine · Connected</span>
+                  <span className="text-[12px] font-mono text-[#667085]">NYAAY RAG Engine · Connected</span>
                 </div>
               </div>
             </div>

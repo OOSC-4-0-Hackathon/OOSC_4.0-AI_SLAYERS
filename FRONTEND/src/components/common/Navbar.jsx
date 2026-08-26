@@ -16,8 +16,11 @@ import { useAuth } from '../../contexts/AuthContext';
 /**
  * AppNav — unified navigation bar for all routes.
  *
- * Translucent glassmorphic Navy Blue pill header (#121820 / rgba(18, 24, 32, 0.75)).
- * Scroll > 80px increases opacity to 0.92 for floating presence.
+ * Translucent glassmorphic navy header. Scroll > 80px increases opacity for
+ * floating presence.
+ *
+ * Type: labels are Inter, not mono. Mono is reserved for data (the account
+ * identifier) — it is not the UI typeface.
  *
  * Props:
  *   fullWidth    — stretch to full viewport width (default: max-w-7xl centred)
@@ -30,6 +33,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
   const navigate = useNavigate();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const rafRef = useRef(null);
 
   /* ── Scroll-driven opacity boost ── */
@@ -49,11 +53,14 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
   }, []);
 
   const handleLogout = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
     try {
       await logout();
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
+      setSigningOut(false);
     }
   };
 
@@ -70,7 +77,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
 
   const innerClass = fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6';
 
-  /* Glassmorphic Navy Blue background (#121820 = rgb(18, 24, 32)) */
+  /* Glassmorphic navy background (#121820 = rgb(18, 24, 32)) */
   const barBg = scrolled
     ? 'rgba(18, 24, 32, 0.92)'
     : 'rgba(18, 24, 32, 0.78)';
@@ -89,32 +96,31 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
       <div className={`${innerClass} flex items-center justify-between h-16 gap-3 sm:gap-6`}>
 
         {/* Brand */}
-        <Link to="/" className="flex items-center space-x-2.5 group select-none shrink-0">
+        <Link to="/" className="flex items-center space-x-2.5 group select-none shrink-0" aria-label="NYAAY AI — home">
           {/* Logo icon box */}
           <div className="w-8 h-8 rounded-[4px] bg-[#1A222D] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542] group-hover:border-[#C84B31] transition-colors">
-            <span className="font-serif font-black text-sm tracking-tight text-[#FAF7F2]">Ny</span>
+            <span className="font-serif font-bold text-sm tracking-tight text-[#FAF7F2]">Ny</span>
           </div>
 
           {/* Wordmark */}
           <div className="flex items-baseline space-x-2">
-            <span className="font-serif font-extrabold text-xl tracking-tight text-[#FAF7F2]">
+            <span className="font-serif font-bold text-xl tracking-tight text-[#FAF7F2]">
               NYAAY
             </span>
-            {/* AI badge — rust-orange #C84B31 */}
-            <span className="font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
+            <span className="font-mono text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
               AI
             </span>
-            <span className="hidden xl:inline text-[#2B3542]">|</span>
-            <span className="hidden xl:inline text-[11px] font-mono uppercase tracking-wider text-[#A2B1C6]">
-              CIVIC LEGAL OS
+            <span className="hidden xl:inline text-[#2B3542]" aria-hidden="true">|</span>
+            <span className="hidden xl:inline text-[12px] font-sans font-medium uppercase tracking-wider text-[#A2B1C6]">
+              Civic Legal OS
             </span>
           </div>
         </Link>
 
-        {/* Desktop nav — Navy blue segmented container */}
+        {/* Desktop nav — navy segmented container */}
         <nav
           className="hidden lg:flex items-center p-1 rounded-[6px] bg-[#1A222D]/80 border border-[#2B3542] shadow-inner"
-          aria-label="Main Navigation"
+          aria-label="Main navigation"
         >
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -123,13 +129,15 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
               <Link
                 key={item.path}
                 to={item.path}
-                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-xs font-mono transition-all duration-150 ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-[13px] font-sans font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
                   isActive
                     ? 'bg-[#C84B31] text-[#FAF7F2] font-semibold shadow-xs'
                     : 'text-[#A2B1C6] hover:text-[#FAF7F2] hover:bg-[#2B3542]/60'
                 }`}
               >
                 <Icon
+                  aria-hidden="true"
                   className={`w-3.5 h-3.5 shrink-0 ${
                     isActive ? 'text-[#FAF7F2]' : 'text-[#7A8699]'
                   }`}
@@ -142,44 +150,45 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
 
         {/* Right: actions */}
         <div className="flex items-center space-x-2 shrink-0">
-          {/* Dockets — Navy blue ghost button */}
+          {/* Dockets */}
           <Link
             to="/civic"
-            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-[#1A222D]/80 hover:bg-[#2B3542] text-[#A2B1C6] hover:text-[#FAF7F2] border border-[#2B3542] text-xs font-mono rounded-[4px] transition-all shadow-xs"
-            title="View Case Dockets"
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-[#1A222D]/80 hover:bg-[#2B3542] text-[#A2B1C6] hover:text-[#FAF7F2] border border-[#2B3542] text-[13px] font-sans font-medium rounded-[4px] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+            aria-label="View saved case dockets"
           >
-            <FolderArchive className="w-3.5 h-3.5 text-[#7A8699]" />
+            <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-[#7A8699]" />
             <span className="hidden md:inline">Dockets</span>
           </Link>
 
           {currentUser ? (
             <div className="flex items-center space-x-2">
-              {/* Username chip */}
+              {/* Account identifier — mono, because it is data */}
               <span className="hidden sm:inline text-xs font-mono text-[#A2B1C6] bg-[#1A222D]/80 border border-[#2B3542] px-2.5 py-1.5 rounded-[4px] truncate max-w-[120px]">
                 {currentUser.displayName || currentUser.email?.split('@')[0]}
               </span>
 
-              {/* Sign out — solid rust-orange fill */}
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#C84B31] hover:bg-[#A83C25] text-[#FAF7F2] text-xs font-mono font-medium rounded-[4px] transition-colors shadow-xs"
-                title="Sign out"
+                disabled={signingOut}
+                aria-busy={signingOut}
+                className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#C84B31] hover:bg-[#A83C25] disabled:opacity-60 disabled:cursor-not-allowed text-[#FAF7F2] text-[13px] font-sans font-medium rounded-[4px] transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none"
+                aria-label="Sign out"
               >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Sign out</span>
+                <LogOut aria-hidden="true" className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{signingOut ? 'Signing out…' : 'Sign out'}</span>
               </button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
               <Link
                 to="/login"
-                className="px-3 py-1.5 text-xs font-mono text-[#A2B1C6] hover:text-[#FAF7F2] transition-colors"
+                className="px-3 py-1.5 text-[13px] font-sans font-medium text-[#A2B1C6] hover:text-[#FAF7F2] transition-colors rounded-[4px] focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
               >
                 Sign in
               </Link>
               <Link
                 to="/signup"
-                className="px-3 py-1.5 bg-[#C84B31] hover:bg-[#A83C25] text-[#FAF7F2] text-xs font-mono font-medium rounded-[4px] transition-colors shadow-xs"
+                className="px-3 py-1.5 bg-[#C84B31] hover:bg-[#A83C25] text-[#FAF7F2] text-[13px] font-sans font-medium rounded-[4px] transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none"
               >
                 Get started
               </Link>
@@ -191,14 +200,20 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
       {/* ── Optional tab strip (e.g. CivicNavigator) ── */}
       {tabs && tabs.length > 0 && (
         <div className="border-t border-[#2B3542] bg-[#121820]/90 backdrop-blur-md">
-          <div className={`${innerClass} flex items-center gap-1 h-10 overflow-x-auto scrollbar-none`}>
+          <div
+            className={`${innerClass} flex items-center gap-1 h-10 overflow-x-auto scrollbar-none`}
+            role="tablist"
+            aria-label="Section tabs"
+          >
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => onTabChange?.(tab.id)}
-                  className={`whitespace-nowrap px-3 py-1.5 rounded-[4px] text-[11px] font-mono font-semibold uppercase tracking-wider transition-all duration-150 ${
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-[4px] text-[12px] font-sans font-semibold uppercase tracking-wider transition-all duration-150 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
                     isActive
                       ? 'bg-[#C84B31] text-[#FAF7F2]'
                       : 'text-[#A2B1C6] hover:text-[#FAF7F2] hover:bg-[#1A222D]'
@@ -213,7 +228,10 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
       )}
 
       {/* ── Mobile nav strip ── */}
-      <div className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#121820]/95 backdrop-blur-md border-t border-[#2B3542] overflow-x-auto text-xs font-mono scrollbar-none">
+      <nav
+        className="lg:hidden flex items-center space-x-1.5 px-4 py-2 bg-[#121820]/95 backdrop-blur-md border-t border-[#2B3542] overflow-x-auto scrollbar-none"
+        aria-label="Main navigation"
+      >
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -221,18 +239,19 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-[4px] shrink-0 transition-all duration-150 ${
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-[4px] shrink-0 text-[12px] font-sans font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
                 isActive
                   ? 'bg-[#C84B31] text-[#FAF7F2] font-semibold shadow-xs'
                   : 'bg-[#1A222D] text-[#A2B1C6] hover:text-[#FAF7F2] border border-[#2B3542]'
               }`}
             >
-              <Icon className={`w-3 h-3 ${isActive ? 'text-[#FAF7F2]' : 'text-[#7A8699]'}`} />
+              <Icon aria-hidden="true" className={`w-3 h-3 ${isActive ? 'text-[#FAF7F2]' : 'text-[#7A8699]'}`} />
               <span>{item.label}</span>
             </Link>
           );
         })}
-      </div>
+      </nav>
     </header>
   );
 }

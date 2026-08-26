@@ -32,9 +32,9 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
   if (!dossier) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <FileCheck2 className="w-12 h-12 text-[#7A8699] mx-auto" />
+        <FileCheck2 className="w-12 h-12 text-[#667085] mx-auto" />
         <h2 className="font-serif text-2xl font-bold text-[#121820]">No Active Case Docket Loaded</h2>
-        <p className="text-sm text-[#5A687D] max-w-md mx-auto font-sans">
+        <p className="text-sm text-[#556377] max-w-md mx-auto font-sans">
           To audit your legal evidence and compute court readiness, first execute a dispute search in the Civic Navigator.
         </p>
         <button
@@ -104,7 +104,7 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
             <span className="stamp-badge text-[10px] px-2 py-0.5">
               EVIDENTIARY VAULT // PART 02
             </span>
-            <span className="font-mono text-xs text-[#7A8699]">
+            <span className="font-mono text-xs text-[#667085]">
               DOCKET: {dossier.problemAndRights.docketId}
             </span>
           </div>
@@ -125,7 +125,7 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
       </div>
 
       {/* Audit Readiness Banner */}
-      <div className="p-6 bg-[#121820] text-[#FAF7F2] rounded-[2px] border border-[#242F3E] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+      <div className="p-6 bg-[#121820] text-[#FAF7F2] rounded-[2px] border border-[#2B3542] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <div className="md:col-span-8 space-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-[#C84B31] font-mono text-xs font-bold uppercase tracking-wider">
@@ -144,7 +144,7 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
           </div>
         </div>
 
-        <div className="md:col-span-4 bg-[#1E2633] p-4 rounded-[2px] border border-[#2B3542] text-center space-y-1">
+        <div className="md:col-span-4 bg-[#1A222D] p-4 rounded-[2px] border border-[#2B3542] text-center space-y-1">
           <div className="font-mono text-[11px] text-[#A2B1C6] uppercase">AUDIT READINESS</div>
           <div className={`font-serif font-black text-3xl ${auditScore >= 75 ? 'text-emerald-400' : 'text-amber-400'}`}>
             {auditScore}%
@@ -178,20 +178,20 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
                     {item.checked ? (
                       <CheckSquare className="w-5 h-5 text-emerald-700" />
                     ) : (
-                      <Square className="w-5 h-5 text-[#7A8699]" />
+                      <Square className="w-5 h-5 text-[#667085]" />
                     )}
                   </button>
 
                   <div className="space-y-1.5 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs text-[#7A8699]">EXHIBIT #{idx + 1}</span>
+                      <span className="font-mono text-xs text-[#667085]">EXHIBIT #{idx + 1}</span>
                       <span className="font-serif font-bold text-base text-[#121820]">{item.title}</span>
                       <span className={`text-[10px] font-mono px-2 py-0.5 rounded-[2px] font-bold ${
                         item.evidentiaryWeight === 'CRITICAL' 
                           ? 'bg-rose-100 text-rose-800' 
                           : item.evidentiaryWeight === 'HIGH'
                             ? 'bg-amber-100 text-amber-800'
-                            : 'bg-[#F2EFE9] text-[#5A687D]'
+                            : 'bg-[#F2EFE9] text-[#556377]'
                       }`}>
                         {item.evidentiaryWeight}
                       </span>
@@ -202,7 +202,7 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
                       )}
                     </div>
 
-                    <p className="text-xs text-[#5A687D] font-sans leading-relaxed">
+                    <p className="text-xs text-[#556377] font-sans leading-relaxed">
                       {item.description}
                     </p>
 
@@ -271,7 +271,7 @@ export const EvidenceChecklist: React.FC<EvidenceChecklistProps> = ({
           </div>
 
           <div className="w-full sm:w-44 space-y-1">
-            <label className="font-mono text-xs text-[#7A8699] uppercase">WEIGHT:</label>
+            <label className="font-mono text-xs text-[#667085] uppercase">WEIGHT:</label>
             <select
               value={newItemWeight}
               onChange={(e) => setNewItemWeight(e.target.value as any)}

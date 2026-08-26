@@ -112,7 +112,7 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
     >
       <div className="bg-[#FAF7F2] border border-[#121820] max-w-3xl w-full rounded-[2px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-stamp">
         {/* Header */}
-        <div className="bg-[#121820] text-[#FAF7F2] px-6 py-4 flex items-center justify-between border-b border-[#242F3E]">
+        <div className="bg-[#121820] text-[#FAF7F2] px-6 py-4 flex items-center justify-between border-b border-[#2B3542]">
           <div className="flex items-center space-x-3 font-mono text-xs">
             <div className="w-2.5 h-2.5 rounded-full bg-[#C84B31] animate-pulse"></div>
             <span className="font-bold tracking-wider uppercase">STATUTE INSPECTION DOSSIER</span>
@@ -136,7 +136,7 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
               <span className="stamp-badge text-[10px] px-2 py-0.5">
                 {CATEGORY_LABELS[act.category]}
               </span>
-              <span className="font-mono text-xs text-[#7A8699]">
+              <span className="font-mono text-xs text-[#667085]">
                 ENACTED: {act.year} • {act.actNumber} • {act.sectionCount} SECTIONS
               </span>
             </div>
@@ -157,7 +157,7 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>AUTHENTIC STATUTORY PROVISIONS & CITIZEN REMEDIES</span>
               </span>
-              <span className="text-[11px] font-mono text-[#7A8699]">GROUNDED LEGISLATIVE TEXT</span>
+              <span className="text-[11px] font-mono text-[#667085]">GROUNDED LEGISLATIVE TEXT</span>
             </div>
 
             <div className="space-y-3">
@@ -176,7 +176,7 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
                   </div>
 
                   {/* Verbatim Legal Language Quote */}
-                  <blockquote className="p-3 bg-[#FAF7F2] border-l-2 border-[#C84B31] text-xs font-mono text-[#334155] leading-relaxed italic">
+                  <blockquote className="p-3 bg-[#FAF7F2] border-l-2 border-[#C84B31] text-xs font-mono text-[#475467] leading-relaxed italic">
                     "{sec.legalText}"
                   </blockquote>
 
@@ -193,7 +193,7 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
 
         {/* Footer Actions */}
         <div className="p-4 bg-[#F2EFE9] border-t border-[#E4DFD5] flex flex-wrap items-center justify-between gap-3">
-          <div className="font-mono text-xs text-[#7A8699]">
+          <div className="font-mono text-xs text-[#667085]">
             NYAAY AI LEGISLATIVE INDEX // 93 BARE ACTS
           </div>
 

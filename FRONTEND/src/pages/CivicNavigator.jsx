@@ -110,17 +110,17 @@ export default function CivicNavigatorPage() {
 
   // Navbar tabs strip height: 40px → pt-[104px] total (64px navbar + 40px tab strip)
   return (
-    <div className="min-h-screen flex flex-col bg-[#F9F8F5] ledger-grid text-[#121820] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] ledger-grid text-[#121820] font-sans">
       <Navbar
         tabs={CIVIC_TABS}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 
-      <main className="flex-1 bg-[#F9F8F5] pt-[104px] min-h-[calc(100vh-104px)] flex overflow-hidden">
+      <main className="flex-1 bg-[#FAF7F2] pt-[104px] min-h-[calc(100vh-104px)] flex overflow-hidden">
         {/* SIDEBAR FOR SAVED DOSSIERS */}
-        <div className="w-80 bg-[#FAF7F2] border-r border-[#E5E7EB] flex flex-col h-full hidden md:flex shrink-0">
-          <div className="p-4 border-b border-[#E5E7EB] flex items-center justify-between bg-white">
+        <div className="w-80 bg-[#FAF7F2] border-r border-[#E4DFD5] flex flex-col h-full hidden md:flex shrink-0">
+          <div className="p-4 border-b border-[#E4DFD5] flex items-center justify-between bg-white">
             <h2 className="font-serif font-bold text-[#121820]">Saved Dossiers</h2>
             <button 
               onClick={() => {
@@ -134,7 +134,7 @@ export default function CivicNavigatorPage() {
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {savedCases.length === 0 ? (
-              <p className="text-xs text-[#7A8699] text-center mt-10 font-mono">No cases saved yet.</p>
+              <p className="text-xs text-[#667085] text-center mt-10 font-mono">No cases saved yet.</p>
             ) : (
               savedCases.map(c => (
                 <div 
@@ -150,12 +150,12 @@ export default function CivicNavigatorPage() {
                   className={`p-3 rounded-[2px] cursor-pointer border transition-all ${
                     activeDossier?.problemAndRights?.docketId === c.docketNumber 
                     ? 'bg-white border-[#C84B31] shadow-sm ring-1 ring-[#C84B31]/10' 
-                    : 'bg-white/50 border-[#E5E7EB] hover:bg-white hover:border-[#C84B31]/50'
+                    : 'bg-white/50 border-[#E4DFD5] hover:bg-white hover:border-[#C84B31]/50'
                   }`}
                 >
                   <div className="text-[9px] font-mono font-bold text-[#C84B31] mb-1.5 tracking-wider">{c.docketNumber}</div>
                   <div className="text-sm font-bold text-[#121820] line-clamp-2 leading-snug">{c.title}</div>
-                  <div className="text-[10px] font-mono text-[#7A8699] mt-3 flex justify-between items-center border-t border-dashed border-[#E5E7EB] pt-2">
+                  <div className="text-[10px] font-mono text-[#667085] mt-3 flex justify-between items-center border-t border-dashed border-[#E4DFD5] pt-2">
                     <span className="truncate pr-2">{c.domain}</span>
                     <span className="shrink-0">{new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -166,7 +166,7 @@ export default function CivicNavigatorPage() {
         </div>
 
         {/* MAIN AREA */}
-        <div className="flex-1 overflow-y-auto bg-[#F9F8F5]">
+        <div className="flex-1 overflow-y-auto bg-[#FAF7F2]">
           {activeTab === 'navigator' && (
             <StudioCivicNavigator
             initialQuery={presetQueryText}

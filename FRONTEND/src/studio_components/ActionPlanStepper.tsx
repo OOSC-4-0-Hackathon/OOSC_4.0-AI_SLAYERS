@@ -28,9 +28,9 @@ export const ActionPlanStepper: React.FC<ActionPlanStepperProps> = ({
   if (!dossier) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <Milestone className="w-12 h-12 text-[#7A8699] mx-auto" />
+        <Milestone className="w-12 h-12 text-[#667085] mx-auto" />
         <h2 className="font-serif text-2xl font-bold text-[#121820]">No Active Case Timeline Loaded</h2>
-        <p className="text-sm text-[#5A687D] max-w-md mx-auto font-sans">
+        <p className="text-sm text-[#556377] max-w-md mx-auto font-sans">
           To generate a phased statutory action plan, submit your dispute query in the Civic Navigator.
         </p>
         <button
@@ -84,7 +84,7 @@ END:VCALENDAR`;
             <span className="stamp-badge text-[10px] px-2 py-0.5">
               ACTION PLAN // PART 04
             </span>
-            <span className="font-mono text-xs text-[#7A8699]">
+            <span className="font-mono text-xs text-[#667085]">
               DOCKET: {dossier.problemAndRights.docketId}
             </span>
           </div>
@@ -113,7 +113,7 @@ END:VCALENDAR`;
       </div>
 
       {/* Progress & Summary Banner */}
-      <div className="p-6 bg-[#121820] text-[#FAF7F2] rounded-[2px] border border-[#242F3E] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+      <div className="p-6 bg-[#121820] text-[#FAF7F2] rounded-[2px] border border-[#2B3542] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <div className="md:col-span-8 space-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-[#C84B31] font-mono text-xs font-bold uppercase tracking-wider">
@@ -127,7 +127,7 @@ END:VCALENDAR`;
           <p className="text-sm text-[#FAF7F2] font-sans leading-relaxed">
             Every step is calibrated against mandatory statutory limitation periods. Missing statutory appeal windows forfeits legal remedies.
           </p>
-          <div className="w-full bg-[#1E2633] h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-[#1A222D] h-2 rounded-full overflow-hidden">
             <div 
               className="bg-[#C84B31] h-full transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
@@ -135,7 +135,7 @@ END:VCALENDAR`;
           </div>
         </div>
 
-        <div className="md:col-span-4 bg-[#1E2633] p-4 rounded-[2px] border border-[#2B3542] text-center space-y-1">
+        <div className="md:col-span-4 bg-[#1A222D] p-4 rounded-[2px] border border-[#2B3542] text-center space-y-1">
           <div className="font-mono text-[11px] text-[#A2B1C6] uppercase">EXECUTION PROGRESS</div>
           <div className="font-serif font-black text-3xl text-emerald-400">
             {completedCount} / {steps.length}
@@ -182,7 +182,7 @@ END:VCALENDAR`;
                       <span className="font-mono text-xs px-2 py-0.5 bg-[#FAF7F2] text-[#C84B31] border border-[#C84B31]/20 font-bold rounded-[2px]">
                         {step.timeframe}
                       </span>
-                      <span className="font-mono text-[10px] text-[#7A8699] px-1.5 py-0.5 bg-[#F2EFE9] rounded-[2px]">
+                      <span className="font-mono text-[10px] text-[#667085] px-1.5 py-0.5 bg-[#F2EFE9] rounded-[2px]">
                         TYPE: {step.actionType}
                       </span>
                     </div>
@@ -243,7 +243,7 @@ END:VCALENDAR`;
       <div className="p-6 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h4 className="font-serif font-bold text-lg text-[#121820]">Ready to execute formal filings?</h4>
-          <p className="text-xs text-[#5A687D] font-sans">
+          <p className="text-xs text-[#556377] font-sans">
             Launch the single-pass drafting engine to assemble your notices and appeals with instant bracketed token replacement.
           </p>
         </div>

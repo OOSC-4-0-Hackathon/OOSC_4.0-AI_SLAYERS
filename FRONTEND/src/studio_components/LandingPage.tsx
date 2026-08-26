@@ -133,7 +133,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820]">
+    <div className="min-h-screen bg-[#FAF7F2] ledger-grid text-[#121820]">
       {/* 1. EDITORIAL CASE FILE HERO */}
       <section className="relative min-h-[calc(100vh-64px)] py-12 flex flex-col justify-center border-b border-[#E4DFD5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -143,11 +143,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="stamp-badge px-2 py-0.5 text-[10px]">
                 CIVIC EMPOWERMENT
               </span>
-              <span className="font-mono text-xs text-[#7A8699]">
+              <span className="font-mono text-xs text-[#667085]">
                 NYAAY-RAG-2026
               </span>
             </div>
-            <div className="font-mono text-xs text-[#7A8699] flex items-center space-x-4">
+            <div className="font-mono text-xs text-[#667085] flex items-center space-x-4">
               <span>93 INDIAN BARE ACTS</span>
               <span>•</span>
               <span className="text-emerald-700 font-bold">SUB-500MS TIME-TO-FIRST-TOKEN</span>
@@ -158,7 +158,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {/* Left: Asymmetric Editorial Typography */}
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-3">
-                <div className="inline-flex items-center space-x-2 bg-[#EFEBE4] px-2.5 py-1 rounded-[2px] border border-[#DDD6C9]">
+                <div className="inline-flex items-center space-x-2 bg-[#F2EFE9] px-2.5 py-1 rounded-[2px] border border-[#D5CEC2]">
                   <Cpu className="w-3.5 h-3.5 text-[#C84B31]" />
                   <span className="font-mono text-xs text-[#121820] font-semibold">
                     HYBRID DENSE + SPARSE RETRIEVAL (CHROMA + BM25)
@@ -181,7 +181,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="pt-2 flex flex-wrap gap-3">
                 <button
                   onClick={() => onStartQuery()}
-                  className="px-6 py-3.5 bg-[#121820] hover:bg-[#222C3A] text-[#FAF7F2] font-mono text-sm font-bold rounded-[2px] transition-all flex items-center space-x-2.5 shadow-sm group active:translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                  className="px-6 py-3.5 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-sm font-bold rounded-[2px] transition-all flex items-center space-x-2.5 shadow-sm group active:translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
                 >
                   <Search className="w-4 h-4 text-[#C84B31]" />
                   <span>OPEN CIVIC NAVIGATOR</span>
@@ -199,19 +199,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {/* Technical Pipeline Badges */}
               <div className="pt-6 border-t border-[#E4DFD5] grid grid-cols-3 gap-3">
                 <div className="p-3 bg-[#FFFFFF] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">CLASSIFIER</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">CLASSIFIER</div>
                   <div className="font-serif font-bold text-base text-[#121820] mt-0.5">0ms Latency</div>
                   <div className="text-[11px] text-[#475467] mt-0.5 font-mono">Deterministic Regex</div>
                 </div>
 
                 <div className="p-3 bg-[#FFFFFF] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">RETRIEVAL</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">RETRIEVAL</div>
                   <div className="font-serif font-bold text-base text-[#121820] mt-0.5">RRF Fusion</div>
                   <div className="text-[11px] text-[#475467] mt-0.5 font-mono">Chroma + BM25</div>
                 </div>
 
                 <div className="p-3 bg-[#FFFFFF] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">OUTPUT SHAPE</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">OUTPUT SHAPE</div>
                   <div className="font-serif font-bold text-base text-[#121820] mt-0.5">5-Part Dossier</div>
                   <div className="text-[11px] text-[#475467] mt-0.5 font-mono">Single-Pass Draft</div>
                 </div>
@@ -229,7 +229,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   className="w-full h-[400px]"
                 />
               </div>
-              <div className="flex items-center justify-between text-xs font-mono text-[#7A8699] px-1">
+              <div className="flex items-center justify-between text-xs font-mono text-[#667085] px-1">
                 <span>RRF CONVERGENCE SCENE</span>
                 <span className="text-[#C84B31] font-semibold">CLICK ANY PLANE TO INSPECT</span>
               </div>
@@ -251,7 +251,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <h2 className="font-serif text-3xl sm:text-4xl text-[#121820] font-black tracking-tight">
               Sub-500ms Time-to-First-Token in Action
             </h2>
-            <p className="text-base text-[#5A687D] font-sans max-w-4xl">
+            <p className="text-base text-[#556377] font-sans max-w-4xl">
               Watch real citizen grievances type in, trigger deterministic 0ms regex routing, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier.
             </p>
           </div>
@@ -267,7 +267,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <section className="py-16 sm:py-20 border-b border-[#E4DFD5] bg-[#FAF7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
           <div className="space-y-1.5 text-left">
-            <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded bg-[#EFECE6] text-xs font-mono text-[#8C271E] font-bold">
+            <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded bg-[#F2EFE9] text-xs font-mono text-[#8C271E] font-bold">
               <Sparkles className="w-3.5 h-3.5 text-[#C84B31]" />
               <span>PROBLEM STATEMENT ARCHITECTURE</span>
             </div>
@@ -335,17 +335,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <span className={`font-mono text-xl font-black transition-colors ${
-                          isActive ? 'text-[#C84B31]' : 'text-[#7A8699]'
+                          isActive ? 'text-[#C84B31]' : 'text-[#667085]'
                         }`}>
                           {item.n}
                         </span>
                         <h3 className={`font-serif font-bold text-lg transition-colors ${
-                          isActive ? 'text-[#121820]' : 'text-[#5A687D]'
+                          isActive ? 'text-[#121820]' : 'text-[#556377]'
                         }`}>
                           {item.name}
                         </h3>
                       </div>
-                      <span className="font-mono text-xs text-[#7A8699] group-hover:text-[#C84B31]">
+                      <span className="font-mono text-xs text-[#667085] group-hover:text-[#C84B31]">
                         {isActive ? '● ACTIVE' : '→'}
                       </span>
                     </div>
@@ -378,7 +378,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div className="p-4 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] font-mono text-xs space-y-2 text-[#121820]">
                     <div className="text-[#C84B31] font-bold">MEMORANDUM OF FIRST APPEAL</div>
                     <div>To: <span className="underline decoration-dotted">[First Appellate Authority, Municipal Corporation]</span></div>
-                    <div className="text-[#5A687D] text-[11px] leading-relaxed">
+                    <div className="text-[#556377] text-[11px] leading-relaxed">
                       "Application dated 15-Jan-2026 regarding Ward 14 Road Repair Tender funds ignored for 38 days. Invoking Section 7(2) Deemed Refusal."
                     </div>
                     <div className="pt-2 text-[10px] text-emerald-700 font-bold flex items-center space-x-1">
@@ -427,10 +427,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div className="p-4 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] font-mono text-xs space-y-2 text-[#121820]">
                     <div className="font-serif font-bold text-sm text-[#121820]">Ayushman Bharat PM-JAY Scheme</div>
                     <div className="text-emerald-700 font-bold">STATUTORY COVERAGE: ₹5,00,000 / FAMILY / YEAR</div>
-                    <div className="text-[11px] text-[#5A687D]">
+                    <div className="text-[11px] text-[#556377]">
                       Eligible: Deprivation D1-D7 criteria under SECC 2011 + Ration Card holder status.
                     </div>
-                    <div className="text-[10px] text-[#7A8699]">
+                    <div className="text-[10px] text-[#667085]">
                       Required: Aadhaar + SECC Household ID + Empanelled Hospital list.
                     </div>
                   </div>
@@ -449,7 +449,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
 
                   <div className="p-4 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] font-mono text-xs space-y-2 text-[#121820]">
-                    <div className="text-[#7A8699] text-[11px]">User: "Landlord 7 days me nikalne ko bol raha hai whatsapp par."</div>
+                    <div className="text-[#667085] text-[11px]">User: "Landlord 7 days me nikalne ko bol raha hai whatsapp par."</div>
                     <div className="text-[#C84B31] font-bold">AI Assistant: "Sec 106 TPA applies. 15-day written notice is statutory requirement. Auto-filling Reply Notice."</div>
                     <div className="pt-1 text-[10px] text-emerald-700 font-bold">
                       ✓ SIDE-BY-SIDE AUTO-POPULATED OFFICIAL LEGAL FORM
@@ -460,7 +460,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
               {/* Action Button */}
               <div className="pt-4 border-t border-[#E4DFD5] flex items-center justify-between">
-                <span className="text-xs font-mono text-[#7A8699]">
+                <span className="text-xs font-mono text-[#667085]">
                   CIVIC MODULE 0{activePillarIdx + 1}
                 </span>
                 <button
@@ -479,7 +479,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       onStartQuery(pillarQueries[activePillarIdx]);
                     }
                   }}
-                  className="px-5 py-2.5 bg-[#121820] hover:bg-[#222C3A] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 group focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                  className="px-5 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 group focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
                 >
                   <span>LAUNCH THIS MODULE</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C84B31] group-hover:translate-x-1 transition-transform" />
@@ -505,7 +505,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <h2 className="font-serif text-3xl sm:text-4xl text-[#121820] font-black">
               The Five-Part Case Dossier
             </h2>
-            <p className="text-base text-[#5A687D] font-sans">
+            <p className="text-base text-[#556377] font-sans">
               Unlike generic chatbots that hallucinate citations, NYAAY AI structures every legal solution into an invariant, courtroom-tested shape.
             </p>
           </div>
@@ -523,10 +523,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     className={`w-full text-left p-4 border transition-all rounded-[2px] flex items-start space-x-3.5 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
                       isActive
                         ? 'border-[#121820] bg-white shadow-xs ring-1 ring-[#121820]/10'
-                        : 'border-[#E4DFD5] bg-[#F2EFE9]/60 hover:bg-[#F2EFE9] text-[#5A687D]'
+                        : 'border-[#E4DFD5] bg-[#F2EFE9]/60 hover:bg-[#F2EFE9] text-[#556377]'
                     }`}
                   >
-                    <div className={`p-2 rounded-[2px] ${isActive ? 'bg-[#121820] text-white' : 'bg-[#E4DFD5] text-[#5A687D]'}`}>
+                    <div className={`p-2 rounded-[2px] ${isActive ? 'bg-[#121820] text-white' : 'bg-[#E4DFD5] text-[#556377]'}`}>
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="flex-1">
@@ -534,12 +534,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                         <span className="font-mono text-[11px] font-bold text-[#C84B31] uppercase">
                           PART 0{item.index} · {item.badge}
                         </span>
-                        <span className="font-mono text-[10px] text-[#7A8699]">STEP {item.index} OF 5</span>
+                        <span className="font-mono text-[10px] text-[#667085]">STEP {item.index} OF 5</span>
                       </div>
                       <div className="font-serif font-bold text-base text-[#121820] mt-0.5">
                         {item.name}
                       </div>
-                      <p className="text-xs text-[#5A687D] mt-1 line-clamp-1 font-sans">
+                      <p className="text-xs text-[#556377] mt-1 line-clamp-1 font-sans">
                         {item.title}
                       </p>
                     </div>
@@ -552,7 +552,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="lg:col-span-7">
               <div className="sticky top-24 border border-[#121820] bg-white rounded-[2px] shadow-sm overflow-hidden">
                 {/* Dossier Header */}
-                <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3.5 flex items-center justify-between border-b border-[#242F3E]">
+                <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3.5 flex items-center justify-between border-b border-[#2B3542]">
                   <div className="flex items-center space-x-3">
                     <span className="font-mono text-xs text-[#C84B31] font-bold">
                       SECTION 0{fivePartArchitecture[activeStepPinned].index}
@@ -561,7 +561,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       {fivePartArchitecture[activeStepPinned].badge}
                     </span>
                   </div>
-                  <div className="font-mono text-[11px] text-[#7A8699]">
+                  <div className="font-mono text-[11px] text-[#667085]">
                     GROUNDED DOSSIER VIEW
                   </div>
                 </div>
@@ -589,7 +589,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                   {/* Actions inside dossier preview */}
                   <div className="pt-4 border-t border-[#E4DFD5] flex items-center justify-between">
-                    <span className="text-xs font-mono text-[#7A8699]">
+                    <span className="text-xs font-mono text-[#667085]">
                       SECTORS: RTI • CONSUMER • TENANT • RERA
                     </span>
                     <button
@@ -608,7 +608,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* 6. COMMON CIVIC SCENARIOS — POLISHED CAROUSEL */}
-      <section className="py-10 sm:py-14 border-b border-[#E4DFD5] bg-[#F9F8F5]">
+      <section className="py-10 sm:py-14 border-b border-[#E4DFD5] bg-[#FAF7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
           
           {/* Header + Controls */}
@@ -623,7 +623,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             
             <div className="flex items-center space-x-4">
-              <p className="hidden md:block text-xs font-mono text-[#7A8699] max-w-sm text-right">
+              <p className="hidden md:block text-xs font-mono text-[#667085] max-w-sm text-right">
                 Select any benchmark scenario to trigger the 0ms regex classifier.
               </p>
 
@@ -672,7 +672,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       <span className="font-mono text-xs font-bold text-[#C84B31] uppercase">
                         {scenario.domain} · {scenario.badge}
                       </span>
-                      <span className="text-[11px] font-mono text-[#7A8699] group-hover:text-[#121820] flex items-center space-x-1">
+                      <span className="text-[11px] font-mono text-[#667085] group-hover:text-[#121820] flex items-center space-x-1">
                         <span>LAUNCH</span>
                         <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </span>
@@ -687,7 +687,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F2EFE9] flex items-center justify-between text-[11px] font-mono text-[#7A8699]">
+                  <div className="pt-3 border-t border-[#F2EFE9] flex items-center justify-between text-[11px] font-mono text-[#667085]">
                     <span className="truncate max-w-[220px]">GROUNDED: {scenario.statute}</span>
                     <span className="text-emerald-700 font-bold flex-shrink-0">READY</span>
                   </div>
@@ -767,7 +767,7 @@ const ScrollRevealSection: React.FC = React.memo(() => {
   return (
     <section 
       ref={scrollSectionRef} 
-      className="min-h-screen py-20 bg-[#121820] text-[#FAF7F2] border-b border-[#242F3E] relative overflow-hidden transform-gpu flex flex-col justify-center"
+      className="min-h-screen py-20 bg-[#121820] text-[#FAF7F2] border-b border-[#2B3542] relative overflow-hidden transform-gpu flex flex-col justify-center"
     >
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FAF7F2_1px,transparent_1px)] [background-size:24px_24px]" />
 
@@ -780,7 +780,7 @@ const ScrollRevealSection: React.FC = React.memo(() => {
         <div className="space-y-6 font-serif text-2xl sm:text-4xl lg:text-5xl leading-[1.3] font-medium tracking-tight">
           <p 
             className={`transition-all duration-300 ${
-              scrollProgress > 0.10 ? 'text-[#FAF7F2] opacity-100' : 'text-[#48566A] opacity-40'
+              scrollProgress > 0.10 ? 'text-[#FAF7F2] opacity-100' : 'text-[#7A8699] opacity-40'
             }`}
           >
             A citizen enters with raw real-world distress.
@@ -788,7 +788,7 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
           <p 
             className={`transition-all duration-300 ${
-              scrollProgress > 0.22 ? 'text-[#FAF7F2] opacity-100' : 'text-[#48566A] opacity-40'
+              scrollProgress > 0.22 ? 'text-[#FAF7F2] opacity-100' : 'text-[#7A8699] opacity-40'
             }`}
           >
             Bureaucracy buries rights under ninety-three disconnected statutes.
@@ -796,14 +796,14 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
           <p 
             className={`transition-all duration-300 ${
-              scrollProgress > 0.34 ? 'text-[#C84B31] opacity-100 font-bold italic' : 'text-[#48566A] opacity-40'
+              scrollProgress > 0.34 ? 'text-[#C84B31] opacity-100 font-bold italic' : 'text-[#7A8699] opacity-40'
             }`}
           >
             The law already protects you — most people just cannot find the path through it.
           </p>
         </div>
 
-        <div className="pt-8 border-t border-[#2B3542] flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#8997AB]">
+        <div className="pt-8 border-t border-[#2B3542] flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#667085]">
           <div>NYAAY ENGINE: RETRIEVAL-AUGMENTED STATUTORY DOSSIER</div>
           <div className="text-[#C84B31] font-semibold">DETERMINISTIC JURISDICTION ROUTING</div>
         </div>

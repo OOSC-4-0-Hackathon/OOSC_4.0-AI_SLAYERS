@@ -26,9 +26,9 @@ export const DocumentDraftingTool: React.FC<DocumentDraftingToolProps> = ({
   if (!dossier) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <Edit3 className="w-12 h-12 text-[#7A8699] mx-auto" />
+        <Edit3 className="w-12 h-12 text-[#667085] mx-auto" />
         <h2 className="font-serif text-2xl font-bold text-[#121820]">No Active Legal Draft Loaded</h2>
-        <p className="text-sm text-[#5A687D] max-w-md mx-auto font-sans">
+        <p className="text-sm text-[#556377] max-w-md mx-auto font-sans">
           To generate an actionable legal notice, affidavit, or appeal memorandum, run a case search in the Civic Navigator.
         </p>
         <button
@@ -104,14 +104,14 @@ export const DocumentDraftingTool: React.FC<DocumentDraftingToolProps> = ({
             <span className="stamp-badge text-[10px] px-2 py-0.5">
               SINGLE-PASS DRAFTING ENGINE // PART 05
             </span>
-            <span className="font-mono text-xs text-[#7A8699]">
+            <span className="font-mono text-xs text-[#667085]">
               DOCKET: {dossier.problemAndRights.docketId}
             </span>
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-black text-[#121820] mt-1">
             {initialDraft.title}
           </h1>
-          <p className="text-xs font-mono text-[#5A687D] mt-0.5">
+          <p className="text-xs font-mono text-[#556377] mt-0.5">
             Statutory Basis: {initialDraft.actReference}
           </p>
         </div>
@@ -152,7 +152,7 @@ export const DocumentDraftingTool: React.FC<DocumentDraftingToolProps> = ({
               <span className="font-mono text-xs font-bold text-[#C84B31] uppercase tracking-wider">
                 // DYNAMIC LEGAL TOKENS ({Object.keys(placeholders).length})
               </span>
-              <span className="text-[11px] font-mono text-[#7A8699]">LIVE REPLACEMENT</span>
+              <span className="text-[11px] font-mono text-[#667085]">LIVE REPLACEMENT</span>
             </div>
 
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
@@ -194,7 +194,7 @@ export const DocumentDraftingTool: React.FC<DocumentDraftingToolProps> = ({
         <div className="lg:col-span-7">
           <div className="border border-[#121820] bg-white rounded-[2px] shadow-md overflow-hidden ledger-ruled-margin">
             {/* Judicial Paper Header Bar */}
-            <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3 flex items-center justify-between font-mono text-xs border-b border-[#242F3E]">
+            <div className="bg-[#121820] text-[#FAF7F2] px-6 py-3 flex items-center justify-between font-mono text-xs border-b border-[#2B3542]">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
                 <span>COURT DOCKET FORMAT // STANDARD A4 LEGAL PAPER</span>
@@ -208,7 +208,7 @@ export const DocumentDraftingTool: React.FC<DocumentDraftingToolProps> = ({
             </div>
 
             {/* Document Signatory Disclaimer Footer */}
-            <div className="p-4 bg-[#F2EFE9] border-t border-[#E4DFD5] text-[11px] font-mono text-[#7A8699] flex items-center justify-between">
+            <div className="p-4 bg-[#F2EFE9] border-t border-[#E4DFD5] text-[11px] font-mono text-[#667085] flex items-center justify-between">
               <span>GENERATED VIA NYAAY AI DRAFTING ENGINE</span>
               <span>GROUNDED UNDER 93 INDIAN BARE ACTS</span>
             </div>

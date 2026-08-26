@@ -28,7 +28,7 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Outer border & ruled lines
-  ctx.strokeStyle = isActive ? '#C84B31' : '#DDD6C9';
+  ctx.strokeStyle = isActive ? '#C84B31' : '#D5CEC2';
   ctx.lineWidth = isActive ? 10 : 4;
   ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
 
@@ -64,12 +64,12 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
   ctx.fillText(line, 40, y);
 
   // Metadata badge
-  ctx.fillStyle = '#5A687D';
+  ctx.fillStyle = '#556377';
   ctx.font = '16px monospace';
   ctx.fillText(`YEAR: ${act.year} • SECTIONS: ${act.sectionCount}`, 40, y + 40);
 
   // Ruled legal paper lines
-  ctx.strokeStyle = '#EAE4D8';
+  ctx.strokeStyle = '#F2EFE9';
   ctx.lineWidth = 2;
   for (let ly = y + 70; ly < canvas.height - 100; ly += 28) {
     ctx.beginPath();
@@ -91,7 +91,7 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
     ctx.fillText('RRF GROUNDED', -70, 6);
     ctx.restore();
   } else {
-    ctx.fillStyle = '#8997AB';
+    ctx.fillStyle = '#667085';
     ctx.font = 'bold 16px monospace';
     ctx.fillText('CLICK TO INSPECT DOSSIER →', 40, canvas.height - 50);
   }
@@ -482,13 +482,13 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
             >
               SWITCH TO 3D VIEW
             </button>
-            <span className="text-[11px] font-mono text-[#7A8699]">HIGH PERFORMANCE</span>
+            <span className="text-[11px] font-mono text-[#667085]">HIGH PERFORMANCE</span>
           </div>
         </div>
 
         {/* 93 -> 34 -> 1 Narrowing Counter */}
         <div className="mb-4 p-3 bg-white border border-[#E4DFD5] rounded-[2px] flex items-center justify-between text-xs font-mono">
-          <span className="text-[#7A8699]">RRF CONVERGENCE:</span>
+          <span className="text-[#667085]">RRF CONVERGENCE:</span>
           <div className="flex items-center space-x-2">
             <span className="bg-[#121820] text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
             <span>→</span>
@@ -515,12 +515,12 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
                     : 'border-[#E4DFD5] bg-[#F2EFE9]/70 hover:bg-white hover:border-[#121820]'
                 }`}
               >
-                <div className="flex items-center justify-between font-mono text-[10px] text-[#7A8699]">
+                <div className="flex items-center justify-between font-mono text-[10px] text-[#667085]">
                   <span>{act.actCode}</span>
                   <span className="text-[#C84B31] font-bold group-hover:underline">INSPECT ACT →</span>
                 </div>
                 <div className="font-serif font-bold text-sm text-[#121820] mt-0.5 line-clamp-1">{act.title}</div>
-                <div className="text-[11px] text-[#5A687D] mt-1 line-clamp-1">{act.summary}</div>
+                <div className="text-[11px] text-[#556377] mt-1 line-clamp-1">{act.summary}</div>
               </button>
             );
           })}
@@ -530,7 +530,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   }
 
   return (
-    <div className={`relative overflow-hidden border border-[#E4DFD5] bg-[#F9F8F5] rounded-[2px] ${className}`}>
+    <div className={`relative overflow-hidden border border-[#E4DFD5] bg-[#FAF7F2] rounded-[2px] ${className}`}>
       {/* Top Technical Metadata Bar & 93 -> 34 -> 1 Live Counter */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-[#FAF7F2]/95 backdrop-blur-xs border-b border-[#E4DFD5]">
         <div className="flex items-center space-x-2">
@@ -543,7 +543,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center space-x-2 text-[11px] font-mono text-[#7A8699]">
+        <div className="flex items-center space-x-2 text-[11px] font-mono text-[#667085]">
           <button
             onClick={() => setForce2DMode(true)}
             className="px-2 py-0.5 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] rounded-[2px] transition-colors cursor-pointer"
@@ -577,7 +577,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
             className={`px-2.5 py-1 text-[10px] font-mono rounded-[2px] border shrink-0 transition-all cursor-pointer ${
               act.id === selectedActState
                 ? 'bg-[#C84B31] text-white border-[#C84B31] font-bold shadow-xs'
-                : 'bg-white/90 hover:bg-white text-[#121820] border-[#DDD6C9]'
+                : 'bg-white/90 hover:bg-white text-[#121820] border-[#D5CEC2]'
             }`}
           >
             {act.actCode}
@@ -591,7 +591,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="bg-[#121820] hover:bg-[#242F3E] text-[#FAF7F2] px-3.5 py-2 rounded-[2px] text-xs font-mono shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-[#2B3542] group"
+          className="bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] px-3.5 py-2 rounded-[2px] text-xs font-mono shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-[#2B3542] group"
           title="Click to inspect this Act's full statutory text"
         >
           <span className="w-2 h-2 rounded-full bg-[#C84B31] group-hover:scale-125 transition-transform"></span>
@@ -608,7 +608,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="pointer-events-auto text-[11px] font-mono font-bold text-white bg-[#C84B31] hover:bg-[#B33D24] px-4 py-2 border border-[#B33D24] rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
+          className="pointer-events-auto text-[11px] font-mono font-bold text-white bg-[#C84B31] hover:bg-[#A83C25] px-4 py-2 border border-[#A83C25] rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
         >
           <Eye className="w-3.5 h-3.5 text-white" />
           <span>INSPECT STATUTE SECTIONS</span>

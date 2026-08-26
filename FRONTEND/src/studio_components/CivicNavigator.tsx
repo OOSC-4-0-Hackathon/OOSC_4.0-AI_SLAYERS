@@ -141,7 +141,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       {/* 1. TOP CASE DOCKET HEADER & REAL-TIME INPUT */}
       <div className="border border-[#121820] bg-white rounded-[2px] shadow-sm overflow-hidden">
         {/* Document Header Bar */}
-        <div className="bg-[#121820] text-[#FAF7F2] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-[#242F3E]">
+        <div className="bg-[#121820] text-[#FAF7F2] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-[#2B3542]">
           <div className="flex items-center space-x-2">
             <span className="text-[#C84B31] font-bold uppercase tracking-wider">// CIVIC NAVIGATOR DISPATCH</span>
             <span className="text-[#556377]">|</span>
@@ -174,7 +174,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               
               {/* 0ms Deterministic Regex Classifier Pill */}
               <div className="flex items-center space-x-1.5 font-mono text-[11px]">
-                <span className="text-[#7A8699]">0ms CLASSIFIER:</span>
+                <span className="text-[#667085]">0ms CLASSIFIER:</span>
                 <span className="bg-[#FAF7F2] text-[#C84B31] border border-[#C84B31]/30 px-2 py-0.5 rounded-[2px] font-bold">
                   {liveClassification.label}
                 </span>
@@ -219,7 +219,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
 
           {/* Quick Scenario Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
-            <span className="text-[#7A8699] text-[11px] font-bold">BENCHMARK DISPUTES:</span>
+            <span className="text-[#667085] text-[11px] font-bold">BENCHMARK DISPUTES:</span>
             <button
               onClick={() => {
                 const q = 'RTI Application filed 38 days ago with Municipal Corporation regarding road repair tender expenses ignored by PIO';
@@ -279,7 +279,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
           </div>
 
           <div className="p-3 bg-white border border-amber-200 rounded-[2px] font-mono text-xs text-[#121820] space-y-1">
-            <div className="text-[#7A8699]">// ACTIVE ROTATOR AUDIT:</div>
+            <div className="text-[#667085]">// ACTIVE ROTATOR AUDIT:</div>
             <div>• KEY_SLOT_01: <span className="text-[#C84B31] font-bold">[EXHAUSTED - BACKOFF 60s]</span></div>
             <div>• KEY_SLOT_02: <span className="text-emerald-700 font-bold">[ACTIVE - 15 RPM QUOTA HEALTHY]</span></div>
           </div>
@@ -303,22 +303,22 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       {metrics && (
         <div className="p-4 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs shadow-xs">
           <div className="p-2.5 bg-white border border-[#E4DFD5] rounded-[2px]">
-            <div className="text-[10px] text-[#7A8699]">DENSE (CHROMA)</div>
+            <div className="text-[10px] text-[#667085]">DENSE (CHROMA)</div>
             <div className="font-bold text-emerald-800 text-sm mt-0.5">{(metrics.denseChromaScore * 100).toFixed(1)}% Sim</div>
             <div className="text-[10px] text-[#556377]">Rank #1 Cosine</div>
           </div>
           <div className="p-2.5 bg-white border border-[#E4DFD5] rounded-[2px]">
-            <div className="text-[10px] text-[#7A8699]">SPARSE (BM25)</div>
+            <div className="text-[10px] text-[#667085]">SPARSE (BM25)</div>
             <div className="font-bold text-blue-800 text-sm mt-0.5">{(metrics.sparseBM25Score * 100).toFixed(1)}% Match</div>
             <div className="text-[10px] text-[#556377]">Rank #1 Lexical</div>
           </div>
           <div className="p-2.5 bg-white border border-[#E4DFD5] rounded-[2px]">
-            <div className="text-[10px] text-[#7A8699]">RRF FUSED SCORE</div>
+            <div className="text-[10px] text-[#667085]">RRF FUSED SCORE</div>
             <div className="font-bold text-[#C84B31] text-sm mt-0.5">{metrics.rrfFusedScore}</div>
             <div className="text-[10px] text-[#556377]">93 → 34 → 1 Narrowed</div>
           </div>
           <div className="p-2.5 bg-white border border-[#E4DFD5] rounded-[2px]">
-            <div className="text-[10px] text-[#7A8699]">STREAMING TTFT</div>
+            <div className="text-[10px] text-[#667085]">STREAMING TTFT</div>
             <div className="font-bold text-[#121820] text-sm mt-0.5">{metrics.latencyMs} ms</div>
             <div className="text-[10px] text-emerald-700 font-bold">Sub-500ms Verified</div>
           </div>
@@ -354,7 +354,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                     ? 'bg-[#121820] text-white border-[#121820] font-bold'
                     : streamProgress === idx + 1
                       ? 'bg-[#C84B31] text-white border-[#C84B31] animate-pulse font-bold'
-                      : 'bg-[#FAF7F2] text-[#7A8699] border-[#E4DFD5]'
+                      : 'bg-[#FAF7F2] text-[#667085] border-[#E4DFD5]'
                 }`}
               >
                 <div>PART 0{idx + 1}</div>
@@ -376,7 +376,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
         <div className="bg-[#FEF3F2] border border-[#F04438] rounded-[2px] p-4 flex items-start space-x-3 mb-6">
           <AlertCircle className="w-5 h-5 text-[#F04438] flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-bold text-[#912018] font-sans">Pipeline Failure</h4>
+            <h4 className="text-sm font-bold text-[#8C271E] font-sans">Pipeline Failure</h4>
             <p className="text-xs text-[#B42318] mt-1 font-mono">{errorMsg}</p>
           </div>
         </div>
@@ -429,7 +429,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       {activeDossier && !isStreaming && (
         <div className="space-y-8">
           {/* Dossier Control Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#121820] text-[#FAF7F2] p-4 sm:p-5 rounded-[2px] border border-[#242F3E]">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-[#121820] text-[#FAF7F2] p-4 sm:p-5 rounded-[2px] border border-[#2B3542]">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <span className="stamp-badge text-[10px] px-2 py-0.5 text-white border-white/40">
@@ -450,7 +450,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                 className={`px-3.5 py-2 font-mono text-xs rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none cursor-pointer ${
                   isDossierSaved
                     ? 'bg-emerald-800 text-white font-bold'
-                    : 'bg-[#242F3E] hover:bg-[#344256] text-[#FAF7F2]'
+                    : 'bg-[#2B3542] hover:bg-[#2B3542] text-[#FAF7F2]'
                 }`}
               >
                 {isDossierSaved ? (
@@ -481,17 +481,17 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             <div className="p-6 sm:p-8 space-y-6">
               
               <div className="space-y-2">
-                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR LEGAL PROBLEM</h3>
+                <h3 className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR LEGAL PROBLEM</h3>
                 <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier?.problemAndRights?.yourLegalProblem}</p>
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT THE LAW APPEARS TO SAY</h3>
+                <h3 className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT THE LAW APPEARS TO SAY</h3>
                 <p className="text-sm text-[#121820] font-sans leading-relaxed">{activeDossier?.problemAndRights?.whatTheLawSays}</p>
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR POTENTIAL RIGHTS / REMEDIES</h3>
+                <h3 className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">YOUR POTENTIAL RIGHTS / REMEDIES</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   {activeDossier?.problemAndRights?.potentialRights.length > 0 ? (
                     (activeDossier?.problemAndRights?.potentialRights || []).map((right, idx) => (
@@ -504,7 +504,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT IS NOT YET ESTABLISHED</h3>
+                <h3 className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider border-b border-[#E4DFD5] pb-1">WHAT IS NOT YET ESTABLISHED</h3>
                 <p className="text-sm text-[#C84B31] font-sans leading-relaxed font-medium">
                   {activeDossier?.problemAndRights?.missingInformation}
                 </p>
@@ -579,7 +579,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                               <span className={`text-[9px] font-sans font-bold px-1.5 py-0.5 rounded-[2px] ${
                                 item.category === 'ALREADY PROVIDED' ? 'bg-[#D1FADF] text-[#027A48]' :
                                 item.category === 'RECOMMENDED' ? 'bg-[#FEF0C7] text-[#B54708]' :
-                                'bg-[#F2F4F7] text-[#344054]'
+                                'bg-[#F2EFE9] text-[#475467]'
                               }`}>
                                 {item.category}
                               </span>
@@ -612,19 +612,19 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             <div className="p-6 sm:p-8 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">FORUM / BODY</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">FORUM / BODY</div>
                   <div className="font-serif font-bold text-sm text-[#121820] mt-1">{activeDossier?.relevantAuthority?.designatedBody}</div>
                   <div className="text-xs text-[#556377] mt-0.5 font-sans">{activeDossier?.relevantAuthority?.officerTitle}</div>
                 </div>
 
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">STATUTORY LIMIT</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">STATUTORY LIMIT</div>
                   <div className="font-serif font-bold text-sm text-[#C84B31] mt-1">{activeDossier?.relevantAuthority?.statutoryTimeLimit}</div>
                   <div className="text-xs text-[#556377] mt-0.5 font-mono">Appeal Window: {activeDossier?.relevantAuthority?.appealPeriod}</div>
                 </div>
 
                 <div className="p-3.5 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px]">
-                  <div className="font-mono text-[10px] text-[#7A8699] uppercase">FILING FEE</div>
+                  <div className="font-mono text-[10px] text-[#667085] uppercase">FILING FEE</div>
                   <div className="font-serif font-bold text-sm text-emerald-800 mt-1">{activeDossier?.relevantAuthority?.filingFee}</div>
                   <div className="text-xs text-[#556377] mt-0.5 font-sans">Jurisdiction: {activeDossier?.relevantAuthority?.jurisdictionLevel}</div>
                 </div>
@@ -632,7 +632,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
 
               {/* Multi-Tier Escalation Pathway */}
               <div className="space-y-3">
-                <div className="font-mono text-xs font-bold text-[#7A8699] uppercase tracking-wider">
+                <div className="font-mono text-xs font-bold text-[#667085] uppercase tracking-wider">
                   STATUTORY ESCALATION PATHWAY:
                 </div>
                 <div className="space-y-2.5">
@@ -647,7 +647,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
                           <span className="font-mono text-[11px] text-[#C84B31] font-semibold">{tier.timeframe}</span>
                         </div>
                         <p className="text-xs text-[#475467] font-sans">{tier.procedure}</p>
-                        <p className="text-[11px] font-mono text-[#7A8699]">PREREQUISITE: {tier.prerequisite}</p>
+                        <p className="text-[11px] font-mono text-[#667085]">PREREQUISITE: {tier.prerequisite}</p>
                       </div>
                     </div>
                   ))}
@@ -674,7 +674,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
             </div>
 
             <div className="p-6 sm:p-8 space-y-4">
-              <div className="flex items-center justify-between font-mono text-xs text-[#7A8699] pb-2 border-b border-[#F2EFE9]">
+              <div className="flex items-center justify-between font-mono text-xs text-[#667085] pb-2 border-b border-[#F2EFE9]">
                 <span>ESTIMATED DURATION: ~{activeDossier?.actionPlan?.totalEstimatedDays} DAYS</span>
                 <span>{activeDossier?.actionPlan?.steps.length} SEQUENTIAL MILESTONES</span>
               </div>
@@ -719,7 +719,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
               </div>
               <button
                 onClick={() => onNavigateToTab('drafter')}
-                className="px-3 py-1 bg-[#C84B31] hover:bg-[#B33D24] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                className="px-3 py-1 bg-[#C84B31] hover:bg-[#A83C25] text-white font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>OPEN IN DRAFTING ENGINE</span>
@@ -768,7 +768,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
 
                     {/* Launch CTA */}
                     <div className="pt-2 flex items-center justify-between">
-                      <span className="text-xs font-sans text-[#7A8699]">
+                      <span className="text-xs font-sans text-[#667085]">
                         Edit party names, dispute dates, addresses, and prayers in real-time.
                       </span>
                       <button

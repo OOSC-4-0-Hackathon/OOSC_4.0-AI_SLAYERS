@@ -1,24 +1,64 @@
 import React, { useEffect } from 'react';
+import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 
-export default function Toast({ isOpen, message, onClose, duration = 3000 }) {
+/**
+ * Toast.
+ *
+ * Was `rounded-xl bg-primary-hover text-emerald-400` — a 12px-radius pill with
+ * an emerald tick, in a product whose radii are 2-4px and whose only accent is
+ * rust. Restyled to the system and given variants so it can carry errors, not
+ * just successes (there was previously no non-blocking way to report failure,
+ * which is why `alert()` was still in the codebase).
+ *
+ * Backwards compatible: existing `<Toast isOpen message onClose />` callers
+ * keep working and default to `variant="success"`.
+ */
+
+const VARIANTS = {
+  success: { Icon: CheckCircle2,   iconClass: 'text-[#4ADE80]' },
+  error:   { Icon: AlertTriangle,  iconClass: 'text-[#FCA5A5]' },
+  info:    { Icon: Info,           iconClass: 'text-[#A2B1C6]' },
+};
+
+export default function Toast({
+  isOpen,
+  message,
+  onClose,
+  duration = 3000,
+  variant = 'success',
+  dismissible = false,
+}) {
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, duration);
+    // duration === 0 pins the toast open (use with dismissible for errors).
+    if (isOpen && duration > 0) {
+      const timer = setTimeout(onClose, duration);
       return () => clearTimeout(timer);
     }
   }, [isOpen, onClose, duration]);
 
   if (!isOpen) return null;
 
+  const { Icon, iconClass } = VARIANTS[variant] || VARIANTS.success;
+
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-primary-hover text-white px-4 py-3 rounded-xl shadow-lg shadow-black/10 flex items-center gap-3 text-sm font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-        </svg>
-        {message}
+    <div
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-md animate-stamp"
+      role="status"
+      aria-live={variant === 'error' ? 'assertive' : 'polite'}
+    >
+      <div className="bg-[#121820] text-[#FAF7F2] border-l-2 border-[#C84B31] px-4 py-3 rounded-[3px] shadow-modal flex items-start gap-3 text-[13px] font-sans font-medium leading-relaxed">
+        <Icon aria-hidden="true" className={`w-4 h-4 mt-0.5 shrink-0 ${iconClass}`} />
+        <span className="flex-1">{message}</span>
+        {dismissible && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Dismiss"
+            className="shrink-0 -mr-1 -mt-0.5 p-1 rounded text-[#A2B1C6] hover:text-[#FAF7F2] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+          >
+            <X aria-hidden="true" className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   );

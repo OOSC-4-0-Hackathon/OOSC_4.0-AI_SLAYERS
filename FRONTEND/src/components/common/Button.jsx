@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 
 /**
@@ -10,8 +10,10 @@ import LoadingSpinner from './LoadingSpinner';
  * danger   → destructive actions only
  *
  * Legacy aliases: amber → primary, outline → ghost (unchanged callers won't break)
+ *
+ * forwardRef so dialogs can move initial focus onto the confirm action.
  */
-export default function Button({
+const Button = forwardRef(function Button({
   children,
   onClick,
   type = 'button',
@@ -20,7 +22,8 @@ export default function Button({
   disabled = false,
   loading = false,
   className = '',
-}) {
+  ...rest
+}, ref) {
   const sizes = {
     sm: 'px-3 py-1.5 text-xs',
     md: 'px-5 py-2.5 text-[13px]',
@@ -39,23 +42,28 @@ export default function Button({
   const variants = {
     // === 3 canonical variants ===
     primary:   'bg-[#C84B31] hover:bg-[#A83C25] text-white font-semibold active:scale-[0.98]',
-    secondary: 'bg-[#121820] hover:bg-[#222C3A] text-[#FAF7F2] font-semibold active:scale-[0.98]',
-    ghost:     'bg-transparent border border-[#D4CFC4] text-[#1A1814] hover:border-[#1A1814] hover:bg-[#F2EFE9] font-medium',
-    danger:    'bg-[#B83A2A] hover:bg-[#9B2E21] text-white font-semibold active:scale-[0.98]',
+    secondary: 'bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-semibold active:scale-[0.98]',
+    ghost:     'bg-transparent border border-[#D5CEC2] text-[#121820] hover:border-[#121820] hover:bg-[#F2EFE9] font-medium',
+    danger:    'bg-[#A83C25] hover:bg-[#8C271E] text-white font-semibold active:scale-[0.98]',
     // === legacy aliases (kept so existing callers don't break) ===
     amber:   'bg-[#C84B31] hover:bg-[#A83C25] text-white font-semibold active:scale-[0.98]',
-    outline: 'bg-transparent border border-[#D4CFC4] text-[#1A1814] hover:border-[#1A1814] hover:bg-[#F2EFE9] font-medium',
+    outline: 'bg-transparent border border-[#D5CEC2] text-[#121820] hover:border-[#121820] hover:bg-[#F2EFE9] font-medium',
   };
 
   return (
     <button
+      ref={ref}
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={`${baseStyle} ${variants[variant] ?? variants.secondary} ${className}`}
+      {...rest}
     >
       {loading && <LoadingSpinner size="sm" className="text-current" />}
       {children}
     </button>
   );
-}
+});
+
+export default Button;

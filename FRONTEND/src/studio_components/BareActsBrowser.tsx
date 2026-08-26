@@ -39,14 +39,14 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
           <span className="stamp-badge text-[10px] px-2 py-0.5">
             STATUTORY REPOSITORY // 93 BARE ACTS
           </span>
-          <span className="font-mono text-xs text-[#7A8699]">
+          <span className="font-mono text-xs text-[#667085]">
             INDIAN LEGISLATIVE DATABASE
           </span>
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-black text-[#121820]">
           Indian Bare Acts Grounding Index
         </h1>
-        <p className="text-sm text-[#5A687D] max-w-2xl font-sans">
+        <p className="text-sm text-[#556377] max-w-2xl font-sans">
           Search the grounded statutory repository powering NYAAY AI's hybrid dense and sparse RRF retrieval engine.
         </p>
       </div>
@@ -54,7 +54,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
       {/* Search & Category Filter */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-[#7A8699] absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-[#667085] absolute left-3.5 top-3.5" />
           <input
             type="text"
             value={searchTerm}
@@ -93,7 +93,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
                 <span className="font-mono text-[10px] font-bold text-[#C84B31] uppercase">
                   {act.actCode}
                 </span>
-                <span className="font-mono text-[10px] text-[#7A8699]">
+                <span className="font-mono text-[10px] text-[#667085]">
                   {act.year}
                 </span>
               </div>
@@ -106,7 +106,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
                 Category: {CATEGORY_LABELS[act.category]}
               </div>
 
-              <p className="text-xs text-[#5A687D] font-sans line-clamp-3 leading-relaxed">
+              <p className="text-xs text-[#556377] font-sans line-clamp-3 leading-relaxed">
                 {act.summary}
               </p>
             </div>
@@ -122,7 +122,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-[#7A8699]">
+                <span className="text-[11px] font-mono text-[#667085]">
                   {act.sectionCount} SECTIONS
                 </span>
                 <button

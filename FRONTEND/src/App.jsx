@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -15,17 +15,49 @@ const UploadChat = lazy(() => import('./pages/UploadChat'));
 const DocHub = lazy(() => import('./pages/DocHub'));
 const LegalReasoning = lazy(() => import('./pages/LegalReasoning'));
 const CivicNavigator = lazy(() => import('./pages/CivicNavigator'));
+const Legal = lazy(() => import('./pages/Legal'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+/*
+ * Route-transition fallback.
+ *
+ * Was `background: #FFFFFF` with a bare "Loading…" — a white flash against a
+ * #FAF7F2 app, then unstyled system text. Paper-toned and branded instead.
+ */
+function RouteFallback() {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center gap-4 bg-paper"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="w-8 h-8 rounded-[4px] bg-[#121820] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542]">
+        <span className="font-serif font-bold text-sm tracking-tight">Ny</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#C84B31] animate-pulse" />
+        <span className="text-[13px] font-sans text-[#556377]">Loading…</span>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF', color: '#1A1814', fontFamily: 'sans-serif' }}>Loading…</div>}>
+        <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+
+            {/* Public legal pages — Terms / Privacy / Disclaimer.
+                These must never sit behind auth: a visitor has to be able to
+                read the disclaimer before handing over a legal problem. */}
+            <Route path="/legal" element={<Navigate to="/legal/disclaimer" replace />} />
+            <Route path="/legal/:doc" element={<Legal />} />
 
             {/* Protected Routes */}
             <Route
@@ -76,6 +108,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Unknown URLs rendered a blank page. */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </AuthProvider>
@@ -84,4 +119,3 @@ function App() {
 }
 
 export default App;
-

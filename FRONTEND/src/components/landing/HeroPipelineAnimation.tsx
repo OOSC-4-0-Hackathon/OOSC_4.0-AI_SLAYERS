@@ -200,7 +200,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
 
       {/* ZONE 1: Vertical Progress Rail */}
       <div className="hidden lg:flex lg:col-span-2 flex-col space-y-3 p-4 bg-white border border-[#E4DFD5] rounded-[4px] shadow-2xs">
-        <div className="font-mono text-[10px] font-bold text-[#7A8699] uppercase tracking-wider pb-2 border-b border-[#E4DFD5]">
+        <div className="font-mono text-[10px] font-bold text-[#667085] uppercase tracking-wider pb-2 border-b border-[#E4DFD5]">
           PIPELINE STAGE
         </div>
         <div className="relative space-y-4 pt-1">
@@ -215,18 +215,18 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
                     ? 'bg-[#C84B31] text-white border-[#C84B31] shadow-xs'
                     : isPassed
                     ? 'bg-[#121820] text-white border-[#121820]'
-                    : 'bg-[#F2EFE9] text-[#7A8699] border-[#DDD6C9]'
+                    : 'bg-[#F2EFE9] text-[#667085] border-[#D5CEC2]'
                 }`}>
                   {isPassed ? '✓' : stg.num}
                 </div>
                 {/* Stage Text */}
                 <div className="space-y-0.5">
                   <div className={`font-mono text-xs font-bold transition-colors ${
-                    isCurrent ? 'text-[#C84B31]' : isPassed ? 'text-[#121820]' : 'text-[#7A8699]'
+                    isCurrent ? 'text-[#C84B31]' : isPassed ? 'text-[#121820]' : 'text-[#667085]'
                   }`}>
                     {stg.name}
                   </div>
-                  <div className="font-mono text-[9px] text-[#7A8699] leading-tight">
+                  <div className="font-mono text-[9px] text-[#667085] leading-tight">
                     {stg.sub}
                   </div>
                 </div>
@@ -239,8 +239,8 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
       {/* ZONE 2: Input + Funnel */}
       <div className="lg:col-span-4 space-y-4">
         {/* Faux terminal input */}
-        <div className="bg-[#F9F8F5] border border-[#E4DFD5] rounded-[4px] p-4">
-          <div className="font-mono text-[10px] text-[#7A8699] uppercase tracking-widest mb-2 flex items-center gap-2">
+        <div className="bg-[#FAF7F2] border border-[#E4DFD5] rounded-[4px] p-4">
+          <div className="font-mono text-[10px] text-[#667085] uppercase tracking-widest mb-2 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C84B31] animate-pulse" />
             CITIZEN QUERY INPUT
           </div>
@@ -278,15 +278,15 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
                     : 'bg-[#F2EFE9]/60 border-[#E4DFD5]'
                 }`}
               >
-                <div className="font-mono text-[9px] text-[#7A8699] uppercase tracking-wider">{label}</div>
+                <div className="font-mono text-[9px] text-[#667085] uppercase tracking-wider">{label}</div>
                 <div className={`font-mono font-black text-xl transition-all duration-300 ${
                   isActive
                     ? step === 2 ? 'text-emerald-700' : 'text-[#121820]'
-                    : 'text-[#D4CFC4]'
+                    : 'text-[#D5CEC2]'
                 }`}>
                   {to}
                 </div>
-                <div className={`font-mono text-[9px] transition-colors ${isActive ? 'text-[#C84B31]' : 'text-[#A8A39A]'}`}>
+                <div className={`font-mono text-[9px] transition-colors ${isActive ? 'text-[#C84B31]' : 'text-[#667085]'}`}>
                   {desc}
                 </div>
               </div>
@@ -297,9 +297,9 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
         {/* TTFT Ticker */}
         {(phase === 'ttft' || phase === 'parts' || phase === 'done') && (
           <div className="flex items-center gap-3">
-            <div className="flex-1 bg-[#F9F8F5] border border-[#E4DFD5] rounded-[4px] px-4 py-2.5 flex items-center gap-3">
+            <div className="flex-1 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[4px] px-4 py-2.5 flex items-center gap-3">
               <Zap className="w-3.5 h-3.5 text-[#C84B31] flex-shrink-0" />
-              <span className="font-mono text-xs text-[#7A8699]">Time-to-First-Token:</span>
+              <span className="font-mono text-xs text-[#667085]">Time-to-First-Token:</span>
               <span className="font-mono font-bold text-sm text-[#121820] tabular-nums">
                 {ttftCount}ms
               </span>
@@ -329,7 +329,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
         <div className="bg-[#121820] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] text-[#C84B31] font-bold">5-PART DOSSIER</span>
-            <span className="font-mono text-[10px] text-[#7A8699]">{scenario.statute}</span>
+            <span className="font-mono text-[10px] text-[#667085]">{scenario.statute}</span>
           </div>
           {isComplete && (
             <span className="font-mono text-[10px] text-emerald-400 font-bold border border-emerald-700/40 px-1.5 py-0.5 rounded-[2px]">
@@ -362,7 +362,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
 
         {/* CTA strip */}
         {isComplete && onOpenDossierInNavigator && (
-          <div className="border-t border-[#E4DFD5] px-4 py-3 bg-[#F9F8F5]">
+          <div className="border-t border-[#E4DFD5] px-4 py-3 bg-[#FAF7F2]">
             <button
               onClick={() => onOpenDossierInNavigator(scenario.query)}
               className="text-xs font-mono font-bold text-[#C84B31] hover:text-[#A83C25] flex items-center gap-1 transition-colors"

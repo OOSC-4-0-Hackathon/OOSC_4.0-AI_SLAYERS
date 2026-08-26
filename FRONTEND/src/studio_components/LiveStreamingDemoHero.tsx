@@ -176,7 +176,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
   return (
     <div className="border border-[#121820] bg-white rounded-[2px] shadow-md overflow-hidden space-y-0">
       {/* Top Telemetry & Control Bar */}
-      <div className="bg-[#121820] text-[#FAF7F2] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-[#242F3E]">
+      <div className="bg-[#121820] text-[#FAF7F2] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-[#2B3542]">
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-1.5 text-emerald-400">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -190,7 +190,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
 
         {/* Live Millisecond Counter & Controls */}
         <div className="flex items-center space-x-3">
-          <div className="bg-[#1E2633] px-2.5 py-1 rounded-[2px] border border-[#2B3542] flex items-center space-x-1.5 font-mono text-[11px]">
+          <div className="bg-[#1A222D] px-2.5 py-1 rounded-[2px] border border-[#2B3542] flex items-center space-x-1.5 font-mono text-[11px]">
             <Clock className="w-3.5 h-3.5 text-[#C84B31]" />
             <span className="text-[#A2B1C6]">LATENCY:</span>
             <span className="font-bold text-emerald-400 w-12 text-right">
@@ -220,7 +220,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
 
       {/* Scenario Selector Pills */}
       <div className="bg-[#F2EFE9] px-4 py-2 border-b border-[#E4DFD5] flex items-center gap-2 overflow-x-auto">
-        <span className="text-[10px] font-mono text-[#7A8699] uppercase font-bold shrink-0">
+        <span className="text-[10px] font-mono text-[#667085] uppercase font-bold shrink-0">
           SELECT DISPUTE BENCHMARK:
         </span>
         {DEMO_SCENARIOS.map((sc, idx) => (
@@ -230,7 +230,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
             className={`px-2.5 py-1 rounded-[2px] font-mono text-xs transition-all whitespace-nowrap ${
               activeScenarioIndex === idx
                 ? 'bg-[#121820] text-white font-bold shadow-xs'
-                : 'bg-white text-[#5A687D] hover:text-[#121820] border border-[#E4DFD5]'
+                : 'bg-white text-[#556377] hover:text-[#121820] border border-[#E4DFD5]'
             }`}
           >
             {sc.label}
@@ -271,21 +271,21 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
             {/* Visual Step Pipeline Bar */}
             <div className="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
               <div className={`p-1.5 rounded-[2px] border transition-all ${
-                activeNarrowStage >= 1 ? 'bg-[#121820] text-white border-[#121820] font-bold' : 'bg-[#FAF7F2] text-[#7A8699] border-[#E4DFD5]'
+                activeNarrowStage >= 1 ? 'bg-[#121820] text-white border-[#121820] font-bold' : 'bg-[#FAF7F2] text-[#667085] border-[#E4DFD5]'
               }`}>
                 <span>1. TOTAL CORPUS</span>
                 <div className="text-xs">93 ACTS</div>
               </div>
 
               <div className={`p-1.5 rounded-[2px] border transition-all ${
-                activeNarrowStage >= 2 ? 'bg-[#121820] text-white border-[#121820] font-bold' : 'bg-[#FAF7F2] text-[#7A8699] border-[#E4DFD5]'
+                activeNarrowStage >= 2 ? 'bg-[#121820] text-white border-[#121820] font-bold' : 'bg-[#FAF7F2] text-[#667085] border-[#E4DFD5]'
               }`}>
                 <span>2. BM25 FILTER</span>
                 <div className="text-xs">34 CHUNKS</div>
               </div>
 
               <div className={`p-1.5 rounded-[2px] border transition-all ${
-                activeNarrowStage >= 3 ? 'bg-[#C84B31] text-white border-[#C84B31] font-bold' : 'bg-[#FAF7F2] text-[#7A8699] border-[#E4DFD5]'
+                activeNarrowStage >= 3 ? 'bg-[#C84B31] text-white border-[#C84B31] font-bold' : 'bg-[#FAF7F2] text-[#667085] border-[#E4DFD5]'
               }`}>
                 <span>3. CHROMA RRF</span>
                 <div className="text-xs">1 TOP MATCH</div>
@@ -294,7 +294,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
 
             {/* Matched Act Callout */}
             <div className="p-2 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[2px] text-xs font-mono flex items-center justify-between">
-              <span className="text-[#7A8699]">GROUNDED:</span>
+              <span className="text-[#667085]">GROUNDED:</span>
               <span className="text-[#121820] font-bold truncate max-w-[220px]">
                 {scenario.statute} ({scenario.section})
               </span>
@@ -310,7 +310,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
                 <span className="stamp-badge text-[10px] px-2 py-0.5">
                   5-PART INVARIANT DOSSIER
                 </span>
-                <span className="font-mono text-xs text-[#7A8699]">
+                <span className="font-mono text-xs text-[#667085]">
                   TIME TO FIRST TOKEN: <strong className="text-emerald-700">{scenario.ttftMs}ms</strong>
                 </span>
               </div>
@@ -392,7 +392,7 @@ export const LiveStreamingDemoHero: React.FC<LiveStreamingDemoHeroProps> = ({
 
           {/* Bottom Launch Button into Civic Navigator */}
           <div className="pt-3 border-t border-[#E4DFD5] flex items-center justify-between">
-            <span className="text-[11px] font-mono text-[#7A8699]">
+            <span className="text-[11px] font-mono text-[#667085]">
               GROUNDED ACROSS 93 BARE ACTS
             </span>
             <button

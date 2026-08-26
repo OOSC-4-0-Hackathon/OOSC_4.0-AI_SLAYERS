@@ -3,7 +3,7 @@ import Navbar from './Navbar';
 
 export default function WorkspaceContainer({ children, className = '' }) {
   return (
-    <div className={`h-screen w-screen overflow-hidden bg-[#F9F8F5] ledger-grid text-[#121820] flex flex-col font-sans antialiased ${className}`}>
+    <div className={`h-screen w-screen overflow-hidden bg-[#FAF7F2] ledger-grid text-[#121820] flex flex-col font-sans antialiased ${className}`}>
       <Navbar fullWidth={true} />
       {/* 
         pt-[64px] is the height of the main Navbar.
