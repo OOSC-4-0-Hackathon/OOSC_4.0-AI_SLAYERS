@@ -25,7 +25,7 @@ export default function EmptyState({ icon, eyebrow, title, subtitle, actions = [
 
       {/* Eyebrow */}
       {eyebrow && (
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">
           {eyebrow}
         </span>
       )}

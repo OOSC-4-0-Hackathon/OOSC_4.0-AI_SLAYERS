@@ -516,7 +516,7 @@ export const ConversationalFormFiller: React.FC = () => {
       {/* Header */}
       <div className="bg-[#FAF7F2] border border-[#E4DFD5] rounded-xl p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-[#F2EFE9] text-xs font-mono text-[#8C271E] font-bold mb-2">
+          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-[#F2EFE9] text-xs text-[#8C271E] font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-[#C84B31]" />
             <span>CONVERSATIONAL FORM-FILLER AGENT</span>
           </div>
@@ -530,12 +530,12 @@ export const ConversationalFormFiller: React.FC = () => {
 
         {/* Template Selector Dropdown */}
         <div className="shrink-0 flex items-center space-x-3">
-          <label className="text-xs font-mono text-[#556377]">Target Form:</label>
+          <label className="text-xs text-[#556377]">Target Form:</label>
           <select
             value={selectedFormId}
             onChange={(e) => setSelectedFormId(e.target.value)}
             disabled={isAiThinking || status === 'STARTING'}
-            className="px-3.5 py-2 rounded-lg bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] font-bold focus:outline-none focus:ring-2 focus:ring-[#121820] shadow-xs disabled:opacity-50"
+            className="px-3.5 py-2 rounded-lg bg-white border border-[#D5CEC2] text-xs text-[#121820] font-bold focus:outline-none focus:ring-2 focus:ring-[#121820] shadow-xs disabled:opacity-50"
           >
             {FORM_TEMPLATES.map(t => (
               <option key={t.id} value={t.id}>
@@ -559,14 +559,14 @@ export const ConversationalFormFiller: React.FC = () => {
                 <h3 className="font-serif font-bold text-sm text-[#121820]">
                   AI Legal Intake Officer
                 </h3>
-                <span className="text-[11px] font-mono text-emerald-700 font-medium flex items-center gap-1">
+                <span className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Interactive Q&A Active
                 </span>
               </div>
             </div>
 
-            <div className="text-right font-mono text-xs text-[#556377]">
+            <div className="text-right text-xs text-[#556377]">
               <span>{completedCount} of {totalQuestions} required fields completed</span>
             </div>
           </div>
@@ -593,7 +593,7 @@ export const ConversationalFormFiller: React.FC = () => {
                 >
                   <p className="whitespace-pre-line">{msg.content}</p>
                   <span
-                    className={`block text-[10px] font-mono mt-1 ${
+                    className={`block text-[10px] mt-1 ${
                       msg.role === 'user' ? 'text-white/60 text-right' : 'text-[#A2B1C6]'
                     }`}
                   >
@@ -627,7 +627,7 @@ export const ConversationalFormFiller: React.FC = () => {
           <div className="p-3.5 bg-white border-t border-[#E4DFD5]">
             {currentQ && status === 'IN_PROGRESS' && (
               <div className="mb-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-[#556377] mb-1">
+                <div className="flex items-center justify-between text-[11px] text-[#556377] mb-1">
                   <span>Tip: {currentQ.explanation}</span>
                   {currentQ.example && (
                     <button
@@ -669,7 +669,7 @@ export const ConversationalFormFiller: React.FC = () => {
           {/* Document Header Controls */}
           <div className="p-4 bg-[#FAF7F2] border-b border-[#E4DFD5] flex flex-wrap items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#556377] block">
+              <span className="text-[10px] uppercase tracking-wider text-[#556377] block">
                 Official Statutory Form Preview
               </span>
               <h3 className="font-serif font-bold text-sm text-[#121820]">
@@ -681,7 +681,7 @@ export const ConversationalFormFiller: React.FC = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleCopyForm}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#556377]" />}
                 <span>{isCopied ? 'Copied' : 'Copy Text'}</span>
@@ -689,7 +689,7 @@ export const ConversationalFormFiller: React.FC = () => {
 
               <button
                 onClick={handleDownloadPdf}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-rose-600" />
                 <span>PDF</span>
@@ -697,7 +697,7 @@ export const ConversationalFormFiller: React.FC = () => {
 
               <button
                 onClick={handleDownloadDocx}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-blue-600" />
                 <span>DOCX</span>
@@ -705,7 +705,7 @@ export const ConversationalFormFiller: React.FC = () => {
 
               <button
                 onClick={handleDownloadTxt}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-[#556377]" />
                 <span>TXT</span>
@@ -713,7 +713,7 @@ export const ConversationalFormFiller: React.FC = () => {
 
               <button
                 onClick={handlePrint}
-                className="px-3 py-1.5 rounded-md bg-[#121820] text-white text-xs font-mono hover:bg-[#2B3542] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-[#121820] text-white text-xs hover:bg-[#2B3542] transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print</span>
@@ -723,13 +723,13 @@ export const ConversationalFormFiller: React.FC = () => {
 
           {/* High-Fidelity Paper Canvas */}
           <div className="flex-1 p-6 overflow-y-auto bg-[#FAF7F2]">
-            <div className="max-w-2xl mx-auto bg-white p-8 border border-[#E4DFD5] shadow-xs rounded-sm font-mono text-xs text-[#121820] leading-relaxed whitespace-pre-wrap selection:bg-amber-100">
+            <div className="max-w-2xl mx-auto bg-white p-8 border border-[#E4DFD5] shadow-xs rounded-sm text-xs text-[#121820] leading-relaxed whitespace-pre-wrap selection:bg-amber-100">
               {activeTemplate.generateFormText(formFields)}
             </div>
           </div>
 
           {/* Footer Metadata */}
-          <div className="p-3 bg-[#FAF7F2] border-t border-[#E4DFD5] text-[11px] font-mono text-[#556377] flex items-center justify-between">
+          <div className="p-3 bg-[#FAF7F2] border-t border-[#E4DFD5] text-[11px] text-[#556377] flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
               <span>Grounded in Indian Central/State Gazette Rules</span>

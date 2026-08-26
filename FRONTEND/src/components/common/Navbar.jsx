@@ -107,7 +107,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
             <span className="font-serif font-bold text-xl tracking-tight text-[#FAF7F2]">
               NYAAY
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
+            <span className="text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
               AI
             </span>
             <span className="hidden xl:inline text-[#2B3542]" aria-hidden="true">|</span>
@@ -163,7 +163,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
           {currentUser ? (
             <div className="flex items-center space-x-2">
               {/* Account identifier — mono, because it is data */}
-              <span className="hidden sm:inline text-xs font-mono text-[#A2B1C6] bg-[#1A222D]/80 border border-[#2B3542] px-2.5 py-1.5 rounded-[4px] truncate max-w-[120px]">
+              <span className="hidden sm:inline text-xs text-[#A2B1C6] bg-[#1A222D]/80 border border-[#2B3542] px-2.5 py-1.5 rounded-[4px] truncate max-w-[120px]">
                 {currentUser.displayName || currentUser.email?.split('@')[0]}
               </span>
 

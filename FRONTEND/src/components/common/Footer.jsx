@@ -48,7 +48,7 @@ export default function Footer() {
                 <span className="font-serif font-bold text-xl tracking-tight text-[#FAF7F2]">
                   NYAAY
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
+                <span className="text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#C84B31] text-[#FAF7F2] font-bold border border-[#C84B31]">
                   AI
                 </span>
               </div>
@@ -141,15 +141,15 @@ export default function Footer() {
             <h2 className={headingClass}>93 Grounded Bare Acts</h2>
             <div className="space-y-2 text-[12px]">
               <div className="p-2 rounded bg-[#1A222D] border border-[#2B3542]">
-                <span className="font-mono text-[#FAF7F2] font-bold block">RTI Act, 2005</span>
+                <span className="text-[#FAF7F2] font-bold block">RTI Act, 2005</span>
                 <span className="text-[#A2B1C6]">Sec 7(1) &amp; Sec 19 Appellate Forum</span>
               </div>
               <div className="p-2 rounded bg-[#1A222D] border border-[#2B3542]">
-                <span className="font-mono text-[#FAF7F2] font-bold block">Consumer Protection Act, 2019</span>
+                <span className="text-[#FAF7F2] font-bold block">Consumer Protection Act, 2019</span>
                 <span className="text-[#A2B1C6]">Defect &amp; Deficiency Remedies</span>
               </div>
               <div className="p-2 rounded bg-[#1A222D] border border-[#2B3542]">
-                <span className="font-mono text-[#FAF7F2] font-bold block">Bharatiya Nyaya Sanhita, 2023</span>
+                <span className="text-[#FAF7F2] font-bold block">Bharatiya Nyaya Sanhita, 2023</span>
                 <span className="text-[#A2B1C6]">Updated Statutory Provisions</span>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-8 pt-6 border-t border-[#2B3542] flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-[#7A8699]">
-          <div className="font-mono">
+          <div className="">
             © {currentYear} NYAAY AI · Grounded Legal OS
           </div>
 

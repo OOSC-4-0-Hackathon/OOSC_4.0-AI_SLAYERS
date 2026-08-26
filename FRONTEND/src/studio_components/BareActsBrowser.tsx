@@ -39,7 +39,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
           <span className="stamp-badge text-[10px] px-2 py-0.5">
             STATUTORY REPOSITORY // 93 BARE ACTS
           </span>
-          <span className="font-mono text-xs text-[#667085]">
+          <span className="text-xs text-[#667085]">
             INDIAN LEGISLATIVE DATABASE
           </span>
         </div>
@@ -68,7 +68,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full py-2.5 px-3 bg-white border border-[#E4DFD5] text-xs font-mono rounded-[2px] outline-none"
+            className="w-full py-2.5 px-3 bg-white border border-[#E4DFD5] text-xs rounded-[2px] outline-none"
           >
             <option value="ALL">ALL CATEGORIES ({BARE_ACTS_CATALOG.length})</option>
             <option value="CIVIC_RIGHTS">Civic & Information Rights</option>
@@ -90,10 +90,10 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-bold text-[#C84B31] uppercase">
+                <span className="text-[10px] font-bold text-[#A83C25] uppercase">
                   {act.actCode}
                 </span>
-                <span className="font-mono text-[10px] text-[#667085]">
+                <span className="text-[10px] text-[#667085]">
                   {act.year}
                 </span>
               </div>
@@ -102,7 +102,7 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
                 {act.title}
               </h3>
 
-              <div className="font-mono text-[11px] text-[#556377]">
+              <div className="text-[11px] text-[#556377]">
                 Category: {CATEGORY_LABELS[act.category]}
               </div>
 
@@ -115,19 +115,19 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
             <div className="space-y-3 pt-3 border-t border-[#F2EFE9]">
               <div className="flex flex-wrap gap-1">
                 {act.keySections.slice(0, 3).map((sec, idx) => (
-                  <span key={idx} className="font-mono text-[10px] bg-[#FAF7F2] text-[#121820] border border-[#E4DFD5] px-1.5 py-0.5 rounded-[2px]">
+                  <span key={idx} className="text-[10px] bg-[#FAF7F2] text-[#121820] border border-[#E4DFD5] px-1.5 py-0.5 rounded-[2px]">
                     {sec}
                   </span>
                 ))}
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-[#667085]">
+                <span className="text-[11px] text-[#667085]">
                   {act.sectionCount} SECTIONS
                 </span>
                 <button
                   onClick={() => onSelectActForQuery(act)}
-                  className="px-3 py-1 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-[11px] rounded-[2px] transition-colors flex items-center space-x-1"
+                  className="px-3 py-1 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] text-[11px] rounded-[2px] transition-colors flex items-center space-x-1"
                 >
                   <span>QUERY THIS ACT</span>
                   <ArrowRight className="w-3 h-3 text-[#C84B31]" />

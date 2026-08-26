@@ -50,7 +50,7 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Descri
         </div>
       </div>
       <div className="text-center mt-2">
-        <p className="font-mono text-[10px] text-ink-fog uppercase tracking-wider">
+        <p className="text-[10px] text-ink-fog uppercase tracking-wider">
           NYAAY AI · Grounded in 93 Indian Bare Acts · Verify before filing
         </p>
       </div>

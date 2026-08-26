@@ -200,7 +200,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
 
       {/* ZONE 1: Vertical Progress Rail */}
       <div className="hidden lg:flex lg:col-span-2 flex-col space-y-3 p-4 bg-white border border-[#E4DFD5] rounded-[4px] shadow-2xs">
-        <div className="font-mono text-[10px] font-bold text-[#667085] uppercase tracking-wider pb-2 border-b border-[#E4DFD5]">
+        <div className="text-[10px] font-bold text-[#667085] uppercase tracking-wider pb-2 border-b border-[#E4DFD5]">
           PIPELINE STAGE
         </div>
         <div className="relative space-y-4 pt-1">
@@ -210,7 +210,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
             return (
               <div key={stg.num} className="flex items-start space-x-3 relative group">
                 {/* Status Dot */}
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[9px] font-bold border transition-all shrink-0 mt-0.5 ${
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold border transition-all shrink-0 mt-0.5 ${
                   isCurrent
                     ? 'bg-[#C84B31] text-white border-[#C84B31] shadow-xs'
                     : isPassed
@@ -221,12 +221,12 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
                 </div>
                 {/* Stage Text */}
                 <div className="space-y-0.5">
-                  <div className={`font-mono text-xs font-bold transition-colors ${
+                  <div className={`text-xs font-bold transition-colors ${
                     isCurrent ? 'text-[#C84B31]' : isPassed ? 'text-[#121820]' : 'text-[#667085]'
                   }`}>
                     {stg.name}
                   </div>
-                  <div className="font-mono text-[9px] text-[#667085] leading-tight">
+                  <div className="text-[9px] text-[#667085] leading-tight">
                     {stg.sub}
                   </div>
                 </div>
@@ -240,7 +240,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
       <div className="lg:col-span-4 space-y-4">
         {/* Faux terminal input */}
         <div className="bg-[#FAF7F2] border border-[#E4DFD5] rounded-[4px] p-4">
-          <div className="font-mono text-[10px] text-[#667085] uppercase tracking-widest mb-2 flex items-center gap-2">
+          <div className="text-[10px] text-[#667085] uppercase tracking-widest mb-2 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C84B31] animate-pulse" />
             CITIZEN QUERY INPUT
           </div>
@@ -252,7 +252,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
           </p>
           {phase !== 'typing' && (
             <div className="mt-2 flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold text-[#C84B31] uppercase tracking-wider bg-[#C84B31]/10 border border-[#C84B31]/20 px-2 py-0.5 rounded-[2px]">
+              <span className="text-[10px] font-bold text-[#A83C25] uppercase tracking-wider bg-[#C84B31]/10 border border-[#C84B31]/20 px-2 py-0.5 rounded-[2px]">
                 {scenario.domain}
               </span>
             </div>
@@ -278,15 +278,15 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
                     : 'bg-[#F2EFE9]/60 border-[#E4DFD5]'
                 }`}
               >
-                <div className="font-mono text-[9px] text-[#667085] uppercase tracking-wider">{label}</div>
-                <div className={`font-mono font-black text-xl transition-all duration-300 ${
+                <div className="text-[9px] text-[#667085] uppercase tracking-wider">{label}</div>
+                <div className={`font-black text-xl transition-all duration-300 ${
                   isActive
                     ? step === 2 ? 'text-emerald-700' : 'text-[#121820]'
                     : 'text-[#D5CEC2]'
                 }`}>
                   {to}
                 </div>
-                <div className={`font-mono text-[9px] transition-colors ${isActive ? 'text-[#C84B31]' : 'text-[#667085]'}`}>
+                <div className={`text-[9px] transition-colors ${isActive ? 'text-[#A83C25]' : 'text-[#667085]'}`}>
                   {desc}
                 </div>
               </div>
@@ -299,7 +299,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-[#FAF7F2] border border-[#E4DFD5] rounded-[4px] px-4 py-2.5 flex items-center gap-3">
               <Zap className="w-3.5 h-3.5 text-[#C84B31] flex-shrink-0" />
-              <span className="font-mono text-xs text-[#667085]">Time-to-First-Token:</span>
+              <span className="text-xs text-[#667085]">Time-to-First-Token:</span>
               <span className="font-mono font-bold text-sm text-[#121820] tabular-nums">
                 {ttftCount}ms
               </span>
@@ -307,7 +307,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
             {isComplete && (
               <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 px-3 py-2 rounded-[4px] animate-[stampIn_200ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                <span className="font-mono text-[11px] font-bold text-emerald-700 uppercase tracking-wide">GROUNDED</span>
+                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">GROUNDED</span>
               </div>
             )}
           </div>
@@ -328,11 +328,11 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
         {/* Header */}
         <div className="bg-[#121820] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] text-[#C84B31] font-bold">5-PART DOSSIER</span>
-            <span className="font-mono text-[10px] text-[#667085]">{scenario.statute}</span>
+            <span className="text-[10px] text-[#A83C25] font-bold">5-PART DOSSIER</span>
+            <span className="text-[10px] text-[#667085]">{scenario.statute}</span>
           </div>
           {isComplete && (
-            <span className="font-mono text-[10px] text-emerald-400 font-bold border border-emerald-700/40 px-1.5 py-0.5 rounded-[2px]">
+            <span className="text-[10px] text-emerald-400 font-bold border border-emerald-700/40 px-1.5 py-0.5 rounded-[2px]">
               {scenario.verdict}
             </span>
           )}
@@ -349,7 +349,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
                   revealed ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <span className="font-mono text-[9px] font-bold text-[#C84B31] uppercase tracking-wider w-[60px] flex-shrink-0 pt-0.5">
+                <span className="text-[9px] font-bold text-[#A83C25] uppercase tracking-wider w-[60px] flex-shrink-0 pt-0.5">
                   {part.label}
                 </span>
                 <p className="font-sans text-[12px] text-[#475467] leading-relaxed">
@@ -365,7 +365,7 @@ function HeroPipelineAnimationComponent({ onOpenDossierInNavigator }: Props) {
           <div className="border-t border-[#E4DFD5] px-4 py-3 bg-[#FAF7F2]">
             <button
               onClick={() => onOpenDossierInNavigator(scenario.query)}
-              className="text-xs font-mono font-bold text-[#C84B31] hover:text-[#A83C25] flex items-center gap-1 transition-colors"
+              className="text-xs font-bold text-[#A83C25] hover:text-[#A83C25] flex items-center gap-1 transition-colors"
             >
               Open in Civic Navigator →
             </button>

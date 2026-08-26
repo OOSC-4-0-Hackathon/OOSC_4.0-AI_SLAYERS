@@ -35,7 +35,7 @@ export const ActionPlanStepper: React.FC<ActionPlanStepperProps> = ({
         </p>
         <button
           onClick={onGoToNavigator}
-          className="px-5 py-2.5 bg-[#121820] text-[#FAF7F2] font-mono text-xs font-bold rounded-[2px] hover:bg-[#2B3542] transition-colors"
+          className="px-5 py-2.5 bg-[#121820] text-[#FAF7F2] text-xs font-bold rounded-[2px] hover:bg-[#2B3542] transition-colors"
         >
           GO TO CIVIC NAVIGATOR
         </button>
@@ -84,7 +84,7 @@ END:VCALENDAR`;
             <span className="stamp-badge text-[10px] px-2 py-0.5">
               ACTION PLAN // PART 04
             </span>
-            <span className="font-mono text-xs text-[#667085]">
+            <span className="text-xs text-[#667085]">
               DOCKET: {dossier.problemAndRights.docketId}
             </span>
           </div>
@@ -96,7 +96,7 @@ END:VCALENDAR`;
         <div className="flex items-center space-x-2">
           <button
             onClick={handleDownloadIcs}
-            className="px-3.5 py-2 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] font-mono text-xs rounded-[2px] transition-colors flex items-center space-x-1.5"
+            className="px-3.5 py-2 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] text-xs rounded-[2px] transition-colors flex items-center space-x-1.5"
           >
             <Calendar className="w-3.5 h-3.5 text-[#C84B31]" />
             <span>EXPORT ICS DEADLINES</span>
@@ -104,7 +104,7 @@ END:VCALENDAR`;
 
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-2 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] font-mono text-xs rounded-[2px] transition-colors flex items-center space-x-1.5"
+            className="px-3.5 py-2 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] text-xs rounded-[2px] transition-colors flex items-center space-x-1.5"
           >
             <Printer className="w-3.5 h-3.5 text-[#C84B31]" />
             <span>PRINT PLAN</span>
@@ -116,11 +116,11 @@ END:VCALENDAR`;
       <div className="p-6 bg-[#121820] text-[#FAF7F2] rounded-[2px] border border-[#2B3542] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <div className="md:col-span-8 space-y-2">
           <div className="flex items-center space-x-2">
-            <span className="text-[#C84B31] font-mono text-xs font-bold uppercase tracking-wider">
+            <span className="text-[#A83C25] text-xs font-bold uppercase tracking-wider">
               TOTAL ESTIMATED DURATION: ~{dossier.actionPlan.totalEstimatedDays} CALENDAR DAYS
             </span>
             <span className="text-[#556377]">|</span>
-            <span className="text-[#A2B1C6] font-mono text-xs">
+            <span className="text-[#A2B1C6] text-xs">
               LIMITATION ACT 1963 ENFORCED
             </span>
           </div>
@@ -136,11 +136,11 @@ END:VCALENDAR`;
         </div>
 
         <div className="md:col-span-4 bg-[#1A222D] p-4 rounded-[2px] border border-[#2B3542] text-center space-y-1">
-          <div className="font-mono text-[11px] text-[#A2B1C6] uppercase">EXECUTION PROGRESS</div>
+          <div className="text-[11px] text-[#A2B1C6] uppercase">EXECUTION PROGRESS</div>
           <div className="font-serif font-black text-3xl text-emerald-400">
             {completedCount} / {steps.length}
           </div>
-          <div className="text-[10px] font-mono text-[#556377]">
+          <div className="text-[10px] text-[#556377]">
             {progressPercent}% MILESTONES COMPLETED
           </div>
         </div>
@@ -148,7 +148,7 @@ END:VCALENDAR`;
 
       {/* Phased Timeline Stepper */}
       <div className="space-y-4">
-        <div className="font-mono text-xs font-bold text-[#121820] uppercase tracking-wider">
+        <div className="text-xs font-bold text-[#121820] uppercase tracking-wider">
           CHRONOLOGICAL EXECUTION TIMELINE:
         </div>
 
@@ -166,7 +166,7 @@ END:VCALENDAR`;
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="flex items-start space-x-4 flex-1">
-                  <div className={`w-8 h-8 rounded-[2px] flex items-center justify-center font-mono text-sm font-bold shrink-0 ${
+                  <div className={`w-8 h-8 rounded-[2px] flex items-center justify-center text-sm font-bold shrink-0 ${
                     step.status === 'completed'
                       ? 'bg-emerald-800 text-white'
                       : step.status === 'in_progress'
@@ -179,10 +179,10 @@ END:VCALENDAR`;
                   <div className="space-y-2 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-serif font-bold text-lg text-[#121820]">{step.title}</span>
-                      <span className="font-mono text-xs px-2 py-0.5 bg-[#FAF7F2] text-[#C84B31] border border-[#C84B31]/20 font-bold rounded-[2px]">
+                      <span className="text-xs px-2 py-0.5 bg-[#FAF7F2] text-[#A83C25] border border-[#C84B31]/20 font-bold rounded-[2px]">
                         {step.timeframe}
                       </span>
-                      <span className="font-mono text-[10px] text-[#667085] px-1.5 py-0.5 bg-[#F2EFE9] rounded-[2px]">
+                      <span className="text-[10px] text-[#667085] px-1.5 py-0.5 bg-[#F2EFE9] rounded-[2px]">
                         TYPE: {step.actionType}
                       </span>
                     </div>
@@ -192,7 +192,7 @@ END:VCALENDAR`;
                     </p>
 
                     {step.statutoryDeadlineNotice && (
-                      <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-[2px] text-xs font-mono text-rose-900 flex items-start space-x-2">
+                      <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-[2px] text-xs text-rose-900 flex items-start space-x-2">
                         <AlertOctagon className="w-4 h-4 text-rose-700 shrink-0 mt-0.5" />
                         <span>STATUTORY LIMITATION: {step.statutoryDeadlineNotice}</span>
                       </div>
@@ -201,7 +201,7 @@ END:VCALENDAR`;
                 </div>
 
                 {/* Status Toggle Buttons */}
-                <div className="flex sm:flex-col items-center gap-1.5 shrink-0 font-mono text-xs">
+                <div className="flex sm:flex-col items-center gap-1.5 shrink-0 text-xs">
                   <button
                     onClick={() => handleStepStatus(step.stepNumber, 'completed')}
                     className={`w-full px-3 py-1.5 rounded-[2px] transition-colors ${
@@ -249,7 +249,7 @@ END:VCALENDAR`;
         </div>
         <button
           onClick={onGoToDrafter}
-          className="px-5 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 shrink-0"
+          className="px-5 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-2 shrink-0"
         >
           <span>OPEN DRAFTING TOOL</span>
           <ArrowRight className="w-3.5 h-3.5 text-[#C84B31]" />

@@ -23,7 +23,7 @@ export default function NotFound() {
       <main className="flex-grow pt-[124px] lg:pt-[88px] pb-20">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
 
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#A83C25]">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#A83C25]">
             Error 404
           </p>
 

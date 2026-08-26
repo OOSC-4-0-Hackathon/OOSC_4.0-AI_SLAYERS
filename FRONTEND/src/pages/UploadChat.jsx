@@ -187,7 +187,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                   <div className="w-14 h-14 bg-paper border border-paper-rule rounded-[4px] flex items-center justify-center mb-6 shadow-[0_1px_3px_rgba(26,24,20,0.06)]">
                     <UploadCloud className="w-6 h-6 text-[#C84B31]" />
                   </div>
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">DOCUMENT UPLOAD</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">DOCUMENT UPLOAD</span>
                   <h2 className="text-[22px] font-bold text-[#121820] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
                     Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
                   </h2>
@@ -208,7 +208,7 @@ const UploadChatArea = ({ refreshConversations }) => {
 
                   {file ? (
                     <div className="text-center space-y-3">
-                      <p className="font-mono text-[11px] font-medium text-[#C84B31] bg-[#FAEAE7] inline-block px-3 py-1 rounded-[3px] border border-[#C84B31]/30">
+                      <p className="text-[11px] font-medium text-[#A83C25] bg-[#FAEAE7] inline-block px-3 py-1 rounded-[3px] border border-[#C84B31]/30">
                         {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                       <div className="flex gap-2 justify-center">
@@ -239,7 +239,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                       >
                         Select File
                       </button>
-                      <p className="mt-3 font-mono text-[11px] text-[#667085]">PDF or DOCX · max 10MB</p>
+                      <p className="mt-3 text-[11px] text-[#667085]">PDF or DOCX · max 10MB</p>
                     </div>
                   )}
 
@@ -269,7 +269,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
+                      <span className="text-[11px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
                     </div>
                   )}
                 />

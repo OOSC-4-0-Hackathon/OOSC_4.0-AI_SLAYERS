@@ -132,7 +132,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
+                      <span className="text-[11px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
                     </div>
                   )}
                 />

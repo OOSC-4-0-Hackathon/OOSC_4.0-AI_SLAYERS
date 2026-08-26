@@ -221,7 +221,7 @@ export default function Legal() {
               {entry.lede}
             </p>
 
-            <p className="mt-6 font-mono text-xs text-[#556377]">
+            <p className="mt-6 text-xs text-[#556377]">
               Last updated {LAST_UPDATED}
             </p>
           </div>
@@ -233,7 +233,7 @@ export default function Legal() {
             {entry.body.map((section, i) => (
               <section key={section.h} className="space-y-3">
                 <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-xs text-[#A83C25] font-bold shrink-0 pt-1.5">
+                  <span className="text-xs text-[#A83C25] font-bold shrink-0 pt-1.5">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <h2 className="font-serif text-heading font-bold text-[#121820]">
@@ -279,7 +279,7 @@ export default function Legal() {
               Call the NALSA helpline on{' '}
               <a
                 href="tel:15100"
-                className="font-mono font-bold text-[#A83C25] hover:text-[#8C271E] underline decoration-dotted"
+                className="font-bold text-[#A83C25] hover:text-[#8C271E] underline decoration-dotted"
               >
                 15100
               </a>{' '}
