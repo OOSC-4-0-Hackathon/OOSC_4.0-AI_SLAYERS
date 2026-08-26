@@ -52,9 +52,9 @@ def validate_response(raw_answer):
     if len(raw_answer.strip()) < 50:
         return False, "Response is too short to be a valid legal answer."
 
-    # Check if the model hallucinated a likelihood percentage
+    # Reject hallucinated numerical likelihoods
     if re.search(r'\b\d{2,3}%\s+likelihood\b', raw_answer, re.IGNORECASE):
-        return False, "Model hallucinated a numerical likelihood percentage."
+        return False, "Response contains hallucinated probability percentages."
         
     return True, raw_answer
 

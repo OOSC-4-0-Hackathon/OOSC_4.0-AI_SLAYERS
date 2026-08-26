@@ -17,7 +17,9 @@ class RerankerService:
         pairs = [[query, chunk["document"]] for chunk in chunks]
         
         try:
-            scores = self.model.predict(pairs)
+            from app.core.config import settings
+            batch_size = getattr(settings, "RERANK_BATCH_SIZE", 32)
+            scores = self.model.predict(pairs, batch_size=batch_size)
             import math
             # Attach scores and sort
             for i, chunk in enumerate(chunks):

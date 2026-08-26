@@ -16,11 +16,10 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_API_KEYS: str = ""
     CIVIC_MODEL: str = "gemini-flash-lite-latest"
-    MIN_RETRIEVAL_THRESHOLD: float = 0.015
     RERANK_CANDIDATE_POOL: int = 30
-    RERANK_SCORE_FLOOR: float = 0.02
     MAX_SUB_QUERIES: int = 3
     RERANK_BATCH_SIZE: int = 32
+    TORCH_NUM_THREADS: int = 4
     # Firebase UIDs permitted to view operational metrics. Keep empty by
     # default so metrics are never exposed accidentally.
     ADMIN_UIDS: List[str] = []

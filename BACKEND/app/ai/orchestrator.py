@@ -70,7 +70,10 @@ Output ONLY the expanded search query, nothing else."""
         signals = sum([has_sc_request, has_multi_domain, is_very_long])
         return signals >= 1
 
-    def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    import functools
+    
+    @functools.lru_cache(maxsize=128)
+    def _analyze_query_cached(self, question: str) -> str:
         sys_prompt = """You are a legal case strategist. Analyze the user's query and decompose it into a structured CASE_OBJECT.
 Return ONLY this JSON:
 {
@@ -91,7 +94,6 @@ Output ONLY the JSON. No explanation."""
         try:
             temp_client = genai.Client(api_key=key_rotator.get())
             import time
-            import json
             for attempt in range(3):
                 try:
                     res = temp_client.models.generate_content(
@@ -102,18 +104,73 @@ Output ONLY the JSON. No explanation."""
                             response_mime_type="application/json"
                         )
                     )
-                    break
+                    return res.text.strip()
                 except Exception as e:
                     if "503" in str(e) and attempt < 2:
                         time.sleep(2)
                         continue
                     raise e
-            return json.loads(res.text)
+        except Exception as e:
+            logger.warning(f"Structured analysis failed: {e}")
+            return "{}"
+
+    def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+        import json
+        if not history:
+            text = self._analyze_query_cached(question.strip().lower())
+        else:
+            sys_prompt = """You are a legal case strategist. Analyze the user's query and decompose it into a structured CASE_OBJECT.
+Return ONLY this JSON:
+{
+  "case_summary": "A clear, plain-language summary of the dispute.",
+  "legal_issues": ["Specific legal question 1", "Specific legal question 2"],
+  "material_facts": ["Fact 1", "Fact 2"],
+  "missing_facts": ["What critical information is missing? (e.g., State, Date of notice)"],
+  "sub_queries": ["Search query for issue 1", "Search query for issue 2"],
+  "domains": {"Domain Name": 0.9},
+  "explicit_sc_requested": true|false
+}
+Rules:
+- sub_queries: 1-5 concise retrieval strings optimized for a vector database.
+- domains: only Indian legal domains; confidence float (e.g. 0.9).
+- explicit_sc_requested: true only if user explicitly mentions SC/precedent/case law.
+Output ONLY the JSON. No explanation."""
+            user_prompt = f"User Query: {question}\nJSON Output:"
+            text = "{}"
+            try:
+                temp_client = genai.Client(api_key=key_rotator.get())
+                import time
+                for attempt in range(3):
+                    try:
+                        res = temp_client.models.generate_content(
+                            model='gemini-3.6-flash',
+                            contents=user_prompt,
+                            config=types.GenerateContentConfig(
+                                system_instruction=sys_prompt,
+                                response_mime_type="application/json"
+                            )
+                        )
+                        text = res.text.strip()
+                        break
+                    except Exception as e:
+                        if "503" in str(e) and attempt < 2:
+                            time.sleep(2)
+                            continue
+                        raise e
+            except Exception as e:
+                logger.warning(f"Structured analysis failed: {e}")
+        
+        try:
+            # Clean up markdown JSON block if present
+            text = text.replace("```json", "").replace("```", "").strip()
+            return json.loads(text)
         except Exception as e:
             logger.warning(f"Structured analysis failed: {e}")
             return {"case_summary": question, "legal_issues": [], "material_facts": [], "missing_facts": [], "sub_queries": [question], "domains": {}, "explicit_sc_requested": False}
 
     def _multi_query_retrieve(self, sub_queries: List[str], base_query_embedding: List[float], predicted_domains: Dict[str, float], doc_type_priority: str, filters: Dict[str, Any], explicit_sc_requested: bool) -> List[Dict[str, Any]]:
+        from app.core.config import settings
+        sub_queries = sub_queries[:getattr(settings, 'MAX_SUB_QUERIES', 3)]
         if not sub_queries:
             return []
             
@@ -487,39 +544,45 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         query_analysis = {}
         
         if is_complex:
-            query_analysis = self._analyze_query_structured(question, history)
-            search_query = (query_analysis.get("sub_queries") or [question])[0]
-            predicted_domains = query_analysis.get("domains", {})
+            import concurrent.futures
             
-            # Failsafe Domain Prediction
-            if not predicted_domains:
-                from app.ai.domain_classifier import domain_classifier
-                logger.info("Structured domains empty. Falling back to domain_classifier.")
-                domain_preds = domain_classifier.predict_domain(search_query)
-                predicted_domains = domain_preds.get("domains", {})
+            def provisional_search_task():
+                q_emb = embedding_service.embed_query(question)
+                return q_emb, hybrid_retriever.search(question, q_emb, n_results=15, predicted_domains={})
                 
+            yield f"data: {json.dumps({'type': 'status', 'data': 'Analyzing intent and searching corpus...'})}\n\n"
+            emb_start = time.time()
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+                llm_future = ex.submit(self._analyze_query_structured, question, history)
+                search_future = ex.submit(provisional_search_task)
+                
+                query_analysis = llm_future.result()
+                try:
+                    query_embedding, prov_chunks = search_future.result()
+                except Exception:
+                    yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
+                    return
+                    
+            emb_latency = round(time.time() - emb_start, 2)
+            predicted_domains = query_analysis.get("domains", {})
             doc_type_priority = "any"
             explicit_sc = query_analysis.get("explicit_sc_requested", False)
             
-            yield f"data: {json.dumps({'type': 'status', 'data': 'Searching legal corpus...'})}\n\n"
-            emb_start = time.time()
             try:
-                query_embedding = embedding_service.embed_query(search_query)
-            except:
-                yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
-                return
-            emb_latency = round(time.time() - emb_start, 2)
-            
-            retrieval_start = time.time()
-            try:
-                chunks = self._multi_query_retrieve(
-                    (query_analysis.get("sub_queries") or [question]),
-                    query_embedding,
-                    predicted_domains,
-                    doc_type_priority,
-                    filters,
-                    explicit_sc
-                )
+                # Use provisional chunks if no subqueries, otherwise run multi-query
+                sub_queries = query_analysis.get("sub_queries") or [question]
+                if len(sub_queries) <= 1 and not explicit_sc and not predicted_domains:
+                    chunks = prov_chunks
+                else:
+                    chunks = self._multi_query_retrieve(
+                        sub_queries,
+                        query_embedding,
+                        predicted_domains,
+                        doc_type_priority,
+                        filters,
+                        explicit_sc
+                    )
             except Exception as e:
                 yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to retrieve context.'})}\n\n"
                 return
@@ -742,12 +805,19 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             try:
                 current_key = key_rotator.get()
                 temp_client = genai.Client(api_key=current_key)
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    max_output_tokens=2048,
+                )
+                try:
+                    config.thinking_config = types.ThinkingConfig(disabled=True)
+                except Exception:
+                    pass
+                    
                 response = temp_client.models.generate_content(
                     model=model_name,
                     contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                    ),
+                    config=config,
                 )
                 return response.text.strip(), total_sleep_time
             except Exception as e:
