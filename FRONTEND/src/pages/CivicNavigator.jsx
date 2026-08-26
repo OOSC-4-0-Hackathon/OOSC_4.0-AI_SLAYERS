@@ -1,36 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FolderArchive, X, Plus, Inbox } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
-import { useAuth } from '../contexts/AuthContext';
+import Toast from '../components/common/Toast';
 
 // Import all studio components
 import { CivicNavigator as StudioCivicNavigator } from '../studio_components/CivicNavigator';
 import { EvidenceChecklist } from '../studio_components/EvidenceChecklist';
 import { ActionPlanStepper } from '../studio_components/ActionPlanStepper';
-import { DocumentDraftingTool } from '../studio_components/DocumentDraftingTool';
 import { SchemeEligibilityReader } from '../studio_components/SchemeEligibilityReader';
 import { ConversationalFormFiller } from '../studio_components/ConversationalFormFiller';
 import { BareActsBrowser } from '../studio_components/BareActsBrowser';
 
+/*
+ * Tabs of this page.
+ *
+ * 'drafter' used to be listed here, but both handleTabChange and the inner
+ * onNavigateToTab redirected it to /dochub, so the `activeTab === 'drafter'`
+ * branch was unreachable and DocumentDraftingTool never rendered on this page.
+ * A tab that navigates away from its own page is also not a tab. Removed.
+ */
 const CIVIC_TABS = [
-  { id: 'navigator',    label: 'Case Dossier' },
-  { id: 'evidence',     label: 'Evidence Checklist' },
-  { id: 'action_plan',  label: 'Action Plan' },
-  { id: 'drafter',      label: 'Drafter' },
-  { id: 'scheme_reader',label: 'Schemes' },
-  { id: 'bare_acts',    label: 'Bare Acts' },
-  { id: 'form_filler',  label: 'Form Filler' },
+  { id: 'navigator',     label: 'Case Dossier' },
+  { id: 'evidence',      label: 'Evidence Checklist' },
+  { id: 'action_plan',   label: 'Action Plan' },
+  { id: 'scheme_reader', label: 'Schemes' },
+  { id: 'bare_acts',     label: 'Bare Acts' },
+  { id: 'form_filler',   label: 'Form Filler' },
 ];
+
+const VALID_TAB_IDS = new Set(CIVIC_TABS.map((t) => t.id));
 
 export default function CivicNavigatorPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  
-  const [activeTab, setActiveTab] = useState('navigator');
+
+  /* The landing page and the navbar can request a specific tab via router
+     state. Validated, so a stale or hand-typed value can't blank the page. */
+  const requestedTab = location.state?.tab;
+  const [activeTab, setActiveTab] = useState(
+    VALID_TAB_IDS.has(requestedTab) ? requestedTab : 'navigator'
+  );
+
   const [activeDossier, setActiveDossier] = useState(null);
-  
+  const [dossierDrawerOpen, setDossierDrawerOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+
   const presetQueryText = location.state?.presetQuery || '';
 
   const [savedCases, setSavedCases] = useState(() => {
@@ -54,13 +70,21 @@ export default function CivicNavigatorPage() {
   // Sync activeDossier updates (like evidence checks) back to savedCases
   useEffect(() => {
     if (activeDossier) {
-      setSavedCases(prev => prev.map(c => 
-        c.docketNumber === activeDossier?.problemAndRights?.docketId 
-          ? { ...c, dossier: activeDossier } 
+      setSavedCases(prev => prev.map(c =>
+        c.docketNumber === activeDossier?.problemAndRights?.docketId
+          ? { ...c, dossier: activeDossier }
           : c
       ));
     }
   }, [activeDossier]);
+
+  /* Close the mobile drawer on Escape */
+  useEffect(() => {
+    if (!dossierDrawerOpen) return;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setDossierDrawerOpen(false); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [dossierDrawerOpen]);
 
   const handleSaveDossier = (dossierToSave, title) => {
     const existingIndex = savedCases.findIndex(c => c.docketNumber === dossierToSave.problemAndRights.docketId);
@@ -77,6 +101,7 @@ export default function CivicNavigatorPage() {
     };
 
     setSavedCases(prev => [newRecord, ...prev]);
+    setToast({ variant: 'success', message: `Saved to dockets as ${newRecord.docketNumber}.` });
   };
 
   const handleUpdateEvidence = (itemId, isChecked) => {
@@ -99,138 +124,216 @@ export default function CivicNavigatorPage() {
     });
   };
 
-  const handleTabChange = (tabId) => {
+  const goToTab = useCallback((tabId) => {
     if (tabId === 'drafter') {
       navigate('/dochub');
-    } else {
-      setActiveTab(tabId);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
+    setActiveTab(tabId);
+    setDossierDrawerOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [navigate]);
+
+  const startNewCase = () => {
+    setActiveDossier(null);
+    setActiveTab('navigator');
+    setDossierDrawerOpen(false);
   };
 
-  // Navbar tabs strip height: 40px → pt-[104px] total (64px navbar + 40px tab strip)
+  const openSavedCase = (c) => {
+    if (!c.dossier || !c.dossier.problemAndRights || !c.dossier.evidenceRequired || !c.dossier.actionPlan) {
+      /* Was a blocking `alert()`. */
+      setToast({
+        variant: 'error',
+        message: 'That docket was saved by an older version of the app and can no longer be opened. Run the query again to rebuild it.',
+      });
+      return;
+    }
+    setActiveDossier(c.dossier);
+    setActiveTab('navigator');
+    setDossierDrawerOpen(false);
+  };
+
+  /* Saved-dossier list, shared by the desktop rail and the mobile drawer.
+     Previously this markup was `hidden md:flex` only, so on a phone saved
+     dockets were completely unreachable. */
+  const dossierPanel = (
+    <>
+      <div className="p-4 border-b border-[#E4DFD5] flex items-center justify-between bg-white shrink-0">
+        <h2 className="font-serif font-bold text-[#121820]">Saved Dossiers</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={startNewCase}
+            className="flex items-center gap-1 text-[12px] bg-[#121820] text-[#FAF7F2] px-2.5 py-1.5 rounded-[3px] font-semibold hover:bg-[#C84B31] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:ring-offset-1 focus-visible:outline-none"
+          >
+            <Plus aria-hidden="true" className="w-3 h-3" />
+            New case
+          </button>
+          <button
+            onClick={() => setDossierDrawerOpen(false)}
+            aria-label="Close saved dossiers"
+            className="md:hidden p-1.5 rounded text-[#556377] hover:text-[#121820] hover:bg-[#F2EFE9] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+          >
+            <X aria-hidden="true" className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {savedCases.length === 0 ? (
+          <div className="text-center mt-10 px-2">
+            <Inbox aria-hidden="true" className="w-6 h-6 mx-auto text-[#D5CEC2]" />
+            <p className="mt-3 text-[13px] font-semibold text-[#121820]">No dockets yet</p>
+            <p className="mt-1 text-[12px] text-[#556377] leading-relaxed">
+              Run a query, then save the dossier it produces to keep it here.
+            </p>
+          </div>
+        ) : (
+          savedCases.map(c => {
+            const isActive = activeDossier?.problemAndRights?.docketId === c.docketNumber;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => openSavedCase(c)}
+                aria-current={isActive ? 'true' : undefined}
+                className={`w-full text-left p-3 rounded-[3px] border transition-all focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
+                  isActive
+                    ? 'bg-white border-[#C84B31] shadow-sm ring-1 ring-[#C84B31]/10'
+                    : 'bg-white/50 border-[#E4DFD5] hover:bg-white hover:border-[#C84B31]/50'
+                }`}
+              >
+                <div className="text-[12px] font-mono font-bold text-[#A83C25] mb-1.5 tracking-wide">{c.docketNumber}</div>
+                <div className="text-sm font-bold text-[#121820] line-clamp-2 leading-snug">{c.title}</div>
+                <div className="text-[12px] text-[#556377] mt-3 flex justify-between items-center gap-2 border-t border-dashed border-[#E4DFD5] pt-2">
+                  <span className="truncate">{c.domain}</span>
+                  <span className="shrink-0 font-mono">{new Date(c.createdAt).toLocaleDateString()}</span>
+                </div>
+              </button>
+            );
+          })
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF7F2] ledger-grid text-[#121820] font-sans">
       <Navbar
         tabs={CIVIC_TABS}
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={goToTab}
       />
 
-      <main className="flex-1 bg-[#FAF7F2] pt-[104px] min-h-[calc(100vh-104px)] flex overflow-hidden">
-        {/* SIDEBAR FOR SAVED DOSSIERS */}
-        <div className="w-80 bg-[#FAF7F2] border-r border-[#E4DFD5] flex flex-col h-full hidden md:flex shrink-0">
-          <div className="p-4 border-b border-[#E4DFD5] flex items-center justify-between bg-white">
-            <h2 className="font-serif font-bold text-[#121820]">Saved Dossiers</h2>
-            <button 
-              onClick={() => {
-                setActiveDossier(null);
-                setActiveTab('navigator');
-              }} 
-              className="text-[10px] bg-[#121820] text-white px-3 py-1.5 rounded-[2px] font-bold font-mono tracking-wider hover:bg-[#C84B31] transition-colors"
+      {/*
+        Top padding: 64px navbar + 40px tab strip, plus the ~46px mobile nav
+        strip below lg. The old flat pt-[104px] left the mobile tab strip
+        underneath the nav.
+
+        The inner scroll region is md+ only. On a phone a nested scroll trap
+        inside a page that also scrolls is just two competing scrollbars.
+      */}
+      <main className="flex-1 bg-[#FAF7F2] pt-[150px] lg:pt-[104px] min-h-[calc(100vh-150px)] lg:min-h-[calc(100vh-104px)] flex md:overflow-hidden">
+
+        {/* Saved dossiers — desktop rail */}
+        <aside
+          className="w-80 bg-[#FAF7F2] border-r border-[#E4DFD5] flex-col h-full hidden md:flex shrink-0"
+          aria-label="Saved dossiers"
+        >
+          {dossierPanel}
+        </aside>
+
+        {/* Saved dossiers — mobile drawer */}
+        {dossierDrawerOpen && (
+          <div className="md:hidden fixed inset-0 z-40 flex">
+            <div
+              className="absolute inset-0 bg-[#121820]/50"
+              onClick={() => setDossierDrawerOpen(false)}
+            />
+            <aside
+              className="relative w-[85vw] max-w-xs bg-[#FAF7F2] border-r border-[#E4DFD5] flex flex-col h-full shadow-modal animate-slide-in"
+              aria-label="Saved dossiers"
             >
-              + NEW CASE
-            </button>
+              {dossierPanel}
+            </aside>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {savedCases.length === 0 ? (
-              <p className="text-xs text-[#667085] text-center mt-10 font-mono">No cases saved yet.</p>
-            ) : (
-              savedCases.map(c => (
-                <div 
-                  key={c.id} 
-                  onClick={() => {
-                    if (!c.dossier || !c.dossier.problemAndRights || !c.dossier.evidenceRequired || !c.dossier.actionPlan) {
-                      alert('This case dossier uses an outdated structure and cannot be opened. Please run a new query.');
-                      return;
-                    }
-                    setActiveDossier(c.dossier);
-                    setActiveTab('navigator');
-                  }}
-                  className={`p-3 rounded-[2px] cursor-pointer border transition-all ${
-                    activeDossier?.problemAndRights?.docketId === c.docketNumber 
-                    ? 'bg-white border-[#C84B31] shadow-sm ring-1 ring-[#C84B31]/10' 
-                    : 'bg-white/50 border-[#E4DFD5] hover:bg-white hover:border-[#C84B31]/50'
-                  }`}
-                >
-                  <div className="text-[9px] font-mono font-bold text-[#C84B31] mb-1.5 tracking-wider">{c.docketNumber}</div>
-                  <div className="text-sm font-bold text-[#121820] line-clamp-2 leading-snug">{c.title}</div>
-                  <div className="text-[10px] font-mono text-[#667085] mt-3 flex justify-between items-center border-t border-dashed border-[#E4DFD5] pt-2">
-                    <span className="truncate pr-2">{c.domain}</span>
-                    <span className="shrink-0">{new Date(c.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        )}
 
         {/* MAIN AREA */}
-        <div className="flex-1 overflow-y-auto bg-[#FAF7F2]">
+        <div className="flex-1 md:overflow-y-auto bg-[#FAF7F2]">
+          {/* Mobile entry point to the dossier list */}
+          <div className="md:hidden sticky top-0 z-20 px-4 py-2 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E4DFD5]">
+            <button
+              onClick={() => setDossierDrawerOpen(true)}
+              className="flex items-center gap-1.5 text-[13px] font-medium text-[#121820] px-2.5 py-1.5 rounded-[3px] border border-[#D5CEC2] bg-white hover:border-[#C84B31] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+            >
+              <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-[#C84B31]" />
+              Saved dossiers
+              {savedCases.length > 0 && (
+                <span className="ml-0.5 font-mono text-[11px] text-[#556377]">({savedCases.length})</span>
+              )}
+            </button>
+          </div>
+
           {activeTab === 'navigator' && (
             <StudioCivicNavigator
-            initialQuery={presetQueryText}
-            onNavigateToTab={(tab) => {
-              if (tab === 'drafter') {
-                navigate('/dochub');
-              } else {
-                setActiveTab(tab);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-            onSaveDossier={handleSaveDossier}
-            savedDocketIds={savedCases.map(c => c.docketNumber)}
-            activeDossier={activeDossier}
-            setActiveDossier={setActiveDossier}
-          />
-        )}
+              initialQuery={presetQueryText}
+              onNavigateToTab={goToTab}
+              onSaveDossier={handleSaveDossier}
+              savedDocketIds={savedCases.map(c => c.docketNumber)}
+              activeDossier={activeDossier}
+              setActiveDossier={setActiveDossier}
+            />
+          )}
 
-        {activeTab === 'scheme_reader' && (
-          <SchemeEligibilityReader
-            onGoToNavigator={() => setActiveTab('navigator')}
-            onGoToFormFiller={() => setActiveTab('form_filler')}
-          />
-        )}
+          {activeTab === 'scheme_reader' && (
+            <SchemeEligibilityReader
+              onGoToNavigator={() => goToTab('navigator')}
+              onGoToFormFiller={() => goToTab('form_filler')}
+            />
+          )}
 
-        {activeTab === 'form_filler' && (
-          <ConversationalFormFiller />
-        )}
+          {activeTab === 'form_filler' && (
+            <ConversationalFormFiller />
+          )}
 
-        {activeTab === 'evidence' && (
-          <EvidenceChecklist
-            dossier={activeDossier}
-            onUpdateEvidence={handleUpdateEvidence}
-            onGoToNavigator={() => setActiveTab('navigator')}
-          />
-        )}
+          {activeTab === 'evidence' && (
+            <EvidenceChecklist
+              dossier={activeDossier}
+              onUpdateEvidence={handleUpdateEvidence}
+              onGoToNavigator={() => goToTab('navigator')}
+            />
+          )}
 
-        {activeTab === 'action_plan' && (
-          <ActionPlanStepper
-            dossier={activeDossier}
-            onUpdateSteps={handleUpdateSteps}
-            onGoToNavigator={() => setActiveTab('navigator')}
-            onGoToDrafter={() => navigate('/dochub')}
-          />
-        )}
+          {activeTab === 'action_plan' && (
+            <ActionPlanStepper
+              dossier={activeDossier}
+              onUpdateSteps={handleUpdateSteps}
+              onGoToNavigator={() => goToTab('navigator')}
+              onGoToDrafter={() => navigate('/dochub')}
+            />
+          )}
 
-        {activeTab === 'drafter' && (
-          <DocumentDraftingTool
-            dossier={activeDossier}
-            onGoToNavigator={() => setActiveTab('navigator')}
-          />
-        )}
-
-        {activeTab === 'bare_acts' && (
-          <BareActsBrowser
-            onSelectActForQuery={(act) => {
-              navigate('/know-your-kanoon', {
-                state: { presetQuery: `I have a question about the ${act.title}. ` }
-              });
-            }}
-          />
-        )}
+          {activeTab === 'bare_acts' && (
+            <BareActsBrowser
+              onSelectActForQuery={(act) => {
+                navigate('/know-your-kanoon', {
+                  state: { presetQuery: `I have a question about the ${act.title}. ` }
+                });
+              }}
+            />
+          )}
         </div>
       </main>
+
+      <Toast
+        isOpen={!!toast}
+        message={toast?.message}
+        variant={toast?.variant}
+        duration={toast?.variant === 'error' ? 0 : 3000}
+        dismissible={toast?.variant === 'error'}
+        onClose={() => setToast(null)}
+      />
 
       <Footer />
     </div>

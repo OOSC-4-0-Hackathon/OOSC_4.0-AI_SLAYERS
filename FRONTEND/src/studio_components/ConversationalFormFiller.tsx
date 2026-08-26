@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { startFormSession, sendFormAnswer, downloadPdf, downloadDocx } from '../services/formFillerService';
+import Toast from '../components/common/Toast';
 
 interface FormQuestion {
   id: string;
@@ -340,6 +341,8 @@ export const ConversationalFormFiller: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string; time: string }>>([]);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
+  /* Export failures used to surface as a blocking window.alert(). */
+  const [exportError, setExportError] = useState<string>('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -484,7 +487,7 @@ export const ConversationalFormFiller: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download PDF:', err);
-      alert('Failed to generate PDF. Please try again.');
+      setExportError('Could not generate the PDF. The document service may be unavailable - try DOCX, or download the plain-text copy.');
     }
   };
 
@@ -500,7 +503,7 @@ export const ConversationalFormFiller: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download DOCX:', err);
-      alert('Failed to generate DOCX. Please try again.');
+      setExportError('Could not generate the DOCX. The document service may be unavailable - try PDF, or download the plain-text copy.');
     }
   };
 
@@ -735,6 +738,15 @@ export const ConversationalFormFiller: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <Toast
+        isOpen={!!exportError}
+        message={exportError}
+        variant="error"
+        duration={0}
+        dismissible
+        onClose={() => setExportError('')}
+      />
     </div>
   );
 };
