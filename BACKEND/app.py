@@ -1,10 +1,8 @@
 import os
 import spaces
 import gradio as gr
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.routing import Mount, Route
 
 # ── Stitch ChromaDB if needed ──────────────────────────────────────
 try:
@@ -16,7 +14,7 @@ try:
 except Exception as e:
     print(f"Chroma stitching note: {e}")
 
-# ── ZeroGPU keep-alive (required by HF runtime) ───────────────────
+# ── ZeroGPU keep-alive ────────────────────────────────────────────
 @spaces.GPU
 def warmup_gpu():
     return "ZeroGPU Initialized & Online"
@@ -75,10 +73,35 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     btn.click(warmup_gpu, outputs=out)
     demo.load(warmup_gpu, outputs=out)
 
-# ── Critical: Insert the backend Mount at position 0 in demo.app.routes
-#    BEFORE Gradio's SvelteKit catch-all route, so /v1/* requests are
-#    handled by our FastAPI backend instead of the Gradio HTML frontend.
-demo.app.routes.insert(0, Mount("/v1", app=backend))
+# ── ASGI-level path dispatcher ─────────────────────────────────────
+# Gradio's SvelteKit catch-all intercepts ALL paths including mounts.
+# The ONLY way to bypass it is to wrap the entire ASGI app and dispatch
+# at the raw ASGI level, before Gradio's routing even sees the request.
+
+_gradio_asgi = demo.app  # Save reference to original Gradio ASGI app
+
+class _TopLevelRouter:
+    """Raw ASGI dispatcher: /v1/* → FastAPI backend, else → Gradio."""
+    def __init__(self, gradio_app, api_app, prefix="/v1"):
+        self.gradio = gradio_app
+        self.api = api_app
+        self.prefix = prefix
+        self._api_ready = False
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket"):
+            path = scope.get("path", "")
+            if path == self.prefix or path.startswith(self.prefix + "/"):
+                # Strip prefix so backend sees clean paths like /health
+                scope = dict(scope)
+                scope["path"] = path[len(self.prefix):] or "/"
+                scope["root_path"] = scope.get("root_path", "") + self.prefix
+                await self.api(scope, receive, send)
+                return
+        await self.gradio(scope, receive, send)
+
+# Replace demo.app with our wrapper so HF's uvicorn serves our dispatcher
+demo.app = _TopLevelRouter(_gradio_asgi, backend)
 
 # ── Launch ─────────────────────────────────────────────────────────
 demo.queue().launch(server_name="0.0.0.0", server_port=7860)
