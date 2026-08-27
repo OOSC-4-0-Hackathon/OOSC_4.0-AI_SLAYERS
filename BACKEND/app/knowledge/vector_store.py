@@ -20,11 +20,20 @@ def stitch_db(db_path: str):
 
 class VectorStore:
     def __init__(self, collection_name: str = "nyaay_knowledge"):
+        import shutil
         os.makedirs(DB_DIR, exist_ok=True)
         # Check and stitch both potential locations for the DB
         stitch_db(os.path.join(DB_DIR, "chroma.sqlite3"))
         if os.path.exists(BACKUP_DIR):
             stitch_db(os.path.join(BACKUP_DIR, "chroma.sqlite3"))
+            
+        # Copy from backup if DB_DIR is essentially empty
+        db_file = os.path.join(DB_DIR, "chroma.sqlite3")
+        if os.path.exists(BACKUP_DIR) and (not os.path.exists(db_file) or os.path.getsize(db_file) < 1000000):
+            import logging
+            logging.getLogger(__name__).info(f"Copying ChromaDB from {BACKUP_DIR} to {DB_DIR}")
+            shutil.copytree(BACKUP_DIR, DB_DIR, dirs_exist_ok=True)
+
         
         # Initialize ChromaDB client using PersistentClient for local storage
         self.client = chromadb.PersistentClient(path=DB_DIR, settings=Settings(anonymized_telemetry=False))
