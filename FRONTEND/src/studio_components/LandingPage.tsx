@@ -32,7 +32,7 @@ const ThreeDocumentPlanes = React.lazy(() =>
 
 function ThreePlaneFallback() {
   return (
-    <div className="w-full h-[400px] bg-paper-sunken border border-rule flex flex-col items-center justify-center p-6 text-center rounded-[2px]">
+    <div className="w-full h-[440px] bg-paper-sunken border border-rule flex flex-col items-center justify-center p-6 text-center rounded-[2px]">
       <div className="w-3 h-3 rounded-full bg-accent animate-pulse mb-3" />
       <div className="font-serif font-bold text-ink text-sm">3D STATUTORY ARRAY</div>
       <div className="text-[12px] text-ink-muted mt-1">Loading 93 Indian Bare Acts model…</div>
@@ -268,15 +268,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Right: Interactive 3D Document Planes Visual */}
-            <div className="lg:col-span-5 space-y-3">
-              <div className="border border-rule bg-white p-2 rounded-[2px] shadow-sm">
+            <div className="lg:col-span-5 space-y-3 flex flex-col justify-between">
+              <div className="border border-rule bg-white p-2 rounded-[2px] shadow-sm overflow-hidden h-[460px] flex flex-col">
                 <React.Suspense fallback={<ThreePlaneFallback />}>
                   <ThreeDocumentPlanes
                     activeActId={selectedDemoAct}
                     isConverging={true}
                     onSelectAct={(actId) => setSelectedDemoAct(actId)}
                     onInspectAct={(act) => setInspectingAct(act)}
-                    className="w-full h-[400px]"
+                    className="w-full h-full flex-1"
                   />
                 </React.Suspense>
               </div>

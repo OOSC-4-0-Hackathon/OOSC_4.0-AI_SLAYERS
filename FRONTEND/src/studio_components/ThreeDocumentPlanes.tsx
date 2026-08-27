@@ -466,39 +466,42 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   // 2D Ledger Fallback View
   if (prefersReducedMotion || !isWebGlSupported || force2DMode) {
     return (
-      <div className={`relative border border-rule bg-paper p-5 rounded-[2px] ${className}`}>
-        <div className="flex flex-wrap items-center justify-between border-b border-rule pb-3 mb-4 gap-2">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-accent"></span>
-            <span className="text-xs text-ink font-bold tracking-wider uppercase">
-              STATUTORY RETRIEVAL ARRAY // 93 BARE ACTS LEDGER
-            </span>
+      <div className={`relative border border-rule bg-paper p-4 sm:p-5 rounded-[2px] flex flex-col justify-between overflow-hidden ${className}`}>
+        <div>
+          <div className="flex flex-wrap items-center justify-between border-b border-rule pb-3 mb-3 gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-accent"></span>
+              <span className="text-xs text-ink font-bold tracking-wider uppercase">
+                STATUTORY RETRIEVAL ARRAY // 93 BARE ACTS LEDGER
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setForce2DMode(false)}
+                className="px-2.5 py-1 text-xs border border-dark bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
+              >
+                SWITCH TO 3D VIEW
+              </button>
+              <span className="text-[12px] text-ink-muted">HIGH PERFORMANCE</span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setForce2DMode(false)}
-              className="px-2.5 py-1 text-xs border border-dark bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
-            >
-              SWITCH TO 3D VIEW
-            </button>
-            <span className="text-[12px] text-ink-muted">HIGH PERFORMANCE</span>
+          {/* 93 -> 34 -> 1 Narrowing Counter */}
+          <div className="mb-3 p-2.5 bg-white border border-rule rounded-[2px] flex items-center justify-between text-xs">
+            <span className="text-ink-muted">RRF CONVERGENCE:</span>
+            <div className="flex items-center space-x-2">
+              <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
+              <span>→</span>
+              <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
+              <span>→</span>
+              <span className="bg-accent text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
+            </div>
           </div>
         </div>
 
-        {/* 93 -> 34 -> 1 Narrowing Counter */}
-        <div className="mb-4 p-3 bg-white border border-rule rounded-[2px] flex items-center justify-between text-xs">
-          <span className="text-ink-muted">RRF CONVERGENCE:</span>
-          <div className="flex items-center space-x-2">
-            <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
-            <span>→</span>
-            <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
-            <span>→</span>
-            <span className="bg-accent text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+        {/* Scrollable Card Grid fully contained inside box boundary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 flex-1 min-h-0 overflow-y-auto pr-1 pb-1">
           {BARE_ACTS_CATALOG.map((act) => {
             const isMatch = act.id === selectedActState;
             return (
@@ -530,7 +533,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   }
 
   return (
-    <div className={`relative overflow-hidden border border-rule bg-paper rounded-[2px] ${className}`}>
+    <div className={`relative overflow-hidden border border-rule bg-paper rounded-[2px] flex flex-col ${className}`}>
       {/* Top Technical Metadata Bar & 93 -> 34 -> 1 Live Counter */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-paper/95 backdrop-blur-xs border-b border-rule">
         <div className="flex items-center space-x-2">
