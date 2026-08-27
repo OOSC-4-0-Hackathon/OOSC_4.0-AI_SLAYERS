@@ -24,6 +24,9 @@ from app.core.config import settings
 from app.core.firebase import initialize_firebase
 from app.database.database import Base, engine
 
+# Ensure models are registered BEFORE create_all is called
+from app.models import user, chat, document, reasoning
+
 try:
     initialize_firebase()
     Base.metadata.create_all(bind=engine)
@@ -31,7 +34,7 @@ except Exception as e:
     print(f"Init note: {e}")
 
 # ── Build standalone FastAPI backend ───────────────────────────────
-from app.routes import auth, kanoon, upload_chat, chat, drafting, reasoning, admin, form_filler
+from app.routes import auth, kanoon, upload_chat, chat as chat_routes, drafting, reasoning as reasoning_routes, admin, form_filler
 
 backend = FastAPI(title="NYAAY AI Backend API")
 
@@ -46,9 +49,9 @@ backend.add_middleware(
 backend.include_router(auth.router,        prefix="/auth",        tags=["Authentication"])
 backend.include_router(kanoon.router,      prefix="/kanoon",      tags=["Know Your Kanoon"])
 backend.include_router(upload_chat.router, prefix="/upload-chat", tags=["Upload & Chat"])
-backend.include_router(chat.router,        prefix="/chat",        tags=["Chat History"])
+backend.include_router(chat_routes.router, prefix="/chat",        tags=["Chat History"])
 backend.include_router(drafting.router,    prefix="/drafting",    tags=["Drafting"])
-backend.include_router(reasoning.router,   prefix="/reasoning",   tags=["Reasoning"])
+backend.include_router(reasoning_routes.router, prefix="/reasoning",   tags=["Reasoning"])
 backend.include_router(form_filler.router, prefix="/form-filler", tags=["Form Filler"])
 backend.include_router(admin.router,       prefix="/admin",       tags=["Admin"])
 
@@ -72,10 +75,6 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     demo.load(warmup_gpu, outputs=out)
 
 # ── Monkey-patch uvicorn.Server.serve to wrap the ASGI app ─────────
-# Gradio creates the FastAPI app inside demo.launch() and runs it via
-# uvicorn.Server. By patching serve(), we intercept the fully built
-# app right before it starts listening and wrap it in our dispatcher.
-
 import uvicorn
 
 _original_serve = uvicorn.Server.serve
