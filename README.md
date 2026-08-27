@@ -1,5 +1,27 @@
 # NYAAY AI — Civic Legal Operating System
 
+<div align="center">
+  <h2>Not Just a Legal Engine.<br><em>A Companion to Justice. ⚖️</em></h2>
+  <p>From laws to landmark judgments — making India’s legal knowledge easier to find, understand, and access.</p>
+  <br>
+  <table align="center">
+    <tr>
+      <td align="center" width="200">
+        <h2>93</h2>
+        <p><b>Acts & Statutes</b></p>
+      </td>
+      <td align="center" width="200">
+        <h2>4,371</h2>
+        <p><b>SC Judgments</b></p>
+      </td>
+      <td align="center" width="200">
+        <h2>21</h2>
+        <p><b>Govt Schemes</b></p>
+      </td>
+    </tr>
+  </table>
+</div>
+
 **Statute-grounded AI legal aid and case dossier engine for Indian citizens.**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
