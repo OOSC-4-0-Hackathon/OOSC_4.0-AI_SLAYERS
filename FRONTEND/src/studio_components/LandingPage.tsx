@@ -855,7 +855,7 @@ const ScrollRevealSection: React.FC = React.memo(() => {
   return (
     <section 
       ref={scrollSectionRef} 
-      className="min-h-[70vh] py-16 bg-dark text-paper border-b border-rule-dark relative overflow-hidden transform-gpu flex flex-col justify-center"
+      className="min-h-[70vh] py-16 bg-dark text-paper border-t-2 border-accent border-b-2 border-accent relative overflow-hidden transform-gpu flex flex-col justify-center"
     >
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#FAF7F2_1px,transparent_1px)] [background-size:24px_24px]" />
 
