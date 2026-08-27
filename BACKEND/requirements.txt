@@ -18,3 +18,4 @@ nltk
 reportlab
 
 sentence-transformers>=2.2.2
+gradio>=4.0.0
