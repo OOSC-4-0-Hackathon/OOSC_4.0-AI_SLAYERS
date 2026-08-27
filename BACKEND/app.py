@@ -71,25 +71,38 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     btn.click(warmup_gpu, outputs=out)
     demo.load(warmup_gpu, outputs=out)
 
-# ── Build the combined ASGI app ────────────────────────────────────
-# 1. Let Gradio build its full ASGI app (queue + routes + middleware)
-demo.queue()
+# ── Monkey-patch Gradio's launch to wrap the ASGI app ──────────────
+# Gradio's launch() builds its internal FastAPI + middleware stack,
+# then serves it via uvicorn. We intercept this by patching the
+# uvicorn.run call to wrap the app with our path dispatcher.
 
-# 2. Create a top-level FastAPI app that mounts both
-top = FastAPI()
-top.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Mount backend FIRST at /v1 — FastAPI checks mounts in order
-top.mount("/v1", backend)
-# Mount Gradio at root — this is the catch-all
-top.mount("/", demo.app)
-
-# ── Serve with uvicorn ─────────────────────────────────────────────
 import uvicorn
-uvicorn.run(top, host="0.0.0.0", port=7860)
+
+_original_uvicorn_run = uvicorn.run
+
+def _patched_uvicorn_run(app, **kwargs):
+    """Wrap Gradio's ASGI app with our /v1 dispatcher before serving."""
+
+    class _Dispatcher:
+        def __init__(self, gradio_app, api_app):
+            self.gradio = gradio_app
+            self.api = api_app
+
+        async def __call__(self, scope, receive, send):
+            if scope["type"] in ("http", "websocket"):
+                path = scope.get("path", "")
+                if path == "/v1" or path.startswith("/v1/"):
+                    scope = dict(scope)
+                    scope["path"] = path[3:] or "/"
+                    scope["root_path"] = scope.get("root_path", "") + "/v1"
+                    await self.api(scope, receive, send)
+                    return
+            await self.gradio(scope, receive, send)
+
+    wrapped = _Dispatcher(app, backend)
+    _original_uvicorn_run(wrapped, **kwargs)
+
+uvicorn.run = _patched_uvicorn_run
+
+# ── Launch via Gradio (ZeroGPU lifecycle) ──────────────────────────
+demo.queue().launch(server_name="0.0.0.0", server_port=7860)
