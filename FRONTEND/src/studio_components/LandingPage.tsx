@@ -200,23 +200,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <p className="text-lg sm:text-xl text-ink-secondary leading-relaxed font-sans">
                   From laws to landmark judgments — making India’s legal knowledge easier to find, understand, and access.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full pt-1">
-                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
-                    <Scale className="w-[22px] h-[22px] text-accent mb-3" />
-                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">93</div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">Acts & Statutes</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 w-full pt-4 pb-2">
+                  <div className="group flex flex-col items-start cursor-default">
+                    <Scale className="w-[20px] h-[20px] text-accent mb-2" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-ink leading-none mb-1">93</div>
+                    <div className="text-ink-muted text-[11px] uppercase tracking-widest font-semibold">Acts & Statutes</div>
                   </div>
 
-                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
-                    <Gavel className="w-[22px] h-[22px] text-accent mb-3" />
-                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">4,371</div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">SC Judgments</div>
+                  <div className="group flex flex-col items-start cursor-default">
+                    <Gavel className="w-[20px] h-[20px] text-accent mb-2" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-ink leading-none mb-1">4,371</div>
+                    <div className="text-ink-muted text-[11px] uppercase tracking-widest font-semibold">SC Judgments</div>
                   </div>
 
-                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
-                    <Landmark className="w-[22px] h-[22px] text-accent mb-3" />
-                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">21</div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">Govt Schemes</div>
+                  <div className="group flex flex-col items-start cursor-default">
+                    <Landmark className="w-[20px] h-[20px] text-accent mb-2" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-ink leading-none mb-1">21</div>
+                    <div className="text-ink-muted text-[11px] uppercase tracking-widest font-semibold">Govt Schemes</div>
                   </div>
                 </div>
               </div>
