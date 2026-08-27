@@ -1,6 +1,7 @@
 import os
 import spaces
 import gradio as gr
+from fastapi.middleware.cors import CORSMiddleware
 
 # Automatically stitch ChromaDB sqlite parts if needed
 try:
@@ -18,7 +19,7 @@ def warmup_gpu():
 
 from app.main import app as fastapi_app
 
-# Create a minimal Gradio demo attached to warmup_gpu for ZeroGPU lifecycle
+# Status interface for Hugging Face Spaces
 with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # ⚖️ NYAAY AI Backend Service
@@ -26,9 +27,25 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     
     All statutory RAG endpoints, zero-LLM intent routers, and dossier streaming APIs are live under `/api`.
     """)
-    btn = gr.Button("GPU Check")
+    btn = gr.Button("GPU Heartbeat Check")
     out = gr.Textbox(label="Status", value="Ready")
     btn.click(warmup_gpu, outputs=out)
+    demo.load(warmup_gpu, outputs=out)
 
-# Mount Gradio onto the primary FastAPI app at /status so FastAPI is the top-level ASGI server
-app = gr.mount_gradio_app(fastapi_app, demo, path="/status")
+# Allow all CORS origins on demo.app so Vercel requests are never blocked
+demo.app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Merge all routes from fastapi_app directly into demo.app at top priority
+for route in reversed(fastapi_app.routes):
+    demo.app.routes.insert(0, route)
+
+demo.app.state = fastapi_app.state
+
+# Launch via Gradio queue for ZeroGPU lifecycle
+demo.queue().launch(server_name="0.0.0.0", server_port=7860)
