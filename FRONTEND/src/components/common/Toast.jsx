@@ -17,7 +17,7 @@ import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 const VARIANTS = {
   success: { Icon: CheckCircle2,   iconClass: 'text-[#4ADE80]' },
   error:   { Icon: AlertTriangle,  iconClass: 'text-[#FCA5A5]' },
-  info:    { Icon: Info,           iconClass: 'text-[#A2B1C6]' },
+  info:    { Icon: Info,           iconClass: 'text-slate' },
 };
 
 export default function Toast({
@@ -46,7 +46,7 @@ export default function Toast({
       role="status"
       aria-live={variant === 'error' ? 'assertive' : 'polite'}
     >
-      <div className="bg-[#121820] text-[#FAF7F2] border-l-2 border-[#C84B31] px-4 py-3 rounded-[3px] shadow-modal flex items-start gap-3 text-[13px] font-sans font-medium leading-relaxed">
+      <div className="bg-dark text-paper border-l-2 border-accent px-4 py-3 rounded-[3px] shadow-modal flex items-start gap-3 text-[13px] font-sans font-medium leading-relaxed">
         <Icon aria-hidden="true" className={`w-4 h-4 mt-0.5 shrink-0 ${iconClass}`} />
         <span className="flex-1">{message}</span>
         {dismissible && (
@@ -54,7 +54,7 @@ export default function Toast({
             type="button"
             onClick={onClose}
             aria-label="Dismiss"
-            className="shrink-0 -mr-1 -mt-0.5 p-1 rounded text-[#A2B1C6] hover:text-[#FAF7F2] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+            className="shrink-0 -mr-1 -mt-0.5 p-1 rounded text-slate hover:text-paper transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
           >
             <X aria-hidden="true" className="w-3.5 h-3.5" />
           </button>

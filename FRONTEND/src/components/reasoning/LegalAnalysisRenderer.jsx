@@ -75,7 +75,7 @@ const renderNestedContent = (content) => {
           <div key={idx} className="bg-surface/60 rounded-xl p-4 border border-border/60 shadow-sm backdrop-blur-sm">
             {Object.entries(item).map(([key, val]) => (
               <div key={key} className="mb-3 last:mb-0">
-                <h5 className="text-[11px] font-bold text-primary uppercase tracking-widest mb-1 block">
+                <h5 className="text-[12px] font-bold text-primary uppercase tracking-widest mb-1 block">
                   {key.replace(/_/g, ' ')}
                 </h5>
                 <div className="text-text-secondary text-[13px] leading-[1.6]">
@@ -95,7 +95,7 @@ const renderNestedContent = (content) => {
       <div className="space-y-3">
         {Object.entries(content).map(([key, val]) => (
           <div key={key} className="bg-surface/60 rounded-xl p-3 border border-border/60 backdrop-blur-sm">
-            <h5 className="text-[11px] font-bold text-primary uppercase tracking-widest mb-1.5 block">
+            <h5 className="text-[12px] font-bold text-primary uppercase tracking-widest mb-1.5 block">
               {key.replace(/_/g, ' ')}
             </h5>
             <div className="text-text-secondary text-[13px] leading-[1.6]">
@@ -223,7 +223,7 @@ const LegalAnalysisRenderer = ({ content }) => {
         if (!parsedData[key]) return null;
         
         // Give all accordion panels a uniform light greyish color
-        let accentClass = "bg-[#FAF7F2] border-border";
+        let accentClass = "bg-paper border-border";
 
         return (
           <AnalysisCard 

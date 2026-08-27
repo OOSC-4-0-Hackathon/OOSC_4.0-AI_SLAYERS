@@ -1,4 +1,5 @@
 import React from 'react';
+import { Gavel } from 'lucide-react';
 import { getTemplateMeta, RIBBON_COLORS } from './templates/index';
 import DocumentRenderer from './renderer/DocumentRenderer';
 
@@ -115,7 +116,7 @@ function LetterheadHeader({ config, docType }) {
         <div className="legal-logo-placeholder">
           {config?.logoSrc
             ? <img src={config.logoSrc} alt="Firm Logo" className="legal-logo-img" />
-            : <span className="legal-logo-icon material-symbols-outlined">gavel</span>
+            : <Gavel className="w-8 h-8 text-ink-muted inline-block" />
           }
         </div>
       )}

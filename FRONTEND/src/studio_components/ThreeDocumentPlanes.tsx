@@ -466,11 +466,11 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   // 2D Ledger Fallback View
   if (prefersReducedMotion || !isWebGlSupported || force2DMode) {
     return (
-      <div className={`relative border border-[#E4DFD5] bg-[#FAF7F2] p-5 rounded-[2px] ${className}`}>
-        <div className="flex flex-wrap items-center justify-between border-b border-[#E4DFD5] pb-3 mb-4 gap-2">
+      <div className={`relative border border-rule bg-paper p-5 rounded-[2px] ${className}`}>
+        <div className="flex flex-wrap items-center justify-between border-b border-rule pb-3 mb-4 gap-2">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-[#C84B31]"></span>
-            <span className="text-xs text-[#121820] font-bold tracking-wider uppercase">
+            <span className="w-2 h-2 rounded-full bg-accent"></span>
+            <span className="text-xs text-ink font-bold tracking-wider uppercase">
               STATUTORY RETRIEVAL ARRAY // 93 BARE ACTS LEDGER
             </span>
           </div>
@@ -478,23 +478,23 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setForce2DMode(false)}
-              className="px-2.5 py-1 text-xs border border-[#121820] bg-white hover:bg-[#F2EFE9] text-[#121820] rounded-[2px] transition-colors cursor-pointer"
+              className="px-2.5 py-1 text-xs border border-dark bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
             >
               SWITCH TO 3D VIEW
             </button>
-            <span className="text-[11px] text-[#667085]">HIGH PERFORMANCE</span>
+            <span className="text-[12px] text-ink-muted">HIGH PERFORMANCE</span>
           </div>
         </div>
 
         {/* 93 -> 34 -> 1 Narrowing Counter */}
-        <div className="mb-4 p-3 bg-white border border-[#E4DFD5] rounded-[2px] flex items-center justify-between text-xs">
-          <span className="text-[#667085]">RRF CONVERGENCE:</span>
+        <div className="mb-4 p-3 bg-white border border-rule rounded-[2px] flex items-center justify-between text-xs">
+          <span className="text-ink-muted">RRF CONVERGENCE:</span>
           <div className="flex items-center space-x-2">
-            <span className="bg-[#121820] text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
+            <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
             <span>→</span>
-            <span className="bg-[#121820] text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
+            <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
             <span>→</span>
-            <span className="bg-[#C84B31] text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
+            <span className="bg-accent text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
           </div>
         </div>
 
@@ -509,18 +509,18 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
                   if (onSelectAct) onSelectAct(act.id);
                   if (onInspectAct) onInspectAct(act);
                 }}
-                className={`text-left p-3 border transition-all text-xs rounded-[2px] group focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none cursor-pointer ${
+                className={`text-left p-3 border transition-all text-xs rounded-[2px] group focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none cursor-pointer ${
                   isMatch
-                    ? 'border-[#C84B31] bg-white shadow-xs ring-1 ring-[#C84B31]/30 font-medium'
-                    : 'border-[#E4DFD5] bg-[#F2EFE9]/70 hover:bg-white hover:border-[#121820]'
+                    ? 'border-accent bg-white shadow-xs ring-1 ring-accent/30 font-medium'
+                    : 'border-rule bg-paper-sunken/70 hover:bg-white hover:border-dark'
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] text-[#667085]">
+                <div className="flex items-center justify-between text-[12px] text-ink-muted">
                   <span>{act.actCode}</span>
-                  <span className="text-[#C84B31] font-bold group-hover:underline">INSPECT ACT →</span>
+                  <span className="text-accent font-bold group-hover:underline">INSPECT ACT →</span>
                 </div>
-                <div className="font-serif font-bold text-sm text-[#121820] mt-0.5 line-clamp-1">{act.title}</div>
-                <div className="text-[11px] text-[#556377] mt-1 line-clamp-1">{act.summary}</div>
+                <div className="font-serif font-bold text-sm text-ink mt-0.5 line-clamp-1">{act.title}</div>
+                <div className="text-[12px] text-ink-tertiary mt-1 line-clamp-1">{act.summary}</div>
               </button>
             );
           })}
@@ -530,28 +530,28 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   }
 
   return (
-    <div className={`relative overflow-hidden border border-[#E4DFD5] bg-[#FAF7F2] rounded-[2px] ${className}`}>
+    <div className={`relative overflow-hidden border border-rule bg-paper rounded-[2px] ${className}`}>
       {/* Top Technical Metadata Bar & 93 -> 34 -> 1 Live Counter */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-[#FAF7F2]/95 backdrop-blur-xs border-b border-[#E4DFD5]">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-paper/95 backdrop-blur-xs border-b border-rule">
         <div className="flex items-center space-x-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#C84B31] animate-pulse"></span>
-          <span className="text-[11px] font-bold text-[#121820] tracking-wider uppercase hidden sm:inline">
+          <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+          <span className="text-[12px] font-bold text-ink tracking-wider uppercase hidden sm:inline">
             3D STATUTORY ARRAY
           </span>
-          <span className="text-[10px] bg-[#121820] text-white px-2 py-0.5 rounded-[2px] font-bold">
+          <span className="text-[12px] bg-dark text-white px-2 py-0.5 rounded-[2px] font-bold">
             93 → 34 → 1 CONVERGENCE
           </span>
         </div>
 
-        <div className="flex items-center space-x-2 text-[11px] text-[#667085]">
+        <div className="flex items-center space-x-2 text-[12px] text-ink-muted">
           <button
             onClick={() => setForce2DMode(true)}
-            className="px-2 py-0.5 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] rounded-[2px] transition-colors cursor-pointer"
+            className="px-2 py-0.5 border border-rule bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
             title="Switch to 2D ledger view for low-power devices"
           >
             2D LEDGER
           </button>
-          <span className="text-[#121820] font-bold hidden md:inline">
+          <span className="text-ink font-bold hidden md:inline">
             ACTIVE: {selectedActState.toUpperCase()}
           </span>
         </div>
@@ -574,10 +574,10 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
               if (onSelectAct) onSelectAct(act.id);
               if (onInspectAct) onInspectAct(act);
             }}
-            className={`px-2.5 py-1 text-[10px] rounded-[2px] border shrink-0 transition-all cursor-pointer ${
+            className={`px-2.5 py-1 text-[12px] rounded-[2px] border shrink-0 transition-all cursor-pointer ${
               act.id === selectedActState
-                ? 'bg-[#C84B31] text-white border-[#C84B31] font-bold shadow-xs'
-                : 'bg-white/90 hover:bg-white text-[#121820] border-[#D5CEC2]'
+                ? 'bg-accent text-white border-accent font-bold shadow-xs'
+                : 'bg-white/90 hover:bg-white text-ink border-rule-strong'
             }`}
           >
             {act.actCode}
@@ -591,15 +591,15 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] px-3.5 py-2 rounded-[2px] text-xs shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-[#2B3542] group"
+          className="bg-dark hover:bg-dark-rule text-paper px-3.5 py-2 rounded-[2px] text-xs shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-rule-dark group"
           title="Click to inspect this Act's full statutory text"
         >
-          <span className="w-2 h-2 rounded-full bg-[#C84B31] group-hover:scale-125 transition-transform"></span>
-          <span className="text-[#C84B31] font-bold uppercase tracking-wider">INSPECT:</span>
-          <span className="line-clamp-1 font-serif text-sm text-white font-bold group-hover:text-[#FAF7F2]">
+          <span className="w-2 h-2 rounded-full bg-accent group-hover:scale-125 transition-transform"></span>
+          <span className="text-accent font-bold uppercase tracking-wider">INSPECT:</span>
+          <span className="line-clamp-1 font-serif text-sm text-white font-bold group-hover:text-paper">
             {currentAct.title}
           </span>
-          <span className="text-[10px] text-[#A2B1C6] hidden sm:inline underline">
+          <span className="text-[12px] text-slate hidden sm:inline underline">
             [OPEN DOSSIER]
           </span>
         </div>
@@ -608,7 +608,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="pointer-events-auto text-[11px] font-bold text-white bg-[#C84B31] hover:bg-[#A83C25] px-4 py-2 border border-[#A83C25] rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
+          className="pointer-events-auto text-[12px] font-bold text-white bg-accent hover:bg-accent-hover px-4 py-2 border border-accent-hover rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
         >
           <Eye className="w-3.5 h-3.5 text-white" />
           <span>INSPECT STATUTE SECTIONS</span>

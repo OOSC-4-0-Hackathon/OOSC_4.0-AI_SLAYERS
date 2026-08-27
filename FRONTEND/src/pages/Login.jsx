@@ -26,7 +26,7 @@ function FieldLabel({ htmlFor, children }) {
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-[#556377] mb-1.5"
+      className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary mb-1.5"
     >
       {children}
     </label>
@@ -44,9 +44,9 @@ function TextField({ id, type = 'text', placeholder, value, onChange, error, aut
         onChange={onChange}
         autoComplete={autoComplete}
         aria-invalid={error ? true : undefined}
-        className={`w-full px-4 py-3 ${trailing ? 'pr-11' : ''} bg-[#FAF7F2] border rounded-[3px] text-[14px] text-[#121820] placeholder-[#667085]
-          focus:outline-none focus:ring-2 focus:ring-[#C84B31] focus:border-[#C84B31] transition-colors
-          ${error ? 'border-[#B42318]' : 'border-[#D5CEC2] hover:border-[#667085]'}`}
+        className={`w-full px-4 py-3 ${trailing ? 'pr-11' : ''} bg-paper border rounded-[3px] text-[14px] text-ink placeholder-ink-muted
+          focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors
+          ${error ? 'border-error' : 'border-rule-strong hover:border-ink-muted'}`}
       />
       {trailing}
     </div>
@@ -106,29 +106,29 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] ledger-grid text-[#121820] font-sans">
+    <div className="min-h-screen bg-paper ledger-grid text-ink font-sans">
       <Navbar />
       <div className="flex items-center justify-center min-h-screen px-4 pt-[140px] lg:pt-28 pb-12">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-[420px] bg-white/90 backdrop-blur-sm border border-[#E4DFD5] p-8 rounded-[4px] shadow-card"
+          className="w-full max-w-[420px] bg-white/90 backdrop-blur-sm border border-rule p-8 rounded-[4px] shadow-card"
         >
           {/* Case file header */}
           <div className="mb-6">
-            <span className="stamp-badge px-2 py-0.5 text-[12px]">
+            <span className="stamp-badge px-2 py-0.5">
               Case / Auth-001
             </span>
-            <h1 className="font-serif text-3xl font-bold text-[#121820] mt-3 leading-tight">
+            <h1 className="font-serif text-heading font-bold text-ink mt-3">
               Sign in to<br />
-              <span className="text-[#C84B31] italic font-normal">your case file.</span>
+              <span className="text-accent italic font-normal">your case file.</span>
             </h1>
           </div>
 
           {/* Why the visitor is here, when they were bounced */}
           {destinationLabel && (
-            <div className="mb-5 p-3 bg-[#FAEAE7] border-l-2 border-[#C84B31] rounded-[2px] text-[13px] text-[#8C271E] leading-relaxed">
+            <div className="mb-5 p-3 bg-accent-wash border-l-2 border-accent rounded-[2px] text-[13px] text-accent-deep leading-relaxed">
               Sign in to continue to <span className="font-semibold">{destinationLabel}</span>.
               Anything you had already typed is kept.
             </div>
@@ -137,7 +137,7 @@ export default function Login() {
           {error && (
             <div
               role="alert"
-              className="mb-5 p-3 bg-[#FEF3F2] border border-[#B42318]/30 rounded-[2px] text-[13px] text-[#B42318] flex items-start gap-2 leading-relaxed"
+              className="mb-5 p-3 bg-error-bg border border-error/30 rounded-[2px] text-[13px] text-error flex items-start gap-2 leading-relaxed"
             >
               <AlertTriangle aria-hidden="true" className="w-4 h-4 mt-0.5 shrink-0" />
               <span>{error}</span>
@@ -171,7 +171,7 @@ export default function Login() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 rounded text-[#667085] hover:text-[#121820] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 rounded text-ink-muted hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                   >
                     {showPassword
                       ? <EyeOff aria-hidden="true" className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function Login() {
               type="submit"
               disabled={loading}
               aria-busy={loading}
-              className="w-full py-3 mt-1 bg-[#121820] hover:bg-[#2B3542] disabled:opacity-50 disabled:cursor-not-allowed text-[#FAF7F2] font-semibold rounded-[3px] text-[14px] transition-colors shadow-stamp flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="w-full py-3 mt-1 bg-dark hover:bg-dark-rule disabled:opacity-50 disabled:cursor-not-allowed text-paper font-semibold rounded-[3px] text-[14px] transition-colors shadow-stamp flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               {loading ? 'Signing in…' : 'Sign in'}
               {!loading && <ArrowRight aria-hidden="true" className="w-4 h-4" />}
@@ -193,25 +193,25 @@ export default function Login() {
           </form>
 
           <div className="flex items-center gap-3 my-5">
-            <div className="h-px bg-[#E4DFD5] flex-grow" />
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#667085]">or</span>
-            <div className="h-px bg-[#E4DFD5] flex-grow" />
+            <div className="h-px bg-rule flex-grow" />
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-muted">or</span>
+            <div className="h-px bg-rule flex-grow" />
           </div>
 
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full py-3 bg-[#F2EFE9] hover:bg-[#E4DFD5] disabled:opacity-50 disabled:cursor-not-allowed border border-[#D5CEC2] rounded-[3px] text-[14px] font-medium text-[#121820] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="w-full py-3 bg-paper-sunken hover:bg-rule disabled:opacity-50 disabled:cursor-not-allowed border border-rule-strong rounded-[3px] text-[14px] font-medium text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Continue with Google
           </button>
 
-          <p className="text-center text-[13px] text-[#556377] mt-6">
+          <p className="text-center text-[13px] text-ink-tertiary mt-6">
             No account?{' '}
             <Link
               to="/signup"
               state={from ? { from } : undefined}
-              className="text-[#A83C25] hover:text-[#8C271E] hover:underline font-semibold rounded focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+              className="text-accent-text hover:text-accent-deep hover:underline font-semibold rounded focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
               Create one
             </Link>

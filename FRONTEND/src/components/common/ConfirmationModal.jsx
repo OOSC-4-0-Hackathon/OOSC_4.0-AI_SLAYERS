@@ -49,7 +49,7 @@ export default function ConfirmationModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121820]/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-[2px]"
       onClick={() => !loading && onCancel?.()}
     >
       <div
@@ -58,26 +58,26 @@ export default function ConfirmationModal({
         aria-labelledby={`${id}-title`}
         aria-describedby={body ? `${id}-body` : undefined}
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#FFFFFF] border border-[#E4DFD5] rounded-[6px] shadow-modal w-full max-w-md overflow-hidden animate-stamp"
+        className="bg-[#FFFFFF] border border-rule rounded-[6px] shadow-modal w-full max-w-md overflow-hidden animate-stamp"
       >
         {/* Accent edge — matches the stamped-document language */}
-        <div className={`h-[3px] ${isDestructive ? 'bg-[#B42318]' : 'bg-[#C84B31]'}`} />
+        <div className={`h-[3px] ${isDestructive ? 'bg-[#B42318]' : 'bg-accent'}`} />
 
         <div className="p-6">
           <h2
             id={`${id}-title`}
-            className="font-serif text-lg font-bold text-[#121820] leading-snug"
+            className="font-serif text-lg font-bold text-ink leading-snug"
           >
             {title}
           </h2>
           {body && (
-            <p id={`${id}-body`} className="mt-2 text-[14px] text-[#475467] leading-relaxed">
+            <p id={`${id}-body`} className="mt-2 text-[14px] text-ink-secondary leading-relaxed">
               {body}
             </p>
           )}
         </div>
 
-        <div className="bg-[#F2EFE9] px-6 py-4 flex items-center justify-end gap-3 border-t border-[#E4DFD5]">
+        <div className="bg-paper-sunken px-6 py-4 flex items-center justify-end gap-3 border-t border-rule">
           <Button variant="ghost" size="sm" onClick={onCancel} disabled={loading}>
             {cancelText}
           </Button>

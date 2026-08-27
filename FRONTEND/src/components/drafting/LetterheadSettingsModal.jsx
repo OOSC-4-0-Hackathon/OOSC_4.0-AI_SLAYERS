@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { LETTERHEAD_TEMPLATES, WATERMARK_OPTIONS, DEFAULT_LETTERHEAD_CONFIG } from './templates/index';
 
 const LS_KEY = 'nyaay_letterhead_config';
@@ -41,7 +42,9 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
           <h2 className="font-semibold text-base">Letterhead & Document Settings</h2>
-          <button onClick={onClose} className="material-symbols-outlined text-zinc-500 hover:text-black">close</button>
+          <button onClick={onClose} className="p-1 rounded text-ink-muted hover:text-ink hover:bg-paper-sunken transition-colors" title="Close">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="px-6 py-5 space-y-5">

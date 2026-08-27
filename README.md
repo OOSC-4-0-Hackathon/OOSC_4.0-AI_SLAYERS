@@ -112,10 +112,35 @@ flowchart TD
 
 ### Core Interface Screenshots
 
-| Civic Navigator Workflow | Single-Pass Document Draft |
+| 01. Landing Hero & 3D Statutory Array | 02. Live Sub-500ms TTFT Streaming Proof |
 | :---: | :---: |
-| `![Civic Navigator Screenshot](SCREENSHOTS/navigator_demo.png)` | `![Document Generator Screenshot](SCREENSHOTS/draft_demo.png)` |
-| *Real-time SSE streaming dossier with evidence checklists* | *Auto-filled legal document template with schema detection* |
+| ![Landing Hero](SCREENSHOTS/1.png) | ![Live Streaming Proof](SCREENSHOTS/2.png) |
+| *Citizen-legible interface with 3D statutory convergence* | *Real-time regex routing, hybrid RRF retrieval & live dossier streaming* |
+
+| 03. Four Core Pillars of Legal Aid | 04. Five-Part Case Dossier Standard |
+| :---: | :---: |
+| ![Core Pillars](SCREENSHOTS/3.png) | ![Five-Part Case Dossier](SCREENSHOTS/4.png) |
+| *RTI, Rights Navigator, Welfare Reader & Form-Filler* | *Courtroom-tested invariant output shape* |
+
+| 05. Common Civic Scenarios Carousel | 06. 93 Indian Bare Acts Knowledge Base |
+| :---: | :---: |
+| ![Civic Scenarios](SCREENSHOTS/5.png) | ![93 Bare Acts](SCREENSHOTS/6.png) |
+| *Real-world benchmark scenarios across RTI, Tenant, Consumer* | *Full statutory repository with section-level grounding* |
+
+| 07. Civic Navigator Streaming Dossier | 08. Evidentiary Threshold & BSA 2023 Checklist |
+| :---: | :---: |
+| ![Civic Navigator](SCREENSHOTS/7.png) | ![Evidence Checklist](SCREENSHOTS/8.png) |
+| *Structured legal analysis from plain Hindi / English queries* | *Audit-readiness verification before any tribunal or court* |
+
+| 09. Day 1 → Day 30 Phased Action Plan | 10. Scheme Eligibility & Benefit Calculator |
+| :---: | :---: |
+| ![Action Plan](SCREENSHOTS/9.png) | ![Scheme Reader](SCREENSHOTS/10.png) |
+| *Limitation Act 1963 compliant milestone stepper* | *Welfare entitlement verification with document checklist* |
+
+| 11. Conversational Form-Filler & Legal Notice Drafter |
+| :---: |
+| ![Form Filler & Drafter](SCREENSHOTS/11.png) |
+| *Bilingual intake engine with real-time official legal form generation* |
 
 ---
 

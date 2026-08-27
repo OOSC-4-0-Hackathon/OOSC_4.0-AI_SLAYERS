@@ -32,7 +32,7 @@ const Button = forwardRef(function Button({
 
   const baseStyle = [
     'rounded-[3px] font-medium transition-all duration-150',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:ring-offset-1',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
     'flex items-center justify-center gap-2 select-none',
     'disabled:opacity-40 disabled:cursor-not-allowed',
     'shadow-[0_1px_2px_rgba(26,24,20,0.06)]',
@@ -41,13 +41,13 @@ const Button = forwardRef(function Button({
 
   const variants = {
     // === 3 canonical variants ===
-    primary:   'bg-[#C84B31] hover:bg-[#A83C25] text-white font-semibold active:scale-[0.98]',
-    secondary: 'bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-semibold active:scale-[0.98]',
-    ghost:     'bg-transparent border border-[#D5CEC2] text-[#121820] hover:border-[#121820] hover:bg-[#F2EFE9] font-medium',
-    danger:    'bg-[#A83C25] hover:bg-[#8C271E] text-white font-semibold active:scale-[0.98]',
+    primary:   'bg-accent hover:bg-accent-hover text-white font-semibold active:scale-[0.98]',
+    secondary: 'bg-dark hover:bg-dark-rule text-paper font-semibold active:scale-[0.98]',
+    ghost:     'bg-transparent border border-rule-strong text-ink hover:border-dark hover:bg-paper-sunken font-medium',
+    danger:    'bg-accent-hover hover:bg-accent-deep text-white font-semibold active:scale-[0.98]',
     // === legacy aliases (kept so existing callers don't break) ===
-    amber:   'bg-[#C84B31] hover:bg-[#A83C25] text-white font-semibold active:scale-[0.98]',
-    outline: 'bg-transparent border border-[#D5CEC2] text-[#121820] hover:border-[#121820] hover:bg-[#F2EFE9] font-medium',
+    amber:   'bg-accent hover:bg-accent-hover text-white font-semibold active:scale-[0.98]',
+    outline: 'bg-transparent border border-rule-strong text-ink hover:border-dark hover:bg-paper-sunken font-medium',
   };
 
   return (

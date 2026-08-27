@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
-// Eagerly load the landing page (first paint)
-import Landing from './pages/Landing';
+// Lazy-load all pages to optimize initial bundle size
+const Landing = lazy(() => import('./pages/Landing'));
 
 // Lazy-load all other pages to reduce initial bundle size
 const Login = lazy(() => import('./pages/Login'));
@@ -31,12 +31,12 @@ function RouteFallback() {
       role="status"
       aria-live="polite"
     >
-      <div className="w-8 h-8 rounded-[4px] bg-[#121820] text-[#FAF7F2] flex items-center justify-center border border-[#2B3542]">
+      <div className="w-8 h-8 rounded-[4px] bg-dark text-paper flex items-center justify-center border border-rule-dark">
         <span className="font-serif font-bold text-sm tracking-tight">Ny</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#C84B31] animate-pulse" />
-        <span className="text-[13px] font-sans text-[#556377]">Loading…</span>
+        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+        <span className="text-[13px] font-sans text-ink-tertiary">Loading…</span>
       </div>
     </div>
   );

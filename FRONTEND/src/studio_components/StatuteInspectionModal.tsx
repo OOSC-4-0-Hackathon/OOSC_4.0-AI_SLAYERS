@@ -105,23 +105,23 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-[#121820]/75 backdrop-blur-xs flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-dark/75 backdrop-blur-xs flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="statute-modal-title"
     >
-      <div className="bg-[#FAF7F2] border border-[#121820] max-w-3xl w-full rounded-[2px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-stamp">
+      <div className="bg-paper border border-dark max-w-3xl w-full rounded-[2px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-stamp">
         {/* Header */}
-        <div className="bg-[#121820] text-[#FAF7F2] px-6 py-4 flex items-center justify-between border-b border-[#2B3542]">
+        <div className="bg-dark text-paper px-6 py-4 flex items-center justify-between border-b border-rule-dark">
           <div className="flex items-center space-x-3 text-xs">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#C84B31] animate-pulse"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"></div>
             <span className="font-bold tracking-wider uppercase">STATUTE INSPECTION DOSSIER</span>
-            <span className="text-[#556377]">|</span>
-            <span className="text-[#A2B1C6]">{act.actCode}</span>
+            <span className="text-ink-tertiary">|</span>
+            <span className="text-slate">{act.actCode}</span>
           </div>
           <button
             onClick={onClose}
-            className="text-[#A2B1C6] hover:text-white p-1 rounded-[2px] focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+            className="text-slate hover:text-white p-1 rounded-[2px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -129,61 +129,61 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-[#121820]">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-ink">
           {/* Act Title & Metadata Box */}
-          <div className="border border-[#E4DFD5] bg-white p-5 rounded-[2px] space-y-3">
+          <div className="border border-rule bg-white p-5 rounded-[2px] space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="stamp-badge text-[10px] px-2 py-0.5">
+              <span className="stamp-badge px-2 py-0.5">
                 {CATEGORY_LABELS[act.category]}
               </span>
-              <span className="text-xs text-[#667085]">
+              <span className="text-xs text-ink-muted">
                 ENACTED: {act.year} • {act.actNumber} • {act.sectionCount} SECTIONS
               </span>
             </div>
 
-            <h2 id="statute-modal-title" className="font-serif text-2xl font-black text-[#121820]">
+            <h2 id="statute-modal-title" className="font-serif text-heading font-bold text-ink">
               {act.title}
             </h2>
 
-            <p className="text-sm text-[#475467] font-sans leading-relaxed">
+            <p className="text-sm text-ink-secondary font-sans leading-relaxed">
               {act.summary}
             </p>
           </div>
 
           {/* Detailed Legal Provisions Breakdown */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-[#E4DFD5] pb-2">
-              <span className="text-xs font-bold text-[#A83C25] uppercase tracking-wider flex items-center space-x-1.5">
+            <div className="flex items-center justify-between border-b border-rule pb-2">
+              <span className="text-xs font-bold text-accent-text uppercase tracking-wider flex items-center space-x-1.5">
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>AUTHENTIC STATUTORY PROVISIONS & CITIZEN REMEDIES</span>
               </span>
-              <span className="text-[11px] text-[#667085]">GROUNDED LEGISLATIVE TEXT</span>
+              <span className="text-[12px] text-ink-muted">GROUNDED LEGISLATIVE TEXT</span>
             </div>
 
             <div className="space-y-3">
               {sections.map((sec, idx) => (
                 <div 
                   key={idx}
-                  className="p-4 border border-[#E4DFD5] bg-white rounded-[2px] space-y-2 hover:border-[#121820] transition-colors"
+                  className="p-4 border border-rule bg-white rounded-[2px] space-y-2 hover:border-dark transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#121820] bg-[#FAF7F2] px-2 py-0.5 border border-[#E4DFD5] rounded-[2px]">
+                    <span className="text-xs font-bold text-ink bg-paper px-2 py-0.5 border border-rule rounded-[2px]">
                       {sec.section}
                     </span>
-                    <span className="font-serif font-bold text-sm text-[#121820]">
+                    <span className="font-serif font-bold text-sm text-ink">
                       {sec.title}
                     </span>
                   </div>
 
                   {/* Verbatim Legal Language Quote */}
-                  <blockquote className="p-3 bg-[#FAF7F2] border-l-2 border-[#C84B31] text-xs text-[#475467] leading-relaxed italic">
+                  <blockquote className="p-3 bg-paper border-l-2 border-accent text-xs text-ink-secondary leading-relaxed italic">
                     "{sec.legalText}"
                   </blockquote>
 
                   {/* Plain Language Interpretation */}
-                  <div className="flex items-start space-x-2 text-xs font-sans text-[#475467] pt-1">
+                  <div className="flex items-start space-x-2 text-xs font-sans text-ink-secondary pt-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
-                    <span><strong className="text-[#121820]">Plain Legal Effect:</strong> {sec.plainMeaning}</span>
+                    <span><strong className="text-ink">Plain Legal Effect:</strong> {sec.plainMeaning}</span>
                   </div>
                 </div>
               ))}
@@ -192,15 +192,15 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 bg-[#F2EFE9] border-t border-[#E4DFD5] flex flex-wrap items-center justify-between gap-3">
-          <div className="text-xs text-[#667085]">
+        <div className="p-4 bg-paper-sunken border-t border-rule flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-ink-muted">
             NYAAY AI LEGISLATIVE INDEX // 93 BARE ACTS
           </div>
 
           <div className="flex items-center space-x-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-[#E4DFD5] bg-white hover:bg-[#FAF7F2] text-[#121820] text-xs rounded-[2px] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+              className="px-4 py-2 border border-rule bg-white hover:bg-paper text-ink text-xs rounded-[2px] transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
               CLOSE
             </button>
@@ -210,10 +210,10 @@ export const StatuteInspectionModal: React.FC<StatuteInspectionModalProps> = ({
                 onQueryThisAct(act);
                 onClose();
               }}
-              className="px-5 py-2 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+              className="px-5 py-2 bg-dark hover:bg-dark-rule text-paper text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
               <span>QUERY THIS ACT IN CIVIC NAVIGATOR</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#C84B31]" />
+              <ArrowRight className="w-3.5 h-3.5 text-accent" />
             </button>
           </div>
         </div>

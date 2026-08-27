@@ -122,7 +122,7 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
             <EmptyState
-              icon={<span className="font-serif italic text-[22px] font-bold text-[#C84B31]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>}
+              icon={<span className="font-serif italic text-[22px] font-bold text-accent" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>}
               eyebrow="CASE STRATEGY"
               title={<>Build both sides<br /><span className="italic font-normal">of your case.</span></>}
               subtitle="Arguments, risk, statute — all in one session."
@@ -150,7 +150,7 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="text-[11px] text-ink-fog uppercase tracking-wider ml-1">Reasoning...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">Reasoning...</span>
                     </div>
                   )}
                 />

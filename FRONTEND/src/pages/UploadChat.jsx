@@ -185,19 +185,19 @@ const UploadChatArea = ({ refreshConversations }) => {
                 {/* Icon + heading via shared pattern */}
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="w-14 h-14 bg-paper border border-paper-rule rounded-[4px] flex items-center justify-center mb-6 shadow-[0_1px_3px_rgba(26,24,20,0.06)]">
-                    <UploadCloud className="w-6 h-6 text-[#C84B31]" />
+                    <UploadCloud className="w-6 h-6 text-accent" />
                   </div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#667085] mb-3 block">DOCUMENT UPLOAD</span>
-                  <h2 className="text-[22px] font-bold text-[#121820] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                  <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted mb-3 block">DOCUMENT UPLOAD</span>
+                  <h2 className="text-[22px] font-bold text-ink mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
                     Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
                   </h2>
-                  <p className="text-[13px] text-[#667085] leading-relaxed">
+                  <p className="text-[13px] text-ink-muted leading-relaxed">
                     Upload a PDF or DOCX to extract clauses and red flags.
                   </p>
                 </div>
 
                 {/* Upload zone */}
-                <div className="border-2 border-dashed border-[#D5CEC2] hover:border-[#C84B31]/40 rounded-[4px] p-6 transition-colors">
+                <div className="border-2 border-dashed border-rule-strong hover:border-accent/40 rounded-[4px] p-6 transition-colors">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -208,21 +208,21 @@ const UploadChatArea = ({ refreshConversations }) => {
 
                   {file ? (
                     <div className="text-center space-y-3">
-                      <p className="text-[11px] font-medium text-[#A83C25] bg-[#FAEAE7] inline-block px-3 py-1 rounded-[3px] border border-[#C84B31]/30">
+                      <p className="text-[12px] font-medium text-accent-text bg-accent-wash inline-block px-3 py-1 rounded-[3px] border border-accent/30">
                         {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                       <div className="flex gap-2 justify-center">
                         <button
                           onClick={() => fileInputRef.current?.click()}
                           disabled={uploading}
-                          className="px-4 py-2 bg-[#F2EFE9] border border-[#D5CEC2] text-[#121820] rounded-[3px] hover:border-[#121820] font-medium text-[13px] transition-colors"
+                          className="px-4 py-2 bg-paper-sunken border border-rule-strong text-ink rounded-[3px] hover:border-dark font-medium text-[13px] transition-colors"
                         >
                           Change
                         </button>
                         <button
                           onClick={handleUpload}
                           disabled={uploading}
-                          className="px-5 py-2 bg-[#121820] hover:bg-[#2B3542] text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
+                          className="px-5 py-2 bg-dark hover:bg-dark-rule text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
                         >
                           {uploading ? (
                             <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Uploading...</>
@@ -235,16 +235,16 @@ const UploadChatArea = ({ refreshConversations }) => {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="px-6 py-2.5 bg-[#121820] hover:bg-[#2B3542] text-white rounded-[3px] font-semibold text-[13px] transition-colors"
+                        className="px-6 py-2.5 bg-dark hover:bg-dark-rule text-white rounded-[3px] font-semibold text-[13px] transition-colors"
                       >
                         Select File
                       </button>
-                      <p className="mt-3 text-[11px] text-[#667085]">PDF or DOCX · max 10MB</p>
+                      <p className="mt-3 text-[12px] text-ink-muted">PDF or DOCX · max 10MB</p>
                     </div>
                   )}
 
                   {uploadError && (
-                    <p className="text-[#A83C25] text-[13px] mt-4 bg-[#FAEAE7] py-2 px-3 rounded-[3px] border border-[#A83C25]/30 text-center">
+                    <p className="text-accent-text text-[13px] mt-4 bg-accent-wash py-2 px-3 rounded-[3px] border border-accent-hover/30 text-center">
                       {uploadError}
                     </p>
                   )}
@@ -269,7 +269,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="text-[11px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
                     </div>
                   )}
                 />

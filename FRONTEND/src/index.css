@@ -80,12 +80,18 @@
   }
 
   /*
-   * Newsreader tops out at 700. Georgia has only 400/700. Without this the
-   * browser synthesises heavier weights into smeared glyphs — which is what
-   * `font-serif font-black` on the hero <h1> was doing. Belt and braces:
-   * the `font-black` utilities are also removed from the markup.
+   * Every family this app loads tops out at 700 — Newsreader 400-700,
+   * Inter 400-700, JetBrains Mono 400/500/700 — and the fallbacks are
+   * worse (Georgia ships 400/700 only). Asking for 800 or 900 therefore
+   * bought nothing but browser-synthesised glyphs: real 700 outlines
+   * smeared wider, which at display sizes reads as a rendering fault.
+   *
+   * Synthesis is off globally rather than on .font-serif alone, because
+   * every family here has a real 700 to reach for and none needs faking.
+   * The markup no longer asks for 800/900 either — `font-black` and
+   * `font-extrabold` are gone, so what the class says is what renders.
    */
-  .font-serif {
+  html {
     font-synthesis-weight: none;
   }
 
@@ -211,6 +217,9 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-family: 'Inter', sans-serif;
+  /* Was unset, so all eight call sites hand-supplied `text-[10px]`. Uppercase
+     at 0.08em tracking needs the same 12px floor as .label-stamp. */
+  font-size: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;

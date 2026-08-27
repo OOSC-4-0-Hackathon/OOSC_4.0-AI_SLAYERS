@@ -196,32 +196,32 @@ export default function Legal() {
       {/* Navbar is 64px, plus a ~46px nav strip below lg. */}
       <main className="flex-grow pt-[124px] lg:pt-[88px]">
         {/* Header */}
-        <header className="border-b border-[#E4DFD5] bg-[#F2EFE9]">
+        <header className="border-b border-rule bg-paper-sunken">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#A83C25] hover:text-[#8C271E] transition-colors mb-8 rounded focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-text hover:text-accent-deep transition-colors mb-8 rounded focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
               <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5" />
               Back to NYAAY AI
             </Link>
 
             <div className="flex items-center gap-2 mb-3">
-              <Icon aria-hidden="true" className="w-4 h-4 text-[#C84B31]" />
-              <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#A83C25]">
+              <Icon aria-hidden="true" className="w-4 h-4 text-accent" />
+              <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-accent-text">
                 {entry.eyebrow}
               </span>
             </div>
 
-            <h1 className="font-serif text-display-lg font-bold text-[#121820]">
+            <h1 className="font-serif text-display-lg font-bold text-ink">
               {entry.title}
             </h1>
 
-            <p className="mt-4 text-lg text-[#475467] leading-relaxed max-w-2xl">
+            <p className="mt-4 text-lg text-ink-secondary leading-relaxed max-w-2xl">
               {entry.lede}
             </p>
 
-            <p className="mt-6 text-xs text-[#556377]">
+            <p className="mt-6 text-xs text-ink-tertiary">
               Last updated {LAST_UPDATED}
             </p>
           </div>
@@ -233,16 +233,16 @@ export default function Legal() {
             {entry.body.map((section, i) => (
               <section key={section.h} className="space-y-3">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-xs text-[#A83C25] font-bold shrink-0 pt-1.5">
+                  <span className="text-xs text-accent-text font-bold shrink-0 pt-1.5">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <h2 className="font-serif text-heading font-bold text-[#121820]">
+                  <h2 className="font-serif text-heading font-bold text-ink">
                     {section.h}
                   </h2>
                 </div>
                 <div className="pl-0 sm:pl-9 space-y-3">
                   {section.p.map((para, j) => (
-                    <p key={j} className="text-[15px] text-[#475467] leading-relaxed">
+                    <p key={j} className="text-[15px] text-ink-secondary leading-relaxed">
                       {para}
                     </p>
                   ))}
@@ -253,7 +253,7 @@ export default function Legal() {
 
           {/* Cross-links */}
           <nav
-            className="mt-16 pt-8 border-t border-[#E4DFD5] flex flex-wrap gap-x-6 gap-y-2 text-[13px]"
+            className="mt-16 pt-8 border-t border-rule flex flex-wrap gap-x-6 gap-y-2 text-[13px]"
             aria-label="Other legal documents"
           >
             {Object.entries(DOCS)
@@ -262,7 +262,7 @@ export default function Legal() {
                 <Link
                   key={key}
                   to={`/legal/${key}`}
-                  className="font-medium text-[#A83C25] hover:text-[#8C271E] transition-colors rounded focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+                  className="font-medium text-accent-text hover:text-accent-deep transition-colors rounded focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                 >
                   {value.title} →
                 </Link>
@@ -270,16 +270,16 @@ export default function Legal() {
           </nav>
 
           {/* Legal aid callout — the genuinely useful thing on this page */}
-          <aside className="mt-10 p-5 bg-[#F2EFE9] border-l-2 border-[#C84B31] rounded-[2px]">
-            <h2 className="font-serif text-base font-bold text-[#121820]">
+          <aside className="mt-10 p-5 bg-paper-sunken border-l-2 border-accent rounded-[2px]">
+            <h2 className="font-serif text-base font-bold text-ink">
               Need a real lawyer and cannot afford one?
             </h2>
-            <p className="mt-2 text-[14px] text-[#475467] leading-relaxed">
+            <p className="mt-2 text-[14px] text-ink-secondary leading-relaxed">
               Free legal aid is a statutory right under the Legal Services Authorities Act, 1987.
               Call the NALSA helpline on{' '}
               <a
                 href="tel:15100"
-                className="font-bold text-[#A83C25] hover:text-[#8C271E] underline decoration-dotted"
+                className="font-bold text-accent-text hover:text-accent-deep underline decoration-dotted"
               >
                 15100
               </a>{' '}

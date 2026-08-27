@@ -26,8 +26,8 @@ export default function ProtectedRoute({ children }) {
         role="status"
         aria-live="polite"
       >
-        <LoadingSpinner size="md" className="text-[#C84B31]" label="Restoring session" />
-        <p className="text-[13px] font-sans text-[#556377]">Restoring your session…</p>
+        <LoadingSpinner size="md" className="text-accent" label="Restoring session" />
+        <p className="text-[13px] font-sans text-ink-tertiary">Restoring your session…</p>
       </div>
     );
   }

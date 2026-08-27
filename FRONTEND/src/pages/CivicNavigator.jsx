@@ -159,12 +159,12 @@ export default function CivicNavigatorPage() {
      dockets were completely unreachable. */
   const dossierPanel = (
     <>
-      <div className="p-4 border-b border-[#E4DFD5] flex items-center justify-between bg-white shrink-0">
-        <h2 className="font-serif font-bold text-[#121820]">Saved Dossiers</h2>
+      <div className="p-4 border-b border-rule flex items-center justify-between bg-white shrink-0">
+        <h2 className="font-serif font-bold text-ink">Saved Dossiers</h2>
         <div className="flex items-center gap-2">
           <button
             onClick={startNewCase}
-            className="flex items-center gap-1 text-[12px] bg-[#121820] text-[#FAF7F2] px-2.5 py-1.5 rounded-[3px] font-semibold hover:bg-[#C84B31] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:ring-offset-1 focus-visible:outline-none"
+            className="flex items-center gap-1 text-[12px] bg-dark text-paper px-2.5 py-1.5 rounded-[3px] font-semibold hover:bg-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none"
           >
             <Plus aria-hidden="true" className="w-3 h-3" />
             New case
@@ -172,7 +172,7 @@ export default function CivicNavigatorPage() {
           <button
             onClick={() => setDossierDrawerOpen(false)}
             aria-label="Close saved dossiers"
-            className="md:hidden p-1.5 rounded text-[#556377] hover:text-[#121820] hover:bg-[#F2EFE9] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+            className="md:hidden p-1.5 rounded text-ink-tertiary hover:text-ink hover:bg-paper-sunken transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
           >
             <X aria-hidden="true" className="w-4 h-4" />
           </button>
@@ -182,9 +182,9 @@ export default function CivicNavigatorPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {savedCases.length === 0 ? (
           <div className="text-center mt-10 px-2">
-            <Inbox aria-hidden="true" className="w-6 h-6 mx-auto text-[#D5CEC2]" />
-            <p className="mt-3 text-[13px] font-semibold text-[#121820]">No dockets yet</p>
-            <p className="mt-1 text-[12px] text-[#556377] leading-relaxed">
+            <Inbox aria-hidden="true" className="w-6 h-6 mx-auto text-rule-strong" />
+            <p className="mt-3 text-[13px] font-semibold text-ink">No dockets yet</p>
+            <p className="mt-1 text-[12px] text-ink-tertiary leading-relaxed">
               Run a query, then save the dossier it produces to keep it here.
             </p>
           </div>
@@ -197,15 +197,15 @@ export default function CivicNavigatorPage() {
                 type="button"
                 onClick={() => openSavedCase(c)}
                 aria-current={isActive ? 'true' : undefined}
-                className={`w-full text-left p-3 rounded-[3px] border transition-all focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none ${
+                className={`w-full text-left p-3 rounded-[3px] border transition-all focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
                   isActive
-                    ? 'bg-white border-[#C84B31] shadow-sm ring-1 ring-[#C84B31]/10'
-                    : 'bg-white/50 border-[#E4DFD5] hover:bg-white hover:border-[#C84B31]/50'
+                    ? 'bg-white border-accent shadow-sm ring-1 ring-accent/10'
+                    : 'bg-white/50 border-rule hover:bg-white hover:border-accent/50'
                 }`}
               >
-                <div className="text-[12px] font-mono font-bold text-[#A83C25] mb-1.5 tracking-wide">{c.docketNumber}</div>
-                <div className="text-sm font-bold text-[#121820] line-clamp-2 leading-snug">{c.title}</div>
-                <div className="text-[12px] text-[#556377] mt-3 flex justify-between items-center gap-2 border-t border-dashed border-[#E4DFD5] pt-2">
+                <div className="text-[12px] font-mono font-bold text-accent-text mb-1.5 tracking-wide">{c.docketNumber}</div>
+                <div className="text-sm font-bold text-ink line-clamp-2 leading-snug">{c.title}</div>
+                <div className="text-[12px] text-ink-tertiary mt-3 flex justify-between items-center gap-2 border-t border-dashed border-rule pt-2">
                   <span className="truncate">{c.domain}</span>
                   <span className="shrink-0 font-mono">{new Date(c.createdAt).toLocaleDateString()}</span>
                 </div>
@@ -218,7 +218,7 @@ export default function CivicNavigatorPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF7F2] ledger-grid text-[#121820] font-sans">
+    <div className="min-h-screen flex flex-col bg-paper ledger-grid text-ink font-sans">
       <Navbar
         tabs={CIVIC_TABS}
         activeTab={activeTab}
@@ -233,11 +233,11 @@ export default function CivicNavigatorPage() {
         The inner scroll region is md+ only. On a phone a nested scroll trap
         inside a page that also scrolls is just two competing scrollbars.
       */}
-      <main className="flex-1 bg-[#FAF7F2] pt-[150px] lg:pt-[104px] min-h-[calc(100vh-150px)] lg:min-h-[calc(100vh-104px)] flex md:overflow-hidden">
+      <main className="flex-1 bg-paper pt-[150px] lg:pt-[104px] min-h-[calc(100vh-150px)] lg:min-h-[calc(100vh-104px)] flex md:overflow-hidden">
 
         {/* Saved dossiers — desktop rail */}
         <aside
-          className="w-80 bg-[#FAF7F2] border-r border-[#E4DFD5] flex-col h-full hidden md:flex shrink-0"
+          className="w-80 bg-paper border-r border-rule flex-col h-full hidden md:flex shrink-0"
           aria-label="Saved dossiers"
         >
           {dossierPanel}
@@ -247,11 +247,11 @@ export default function CivicNavigatorPage() {
         {dossierDrawerOpen && (
           <div className="md:hidden fixed inset-0 z-40 flex">
             <div
-              className="absolute inset-0 bg-[#121820]/50"
+              className="absolute inset-0 bg-dark/50"
               onClick={() => setDossierDrawerOpen(false)}
             />
             <aside
-              className="relative w-[85vw] max-w-xs bg-[#FAF7F2] border-r border-[#E4DFD5] flex flex-col h-full shadow-modal animate-slide-in"
+              className="relative w-[85vw] max-w-xs bg-paper border-r border-rule flex flex-col h-full shadow-modal animate-slide-in"
               aria-label="Saved dossiers"
             >
               {dossierPanel}
@@ -260,17 +260,17 @@ export default function CivicNavigatorPage() {
         )}
 
         {/* MAIN AREA */}
-        <div className="flex-1 md:overflow-y-auto bg-[#FAF7F2]">
+        <div className="flex-1 md:overflow-y-auto bg-paper">
           {/* Mobile entry point to the dossier list */}
-          <div className="md:hidden sticky top-0 z-20 px-4 py-2 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E4DFD5]">
+          <div className="md:hidden sticky top-0 z-20 px-4 py-2 bg-paper/95 backdrop-blur-sm border-b border-rule">
             <button
               onClick={() => setDossierDrawerOpen(true)}
-              className="flex items-center gap-1.5 text-[13px] font-medium text-[#121820] px-2.5 py-1.5 rounded-[3px] border border-[#D5CEC2] bg-white hover:border-[#C84B31] transition-colors focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none"
+              className="flex items-center gap-1.5 text-[13px] font-medium text-ink px-2.5 py-1.5 rounded-[3px] border border-rule-strong bg-white hover:border-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
-              <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-[#C84B31]" />
+              <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-accent" />
               Saved dossiers
               {savedCases.length > 0 && (
-                <span className="ml-0.5 font-mono text-[11px] text-[#556377]">({savedCases.length})</span>
+                <span className="ml-0.5 font-mono text-[12px] text-ink-tertiary">({savedCases.length})</span>
               )}
             </button>
           </div>

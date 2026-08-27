@@ -108,7 +108,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
             <EmptyState
-              icon={<span className="font-serif italic text-[22px] font-bold text-[#C84B31]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
+              icon={<span className="font-serif italic text-[22px] font-bold text-accent" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
               eyebrow="KANOON Q&A"
               title={<>Ask any legal question.<br /><span className="italic font-normal">Get a statute-grounded answer.</span></>}
               subtitle="Indian law, grounded in statute."
@@ -132,7 +132,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="text-[11px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
                     </div>
                   )}
                 />
