@@ -2,11 +2,7 @@ import os
 import spaces
 import gradio as gr
 
-@spaces.GPU
-def warmup_gpu():
-    return "ZeroGPU Online"
-
-# Stitch Chroma database if needed
+# Automatically stitch ChromaDB sqlite parts if needed
 try:
     base_dir = os.path.dirname(__file__)
     db_path = os.path.join(base_dir, 'chroma_db_backup', 'chroma.sqlite3')
@@ -16,25 +12,27 @@ try:
 except Exception as e:
     print(f"Chroma stitching note: {e}")
 
+@spaces.GPU
+def warmup_gpu():
+    return "ZeroGPU Initialized & Online"
+
 from app.main import app as fastapi_app
 
+# Status interface for Hugging Face Spaces
 with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # ⚖️ NYAAY AI Backend Service
     **Status: Online & Ready (NVIDIA ZeroGPU 16GB)**
     
-    All statutory RAG endpoints, zero-LLM intent routers, and dossier streaming APIs are live under `/api`.
+    All statutory RAG endpoints, zero-LLM intent routers, and dossier streaming APIs are live under `/backend/api`.
     """)
-    btn = gr.Button("GPU Check")
+    btn = gr.Button("GPU Heartbeat Check")
     out = gr.Textbox(label="Status", value="Ready")
     btn.click(warmup_gpu, outputs=out)
     demo.load(warmup_gpu, outputs=out)
 
-# Merge all FastAPI routes directly into demo.app so /api/* routes are directly accessible
-for route in fastapi_app.routes:
-    demo.app.routes.append(route)
-
-demo.app.state = fastapi_app.state
+# Mount our complete FastAPI application under /backend so it bypasses Gradio internal API routing
+demo.app.mount("/backend", fastapi_app)
 
 if __name__ == "__main__":
     demo.queue().launch()
