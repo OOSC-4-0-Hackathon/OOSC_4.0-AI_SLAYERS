@@ -20,9 +20,19 @@ class KanoonService:
         conversation = None
         
         if request.conversation_id:
+            from app.models.user import User
+            # Need to get email to resolve old UIDs
+            db_user = db.query(User).filter(User.firebase_uid == user_id).first()
+            target_uids = [user_id]
+            if db_user:
+                # If they have the same email as an old account, allow it
+                old_users = db.query(User).filter(User.email == db_user.email).all()
+                for u in old_users:
+                    target_uids.append(u.firebase_uid)
+                    
             conversation = db.query(Conversation).filter(
                 Conversation.id == request.conversation_id,
-                Conversation.user_id == user_id
+                Conversation.user_id.in_(target_uids)
             ).first()
 
             if conversation and conversation.feature_type != FeatureType.know_kanoon:
@@ -130,9 +140,17 @@ class KanoonService:
         conversation = None
         
         if request.conversation_id:
+            from app.models.user import User
+            db_user = db.query(User).filter(User.firebase_uid == user_id).first()
+            target_uids = [user_id]
+            if db_user:
+                old_users = db.query(User).filter(User.email == db_user.email).all()
+                for u in old_users:
+                    target_uids.append(u.firebase_uid)
+                    
             conversation = db.query(Conversation).filter(
                 Conversation.id == request.conversation_id,
-                Conversation.user_id == user_id
+                Conversation.user_id.in_(target_uids)
             ).first()
 
             if conversation and conversation.feature_type != FeatureType.know_kanoon:

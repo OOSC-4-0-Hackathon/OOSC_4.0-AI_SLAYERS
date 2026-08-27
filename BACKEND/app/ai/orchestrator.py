@@ -518,7 +518,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         gen_start = time.time()
 
         # 5. Generation (Single LLM Call)
-        raw_answer, retry_sleep_time = self._generate_with_fallback(system_instruction, user_prompt)
+        response_mime_type = "application/json" if task_type == "REASONING" else None
+        raw_answer, retry_sleep_time = self._generate_with_fallback(system_instruction, user_prompt, response_mime_type)
         
         # 6. Deterministic Validation & Repair
         if raw_answer:
@@ -526,7 +527,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             if not is_valid:
                 logger.warning(f"Validation failed: {validated_answer}. Regenerating once.")
                 # Single Regeneration
-                raw_answer, retry_sleep_time2 = self._generate_with_fallback(system_instruction, user_prompt)
+                raw_answer, retry_sleep_time2 = self._generate_with_fallback(system_instruction, user_prompt, response_mime_type)
                 retry_sleep_time += retry_sleep_time2
                 if raw_answer:
                     is_valid, validated_answer = validate_response(raw_answer)
@@ -905,7 +906,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
 
         yield f"data: {json.dumps({'type': 'complete', 'citations': citations, 'metrics': metrics})}\n\n"
 
-    def _generate_with_fallback(self, system_instruction: str, user_prompt: str) -> tuple[str, float]:
+    def _generate_with_fallback(self, system_instruction: str, user_prompt: str, response_mime_type: str = None) -> tuple[str, float]:
         import time
         from app.core.config import settings
         max_retries = 2
@@ -921,6 +922,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                     system_instruction=system_instruction,
                     max_output_tokens=8192,
                 )
+                if response_mime_type:
+                    config.response_mime_type = response_mime_type
                 _tc = thinking_config(getattr(settings, "GEN_THINKING_LEVEL", "low"))
                 if _tc is not None:
                     config.thinking_config = _tc

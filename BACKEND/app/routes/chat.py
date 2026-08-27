@@ -16,9 +16,22 @@ def get_conversations(
     db: Session = Depends(get_db)
 ):
     uid = user_token.uid
-    from sqlalchemy.orm import joinedload
+    email = user_token.email
     
-    q = db.query(Conversation).options(joinedload(Conversation.document)).filter(Conversation.user_id == uid)
+    with open("debug_requests.txt", "a") as f:
+        f.write(f"GET /conversations - uid: {uid}, email: {email}\n")
+        
+    from sqlalchemy.orm import joinedload
+    from app.models.user import User
+    
+    # Allow matching by current UID or the historical UID stored for this email
+    target_uids = [uid]
+    if email:
+        db_user = db.query(User).filter(User.email == email).first()
+        if db_user and db_user.firebase_uid != uid:
+            target_uids.append(db_user.firebase_uid)
+            
+    q = db.query(Conversation).options(joinedload(Conversation.document)).filter(Conversation.user_id.in_(target_uids))
     
     if feature_type:
         q = q.filter(Conversation.feature_type == feature_type)
@@ -73,10 +86,19 @@ def get_messages(
     db: Session = Depends(get_db)
 ):
     uid = user_token.uid
+    email = user_token.email
+    from app.models.user import User
+    
+    target_uids = [uid]
+    if email:
+        db_user = db.query(User).filter(User.email == email).first()
+        if db_user and db_user.firebase_uid != uid:
+            target_uids.append(db_user.firebase_uid)
+            
     # Verify ownership
     conversation = db.query(Conversation).filter(
         Conversation.id == conversation_id,
-        Conversation.user_id == uid
+        Conversation.user_id.in_(target_uids)
     ).first()
     
     if not conversation:
