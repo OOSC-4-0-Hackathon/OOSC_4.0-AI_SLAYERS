@@ -18,5 +18,7 @@ RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncod
 
 COPY . .
 
-# Run Uvicorn using the PORT environment variable provided by Render, defaulting to 8000
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+EXPOSE 7860
+
+# Run Uvicorn using the PORT environment variable (defaults to 7860 for Hugging Face Spaces)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
