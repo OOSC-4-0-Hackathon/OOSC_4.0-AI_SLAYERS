@@ -71,17 +71,17 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     btn.click(warmup_gpu, outputs=out)
     demo.load(warmup_gpu, outputs=out)
 
-# ── Monkey-patch Gradio's launch to wrap the ASGI app ──────────────
-# Gradio's launch() builds its internal FastAPI + middleware stack,
-# then serves it via uvicorn. We intercept this by patching the
-# uvicorn.run call to wrap the app with our path dispatcher.
+# ── Monkey-patch uvicorn.Server.serve to wrap the ASGI app ─────────
+# Gradio creates the FastAPI app inside demo.launch() and runs it via
+# uvicorn.Server. By patching serve(), we intercept the fully built
+# app right before it starts listening and wrap it in our dispatcher.
 
 import uvicorn
 
-_original_uvicorn_run = uvicorn.run
+_original_serve = uvicorn.Server.serve
 
-def _patched_uvicorn_run(app, **kwargs):
-    """Wrap Gradio's ASGI app with our /v1 dispatcher before serving."""
+async def _patched_serve(self, *args, **kwargs):
+    original_app = self.config.app
 
     class _Dispatcher:
         def __init__(self, gradio_app, api_app):
@@ -99,10 +99,10 @@ def _patched_uvicorn_run(app, **kwargs):
                     return
             await self.gradio(scope, receive, send)
 
-    wrapped = _Dispatcher(app, backend)
-    _original_uvicorn_run(wrapped, **kwargs)
+    self.config.app = _Dispatcher(original_app, backend)
+    return await _original_serve(self, *args, **kwargs)
 
-uvicorn.run = _patched_uvicorn_run
+uvicorn.Server.serve = _patched_serve
 
-# ── Launch via Gradio (ZeroGPU lifecycle) ──────────────────────────
+# ── Launch via Gradio (Preserves ZeroGPU lifecycle) ────────────────
 demo.queue().launch(server_name="0.0.0.0", server_port=7860)
