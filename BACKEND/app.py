@@ -1,7 +1,6 @@
 import os
 import spaces
 import gradio as gr
-import uvicorn
 
 # Automatically stitch ChromaDB sqlite parts if needed
 try:
@@ -15,11 +14,12 @@ except Exception as e:
 
 @spaces.GPU
 def warmup_gpu():
-    return "ZeroGPU Initialized & Online"
+    return "ZeroGPU Online"
 
+# Import our FastAPI app
 from app.main import app as fastapi_app
 
-# Status interface for Hugging Face Spaces
+# Create the Gradio interface
 with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # ⚖️ NYAAY AI Backend Service
@@ -30,9 +30,17 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     btn = gr.Button("GPU Check")
     out = gr.Textbox(label="Status", value="Ready")
     btn.click(warmup_gpu, outputs=out)
+    demo.load(warmup_gpu, outputs=out)
 
-# Mount Gradio onto the primary FastAPI app
-app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
+# Mount all routers from fastapi_app at the FRONT of demo.app.routes
+# This ensures /api/* routes are matched before Gradio's catch-all HTML router
+for route in fastapi_app.routes:
+    demo.app.routes.insert(0, route)
 
-if __name__ == "__main__" or True:
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+for middleware in fastapi_app.user_middleware:
+    demo.app.user_middleware.append(middleware)
+
+demo.app.state = fastapi_app.state
+demo.app.middleware_stack = None
+
+demo.queue().launch(server_name="0.0.0.0", server_port=7860)
