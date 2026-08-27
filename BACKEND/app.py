@@ -13,25 +13,22 @@ except Exception as e:
     print(f"Chroma stitching note: {e}")
 
 @spaces.GPU
-def warmup_gpu():
-    return "ZeroGPU Initialized & Online"
+def gpu_keepalive():
+    return "ZeroGPU Ready"
 
 from app.main import app as fastapi_app
 
+# Lightweight status UI for Hugging Face Spaces
 with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # ⚖️ NYAAY AI Backend Service
-    **Status: Online & Ready (NVIDIA ZeroGPU 16GB)**
+    **Status: Online & Ready (ZeroGPU 16GB High-Memory Mode)**
     
     All statutory RAG endpoints, zero-LLM intent routers, and dossier streaming APIs are live under `/api`.
     """)
-    btn = gr.Button("GPU Heartbeat Check")
-    out = gr.Textbox(label="Status", value="Ready")
-    btn.click(warmup_gpu, outputs=out)
-    demo.load(warmup_gpu, outputs=out)
+    btn = gr.Button("GPU Heartbeat")
+    out = gr.Textbox(label="Engine Status", value="Ready")
+    btn.click(gpu_keepalive, outputs=out)
 
-# Mount our complete FastAPI application onto Gradio's internal FastAPI app
-demo.app.mount("/api", fastapi_app)
-
-if __name__ == "__main__":
-    demo.queue().launch()
+# Mount Gradio onto the root FastAPI app so all /api/* routes are directly top-level
+app = gr.mount_gradio_app(fastapi_app, demo, path="/status")
