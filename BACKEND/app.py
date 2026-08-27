@@ -1,6 +1,7 @@
 import os
 import spaces
 import gradio as gr
+import uvicorn
 
 # Automatically stitch ChromaDB sqlite parts if needed
 try:
@@ -30,5 +31,8 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     out = gr.Textbox(label="Status", value="Ready")
     btn.click(warmup_gpu, outputs=out)
 
-# Mount Gradio onto the primary FastAPI app so FastAPI is the top-level ASGI server
+# Mount Gradio onto the primary FastAPI app
 app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
+
+if __name__ == "__main__" or True:
+    uvicorn.run(app, host="0.0.0.0", port=7860)
