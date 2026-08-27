@@ -29,6 +29,7 @@ import { askCivicStream } from '../services/civicService';
 import { parseMarkdownToDossier } from '../utils/parseMarkdownToDossier';
 import { StatuteInspectionModal } from './StatuteInspectionModal';
 import { BARE_ACTS_CATALOG } from '../data/bareActsData';
+import { TheConvergence } from './TheConvergence';
 
 interface CivicNavigatorProps {
   initialQuery?: string;
@@ -383,45 +384,14 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
       )}
 
       {!activeDossier && !isStreaming && !quotaExhaustedDemo && (
-        <div className="border border-dashed border-accent/60 bg-paper p-8 sm:p-12 rounded-[2px] text-center space-y-6">
-          <div className="max-w-md mx-auto space-y-3">
-            <div className="w-12 h-12 rounded-[2px] bg-white border border-dark flex items-center justify-center mx-auto text-accent shadow-xs">
-              <FolderOpen className="w-6 h-6" />
-            </div>
-
-            <span className="text-xs text-accent-text font-bold uppercase tracking-widest block">
-              // CASE DOCKET STANDBY
-            </span>
-
-            <h3 className="font-serif text-heading font-bold text-ink">
-              No Active Case Dossier Loaded
-            </h3>
-
-            <p className="text-xs sm:text-sm text-ink-secondary font-sans leading-relaxed">
-              Describe your civic problem above or click one of the benchmark disputes to run the deterministic 0ms classifier and hybrid RRF retrieval engine across 93 Bare Acts.
-            </p>
-          </div>
-
-          {/* Visual Grounded Pipeline Flow */}
-          <div className="max-w-2xl mx-auto pt-4 border-t border-rule grid grid-cols-1 sm:grid-cols-3 gap-3 text-left text-xs">
-            <div className="p-3 bg-white border border-rule rounded-[2px]">
-              <div className="text-[12px] text-accent-text font-bold uppercase">1. DETERMINISTIC ROUTE</div>
-              <div className="font-serif font-bold text-sm text-ink mt-0.5">0ms Regex</div>
-              <div className="text-[12px] text-ink-tertiary mt-1">Direct domain classification</div>
-            </div>
-
-            <div className="p-3 bg-white border border-rule rounded-[2px]">
-              <div className="text-[12px] text-accent-text font-bold uppercase">2. HYBRID RETRIEVAL</div>
-              <div className="font-serif font-bold text-sm text-ink mt-0.5">93 → 34 → 1</div>
-              <div className="text-[12px] text-ink-tertiary mt-1">Chroma Dense + BM25 Sparse</div>
-            </div>
-
-            <div className="p-3 bg-white border border-rule rounded-[2px]">
-              <div className="text-[12px] text-accent-text font-bold uppercase">3. INVARIANT OUTPUT</div>
-              <div className="font-serif font-bold text-sm text-ink mt-0.5">5-Part Dossier</div>
-              <div className="text-[12px] text-ink-tertiary mt-1">Single-pass actionable draft</div>
-            </div>
-          </div>
+        <div className="space-y-6">
+          <TheConvergence 
+            initialQuery={queryInput}
+            onExecuteQuery={(q) => {
+              setQueryInput(q);
+              handleExecuteQuery(q);
+            }}
+          />
         </div>
       )}
 

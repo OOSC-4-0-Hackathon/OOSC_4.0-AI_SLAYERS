@@ -199,24 +199,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 legal paths across 93 Indian Bare Acts.
               </p>
 
-              {/* Action buttons — these were ALL CAPS, which read as
-                  terminal commands rather than as things a person can click. */}
-              <div className="pt-2 flex flex-wrap gap-3">
-                <button
-                  onClick={() => onStartQuery()}
-                  className="px-6 py-3.5 bg-dark hover:bg-dark-rule text-paper text-[15px] font-semibold rounded-[2px] transition-all flex items-center space-x-2.5 shadow-sm group active:translate-y-0.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
-                >
-                  <Search aria-hidden="true" className="w-4 h-4 text-accent" />
-                  <span>Describe your problem</span>
-                  <ArrowRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
+              {/* Action buttons with quick-try micro-instruction */}
+              <div className="space-y-3 pt-2">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => onStartQuery()}
+                    className="px-6 py-3.5 bg-dark hover:bg-dark-rule text-paper text-[15px] font-semibold rounded-[2px] transition-all flex items-center space-x-2.5 shadow-sm group active:translate-y-0.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none cursor-pointer"
+                  >
+                    <Search aria-hidden="true" className="w-4 h-4 text-accent" />
+                    <span>Describe your problem</span>
+                    <ArrowRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
 
-                <button
-                  onClick={onExploreActs}
-                  className="px-5 py-3.5 border border-dark bg-white hover:bg-paper-sunken text-ink text-[15px] font-semibold rounded-[2px] transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
-                >
-                  Browse the 93 Bare Acts
-                </button>
+                  <button
+                    onClick={onExploreActs}
+                    className="px-5 py-3.5 border border-dark bg-white hover:bg-paper-sunken text-ink text-[15px] font-semibold rounded-[2px] transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none cursor-pointer"
+                  >
+                    Browse the 93 Bare Acts
+                  </button>
+                </div>
+
+                {/* Quick-try helper chip */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-ink-muted">
+                  <span className="font-mono text-[11px] uppercase">TRY:</span>
+                  <button
+                    onClick={() => onStartQuery('I filed an RTI application 38 days ago with the Municipal Corporation regarding road repair tender. No response received.')}
+                    className="font-mono text-[11px] text-accent-text hover:underline cursor-pointer bg-paper-sunken px-2 py-0.5 rounded border border-rule"
+                  >
+                    "My RTI has been ignored for 38 days"
+                  </button>
+                  <button
+                    onClick={() => onStartQuery('Landlord sent a WhatsApp message giving me 7 days to vacate despite full rent paid and active lease agreement.')}
+                    className="font-mono text-[11px] text-accent-text hover:underline cursor-pointer bg-paper-sunken px-2 py-0.5 rounded border border-rule hidden sm:inline-block"
+                  >
+                    "Landlord 7-day eviction notice"
+                  </button>
+                </div>
               </div>
 
               {/*
@@ -383,8 +401,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       </span>
                     </div>
 
-                    <p className={`text-xs text-ink-tertiary mt-2 leading-relaxed transition-all ${
-                      isActive ? 'block' : 'line-clamp-1 opacity-80'
+                    <p className={`text-xs mt-2 leading-relaxed transition-all ${
+                      isActive ? 'text-ink font-medium' : 'text-ink-secondary'
                     }`}>
                       {item.desc}
                     </p>
@@ -628,11 +646,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       SECTORS: RTI • CONSUMER • TENANT • RERA
                     </span>
                     <button
-                      onClick={() => onStartQuery()}
-                      className="px-4 py-2 bg-dark hover:bg-dark-rule text-paper text-xs rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                      onClick={() => {
+                        const tabMapping: Array<'evidence' | 'action_plan' | 'drafter' | null> = [
+                          null,
+                          'evidence',
+                          null,
+                          'action_plan',
+                          'drafter'
+                        ];
+                        const targetTab = tabMapping[activeStepPinned];
+                        if (targetTab && onNavigateToTab) {
+                          onNavigateToTab(targetTab);
+                        } else {
+                          onStartQuery(fivePartArchitecture[activeStepPinned].dossierHighlight);
+                        }
+                      }}
+                      className="px-4 py-2 bg-dark hover:bg-dark-rule text-paper text-xs font-bold rounded-[2px] transition-colors flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none cursor-pointer"
                     >
                       <span>TEST THIS MODULE</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-accent" />
                     </button>
                   </div>
                 </div>
@@ -643,15 +675,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* 6. COMMON CIVIC SCENARIOS — POLISHED CAROUSEL */}
-      <section className="py-10 sm:py-14 border-b border-rule bg-paper">
+      <section className="py-12 sm:py-16 border-b border-rule bg-paper">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
           
           {/* Header + Controls */}
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-xs text-accent-text font-bold tracking-widest uppercase">
-                TEST GROUNDED DISPUTES
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-accent-text font-bold tracking-widest uppercase">
+                  TEST GROUNDED DISPUTES
+                </span>
+                <span className="text-[12px] bg-paper-sunken border border-rule px-2 py-0.5 rounded font-mono font-bold text-ink-muted">
+                  5 BENCHMARK SCENARIOS
+                </span>
+              </div>
               <h2 className="font-serif text-display-md text-ink font-bold">
                 Common Civic Scenarios
               </h2>
@@ -666,9 +703,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="flex items-center space-x-1.5">
                 <button
                   onClick={() => {
-                    scenarioScrollRef.current?.scrollBy({ left: -380, behavior: 'smooth' });
+                    scenarioScrollRef.current?.scrollBy({ left: -360, behavior: 'smooth' });
                   }}
-                  className="p-2 bg-white border border-rule hover:border-dark text-ink rounded-[2px] shadow-2xs transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  className="p-2.5 bg-white border border-rule hover:border-dark text-ink rounded-[2px] shadow-2xs transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none cursor-pointer"
                   title="Scroll left"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -676,9 +713,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 <button
                   onClick={() => {
-                    scenarioScrollRef.current?.scrollBy({ left: 380, behavior: 'smooth' });
+                    scenarioScrollRef.current?.scrollBy({ left: 360, behavior: 'smooth' });
                   }}
-                  className="p-2 bg-white border border-rule hover:border-dark text-ink rounded-[2px] shadow-2xs transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  className="p-2.5 bg-white border border-rule hover:border-dark text-ink rounded-[2px] shadow-2xs transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none cursor-pointer"
                   title="Scroll right"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -687,46 +724,62 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Horizontal scroll strip with right-edge fade mask */}
+          {/* Horizontal scroll strip with visible peek-bleed */}
           <div className="relative">
             <div 
               ref={scenarioScrollRef}
-              className="flex gap-4 overflow-x-auto pb-4 scrollbar-none scroll-smooth [mask-image:linear-gradient(to_right,black_85%,transparent_100%)] sm:[mask-image:linear-gradient(to_right,black_90%,transparent_100%)]"
+              className="flex gap-4 overflow-x-auto pb-4 scrollbar-none scroll-smooth snap-x snap-mandatory"
             >
               {sampleCivicDisputes.map((scenario, idx) => (
                 <div
                   key={idx}
                   onClick={() => onStartQuery(scenario.query)}
-                  className="group cursor-pointer flex-shrink-0 w-[300px] sm:w-[350px] p-5 border border-rule bg-white hover:border-accent hover:shadow-sm transition-all rounded-[2px] flex flex-col justify-between space-y-4"
+                  className="group cursor-pointer flex-shrink-0 w-[290px] sm:w-[340px] p-5 border border-rule bg-white hover:border-accent hover:shadow-md hover:-translate-y-1 transition-all duration-200 rounded-[4px] flex flex-col justify-between space-y-4 snap-start"
                   tabIndex={0}
                   role="button"
                   onKeyDown={(e) => { if (e.key === 'Enter') onStartQuery(scenario.query); }}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-accent-text uppercase">
+                      <span className="text-xs font-bold text-accent-text uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded-[2px] border border-accent/20">
                         {scenario.domain} · {scenario.badge}
                       </span>
-                      <span className="text-[12px] text-ink-muted group-hover:text-ink flex items-center space-x-1">
+                      <span className="text-[12px] text-ink-muted group-hover:text-accent font-bold flex items-center space-x-1 transition-colors">
                         <span>LAUNCH</span>
-                        <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
 
-                    <h4 className="font-serif font-bold text-base text-ink group-hover:text-accent-hover transition-colors">
+                    <h4 className="font-serif font-bold text-base text-ink group-hover:text-accent-hover transition-colors leading-snug">
                       {scenario.title}
                     </h4>
 
-                    <p className="text-xs text-ink-secondary font-sans leading-relaxed line-clamp-2">
+                    <p className="text-xs text-ink-secondary font-sans leading-relaxed line-clamp-3">
                       "{scenario.query}"
                     </p>
                   </div>
 
                   <div className="pt-3 border-t border-paper-sunken flex items-center justify-between text-[12px] text-ink-muted">
-                    <span className="truncate max-w-[220px]">GROUNDED: {scenario.statute}</span>
-                    <span className="text-emerald-700 font-bold flex-shrink-0">READY</span>
+                    <span className="truncate max-w-[200px] font-mono">GROUNDED: {scenario.statute}</span>
+                    <span className="text-emerald-700 font-bold flex-shrink-0 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 text-[11px]">READY</span>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Pagination Indicators */}
+            <div className="flex items-center justify-center gap-2 pt-2">
+              {sampleCivicDisputes.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    if (scenarioScrollRef.current) {
+                      scenarioScrollRef.current.scrollTo({ left: i * 350, behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-2 h-2 rounded-full bg-rule-strong hover:bg-accent transition-colors"
+                  aria-label={`Go to scenario ${i + 1}`}
+                />
               ))}
             </div>
           </div>

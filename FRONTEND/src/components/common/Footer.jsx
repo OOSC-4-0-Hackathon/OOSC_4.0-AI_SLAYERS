@@ -140,18 +140,41 @@ export default function Footer() {
           <div className="lg:col-span-3 space-y-3">
             <h2 className={headingClass}>93 Grounded Bare Acts</h2>
             <div className="space-y-2 text-[12px]">
-              <div className="p-2 rounded bg-dark-raised border border-rule-dark">
-                <span className="text-paper font-bold block">RTI Act, 2005</span>
-                <span className="text-slate">Sec 7(1) &amp; Sec 19 Appellate Forum</span>
-              </div>
-              <div className="p-2 rounded bg-dark-raised border border-rule-dark">
-                <span className="text-paper font-bold block">Consumer Protection Act, 2019</span>
-                <span className="text-slate">Defect &amp; Deficiency Remedies</span>
-              </div>
-              <div className="p-2 rounded bg-dark-raised border border-rule-dark">
-                <span className="text-paper font-bold block">Bharatiya Nyaya Sanhita, 2023</span>
-                <span className="text-slate">Updated Statutory Provisions</span>
-              </div>
+              <Link 
+                to="/civic" 
+                state={{ presetQuery: "RTI Act 2005 Section 7 and Section 19 First Appeal" }}
+                className="p-2.5 rounded bg-dark-raised border border-rule-dark hover:border-accent block transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-paper font-bold group-hover:text-accent transition-colors">RTI Act, 2005</span>
+                  <span className="text-[11px] text-accent font-mono opacity-0 group-hover:opacity-100 transition-opacity">EXPLORE →</span>
+                </div>
+                <span className="text-slate text-[11px]">Sec 7(1) &amp; Sec 19 Appellate Forum</span>
+              </Link>
+
+              <Link 
+                to="/civic" 
+                state={{ presetQuery: "Consumer Protection Act 2019 Section 84 product liability" }}
+                className="p-2.5 rounded bg-dark-raised border border-rule-dark hover:border-accent block transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-paper font-bold group-hover:text-accent transition-colors">Consumer Protection Act, 2019</span>
+                  <span className="text-[11px] text-accent font-mono opacity-0 group-hover:opacity-100 transition-opacity">EXPLORE →</span>
+                </div>
+                <span className="text-slate text-[11px]">Defect &amp; Deficiency Remedies</span>
+              </Link>
+
+              <Link 
+                to="/civic" 
+                state={{ presetQuery: "Bharatiya Nyaya Sanhita 2023 key criminal provisions" }}
+                className="p-2.5 rounded bg-dark-raised border border-rule-dark hover:border-accent block transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-paper font-bold group-hover:text-accent transition-colors">Bharatiya Nyaya Sanhita, 2023</span>
+                  <span className="text-[11px] text-accent font-mono opacity-0 group-hover:opacity-100 transition-opacity">EXPLORE →</span>
+                </div>
+                <span className="text-slate text-[11px]">Updated Statutory Provisions</span>
+              </Link>
             </div>
           </div>
 

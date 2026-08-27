@@ -426,6 +426,31 @@ export default function DocHub() {
 
 
 
+        {/* Visual 3-Step Mini Stepper */}
+        <div className="bg-white border border-rule rounded-[4px] p-3 shadow-2xs">
+          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step >= 1 ? 'bg-dark text-white border-dark font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">STEP 01</span>
+              <span>1. Describe Dispute</span>
+            </div>
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step === 3 ? 'bg-accent text-white border-accent font-bold' :
+              step >= 2 ? 'bg-dark text-white border-dark font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">STEP 02</span>
+              <span>2. Schema Validation</span>
+            </div>
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step === 4 ? 'bg-emerald-700 text-white border-emerald-700 font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">STEP 03</span>
+              <span>3. Review &amp; Download</span>
+            </div>
+          </div>
+        </div>
+
         {/* Step 1: Input Facts */}
 
         {step === 1 && (
@@ -438,16 +463,24 @@ export default function DocHub() {
             </p>
 
             <textarea
-              className="w-full h-48 p-4 border border-paper-rule bg-paper rounded-card focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber resize-none text-[14px] text-ink placeholder:text-ink-fog transition-all duration-150"
+              className="w-full h-48 p-4 border border-rule bg-paper rounded-[4px] focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent resize-none text-[14px] text-ink placeholder:text-ink-muted transition-all duration-150 shadow-2xs"
               placeholder="E.g., I bought a washing machine from SuperStore on 12th Jan 2024 for 25000 INR. It stopped working after a week. They are refusing to replace it or refund my money..."
               value={userFacts}
               onChange={(e) => setUserFacts(e.target.value)}
             />
 
             <div className="mt-4 flex justify-end">
-              <Button onClick={() => handleGenerate(null)} disabled={!userFacts.trim() || isGenerating}>
-                Analyze &amp; Draft
-              </Button>
+              <button
+                onClick={() => handleGenerate(null)}
+                disabled={!userFacts.trim() || isGenerating}
+                className={`px-6 py-2.5 rounded-[3px] text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs ${
+                  userFacts.trim() 
+                    ? 'bg-accent hover:bg-accent-hover text-white' 
+                    : 'bg-paper-sunken border border-rule text-ink-muted opacity-60 cursor-not-allowed'
+                }`}
+              >
+                Analyze &amp; Draft Document →
+              </button>
             </div>
           </Card>
 

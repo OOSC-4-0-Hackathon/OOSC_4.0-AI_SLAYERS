@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Sparkles,
   Search,
@@ -130,19 +131,26 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
                 key={item.path}
                 to={item.path}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-[13px] font-sans font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
+                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-[13px] font-sans font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
                   isActive
-                    ? 'bg-accent text-paper font-semibold shadow-xs'
+                    ? 'text-paper font-semibold'
                     : 'text-slate hover:text-paper hover:bg-dark-rule/60'
                 }`}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-active-indicator"
+                    className="absolute inset-0 bg-accent rounded-[4px] shadow-xs"
+                    transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                  />
+                )}
                 <Icon
                   aria-hidden="true"
-                  className={`w-3.5 h-3.5 shrink-0 ${
+                  className={`w-3.5 h-3.5 shrink-0 relative z-10 ${
                     isActive ? 'text-paper' : 'text-slate-muted'
                   }`}
                 />
-                <span>{item.label}</span>
+                <span className="relative z-10">{item.label}</span>
               </Link>
             );
           })}

@@ -7,6 +7,8 @@ import Footer from '../components/common/Footer';
 
 const TOOLS = [
   {
+    step: '01',
+    workflow: 'CASE INTAKE',
     tag: 'CORE',
     name: 'Civic Navigator',
     desc: 'RTI, Consumer, Tenant — 5-part dossiers from 93 Bare Acts.',
@@ -14,6 +16,8 @@ const TOOLS = [
     accent: true,
   },
   {
+    step: '02',
+    workflow: 'STATUTE RESEARCH',
     tag: 'RESEARCH',
     name: 'Kanoon Q&A',
     desc: 'Statute-grounded answers to Indian law questions.',
@@ -21,6 +25,8 @@ const TOOLS = [
     accent: false,
   },
   {
+    step: '03',
+    workflow: 'DOCUMENT DRAFTING',
     tag: 'DRAFTING',
     name: 'Legal Drafting',
     desc: 'Generate Affidavits, Notices, RTI Applications.',
@@ -28,6 +34,8 @@ const TOOLS = [
     accent: false,
   },
   {
+    step: '04',
+    workflow: 'CONTRACT ANALYSIS',
     tag: 'ANALYSIS',
     name: 'Document Chat',
     desc: 'Upload a contract — extract clauses, identify red flags.',
@@ -35,6 +43,8 @@ const TOOLS = [
     accent: false,
   },
   {
+    step: '05',
+    workflow: 'LITIGATION STRATEGY',
     tag: 'STRATEGY',
     name: 'Legal Reasoning',
     desc: 'Build arguments, evaluate litigation risk.',
@@ -92,9 +102,17 @@ export default function Dashboard() {
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
 
-          {/* Tools */}
-          <div className="lg:col-span-8">
-            <span className="text-xs font-bold text-ink-muted uppercase tracking-wider block mb-4">TOOLS</span>
+          {/* Tools Workflow Journey */}
+          <div className="lg:col-span-8 space-y-4">
+            <div className="flex items-center justify-between border-b border-rule pb-2">
+              <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                CIVIC LEGAL OPERATING SYSTEM // 5-STEP JOURNEY
+              </span>
+              <span className="font-mono text-[11px] text-accent-text font-bold">
+                INTAKE → STRATEGY
+              </span>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {TOOLS.map((tool, i) => (
                 <motion.div
@@ -105,17 +123,22 @@ export default function Dashboard() {
                 >
                   <Link
                     to={tool.path}
-                    className="flex flex-col justify-between p-5 bg-white/90 border border-rule rounded-[4px] group transition-all duration-200 shadow-[0_1px_2px_rgba(26,24,20,0.04)] hover:border-accent hover:shadow-[0_2px_8px_rgba(26,24,20,0.08)] hover:-translate-y-0.5"
+                    className="flex flex-col justify-between p-5 bg-white border border-rule rounded-[4px] group transition-all duration-200 shadow-2xs hover:border-accent hover:shadow-md hover:-translate-y-0.5 h-full"
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-[12px] font-bold px-2 py-0.5 rounded-[2px] border border-accent/25 text-accent-text bg-accent/10">
-                        {tool.tag}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-accent px-1.5 py-0.5 bg-paper rounded border border-rule">
+                          STEP {tool.step}
+                        </span>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-[2px] border border-accent/25 text-accent-text bg-accent/10">
+                          {tool.workflow}
+                        </span>
+                      </div>
                       <span className="text-ink-muted group-hover:text-accent group-hover:translate-x-1 transition-all">→</span>
                     </div>
                     <div className="mt-4">
-                      <h3 className="font-sans text-[15px] font-bold text-ink mb-1 group-hover:text-accent-hover transition-colors">{tool.name}</h3>
-                      <p className="text-[12px] leading-snug text-ink-secondary line-clamp-1">{tool.desc}</p>
+                      <h3 className="font-serif text-[16px] font-bold text-ink mb-1 group-hover:text-accent-hover transition-colors">{tool.name}</h3>
+                      <p className="text-xs leading-relaxed text-ink-secondary">{tool.desc}</p>
                     </div>
                   </Link>
                 </motion.div>
