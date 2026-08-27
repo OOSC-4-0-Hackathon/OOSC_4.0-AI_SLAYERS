@@ -20,7 +20,9 @@ import {
   FileCheck,
   ChevronLeft,
   ChevronRight,
-  Scale
+  Scale,
+  Gavel,
+  Landmark
 } from 'lucide-react';
 import HeroPipelineAnimation from '../components/landing/HeroPipelineAnimation';
 import { StatuteInspectionModal } from './StatuteInspectionModal';
@@ -198,32 +200,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <p className="text-lg sm:text-xl text-ink-secondary leading-relaxed font-sans">
                   From laws to landmark judgments — making India’s legal knowledge easier to find, understand, and access.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full pt-1">
-                  <div className="group bg-[#faf8f5] border border-[#e5e0d8] rounded-[2px] p-3.5 hover:shadow-sm hover:-translate-y-0.5 transition-all relative overflow-hidden cursor-default">
-                    <div className="absolute top-0 left-0 h-0.5 w-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="flex items-start justify-between">
-                      <div className="font-serif text-[24px] sm:text-[26px] font-bold text-[#1a1a1a] leading-none">93</div>
-                      <BookOpen className="w-[18px] h-[18px] text-ink-muted group-hover:text-accent transition-colors" />
-                    </div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest mt-2 font-medium">Acts & Statutes</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full pt-1">
+                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
+                    <Scale className="w-[22px] h-[22px] text-accent mb-3" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">93</div>
+                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">Acts & Statutes</div>
                   </div>
 
-                  <div className="group bg-[#faf8f5] border border-[#e5e0d8] rounded-[2px] p-3.5 hover:shadow-sm hover:-translate-y-0.5 transition-all relative overflow-hidden cursor-default">
-                    <div className="absolute top-0 left-0 h-0.5 w-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="flex items-start justify-between">
-                      <div className="font-serif text-[24px] sm:text-[26px] font-bold text-[#1a1a1a] leading-none">4,371</div>
-                      <Scale className="w-[18px] h-[18px] text-ink-muted group-hover:text-accent transition-colors" />
-                    </div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest mt-2 font-medium leading-tight">Supreme Court Judgments</div>
+                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
+                    <Gavel className="w-[22px] h-[22px] text-accent mb-3" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">4,371</div>
+                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">SC Judgments</div>
                   </div>
 
-                  <div className="group bg-[#faf8f5] border border-[#e5e0d8] rounded-[2px] p-3.5 hover:shadow-sm hover:-translate-y-0.5 transition-all relative overflow-hidden cursor-default">
-                    <div className="absolute top-0 left-0 h-0.5 w-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="flex items-start justify-between">
-                      <div className="font-serif text-[24px] sm:text-[26px] font-bold text-[#1a1a1a] leading-none">21</div>
-                      <Building2 className="w-[18px] h-[18px] text-ink-muted group-hover:text-accent transition-colors" />
-                    </div>
-                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest mt-2 font-medium leading-tight">Government Schemes</div>
+                  <div className="group flex flex-col items-center justify-center bg-[#faf8f5] border border-[#e5e0d8] rounded-[10px] py-5 px-4 hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
+                    <Landmark className="w-[22px] h-[22px] text-accent mb-3" />
+                    <div className="font-serif text-[28px] sm:text-[32px] font-bold text-[#1a1a1a] leading-none mb-1.5">21</div>
+                    <div className="text-[#6b6b6b] text-[11px] uppercase tracking-widest font-semibold">Govt Schemes</div>
                   </div>
                 </div>
               </div>
