@@ -5,7 +5,18 @@ import { FileText, ChevronRight } from 'lucide-react';
 const UploadChatRenderer = ({ content }) => {
   let parsed = null;
   try {
-    parsed = typeof content === 'string' ? JSON.parse(content) : content;
+    if (typeof content === 'string') {
+      let cleanedContent = content.trim();
+      const startIndex = cleanedContent.indexOf('{');
+      const endIndex = cleanedContent.lastIndexOf('}');
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        cleanedContent = cleanedContent.substring(startIndex, endIndex + 1);
+      }
+      cleanedContent = cleanedContent.replace(/,\s*([}\]])/g, '$1');
+      parsed = JSON.parse(cleanedContent);
+    } else {
+      parsed = content;
+    }
   } catch (e) {
     return (
       <div className="prose prose-slate max-w-none text-slate-700">

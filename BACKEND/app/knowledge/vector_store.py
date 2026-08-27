@@ -4,10 +4,28 @@ import os
 from typing import List, Dict, Any, Optional
 
 DB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "chroma_db")
+BACKUP_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "chroma_db_backup")
+
+def stitch_db(db_path: str):
+    import glob
+    parts = sorted(glob.glob(f"{db_path}.part*"), key=lambda x: int(x.split('.part')[-1]))
+    if not parts or os.path.exists(db_path):
+        return
+    import logging
+    logging.getLogger(__name__).info(f"Reconstructing {db_path} from {len(parts)} parts...")
+    with open(db_path, 'wb') as outfile:
+        for part in parts:
+            with open(part, 'rb') as infile:
+                outfile.write(infile.read())
 
 class VectorStore:
     def __init__(self, collection_name: str = "nyaay_knowledge"):
         os.makedirs(DB_DIR, exist_ok=True)
+        # Check and stitch both potential locations for the DB
+        stitch_db(os.path.join(DB_DIR, "chroma.sqlite3"))
+        if os.path.exists(BACKUP_DIR):
+            stitch_db(os.path.join(BACKUP_DIR, "chroma.sqlite3"))
+        
         # Initialize ChromaDB client using PersistentClient for local storage
         self.client = chromadb.PersistentClient(path=DB_DIR, settings=Settings(anonymized_telemetry=False))
         self.collection = self.client.get_or_create_collection(

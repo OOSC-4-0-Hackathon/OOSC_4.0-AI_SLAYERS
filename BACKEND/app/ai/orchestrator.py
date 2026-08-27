@@ -769,7 +769,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             current_key = key_rotator.get()
             config = types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                max_output_tokens=2048,
+                max_output_tokens=8192,
             )
             _tc = thinking_config(getattr(settings, "GEN_THINKING_LEVEL", "low"))
             if _tc is not None:
@@ -919,7 +919,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                 temp_client = genai.Client(api_key=current_key)
                 config = types.GenerateContentConfig(
                     system_instruction=system_instruction,
-                    max_output_tokens=2048,
+                    max_output_tokens=8192,
                 )
                 _tc = thinking_config(getattr(settings, "GEN_THINKING_LEVEL", "low"))
                 if _tc is not None:

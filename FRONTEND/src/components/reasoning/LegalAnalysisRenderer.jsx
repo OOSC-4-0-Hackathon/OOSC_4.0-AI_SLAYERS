@@ -166,12 +166,33 @@ const AnalysisCard = ({ title, icon, content, isCrossModule = false, className =
 const LegalAnalysisRenderer = ({ content }) => {
   const parsedData = useMemo(() => {
     try {
-      const data = JSON.parse(content);
+      if (!content) return null;
+      
+      let cleanedContent = content.trim();
+      
+      // Try to extract JSON if it's wrapped in a code block or has leading/trailing text
+      const startIndex = cleanedContent.indexOf('{');
+      const endIndex = cleanedContent.lastIndexOf('}');
+      
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        cleanedContent = cleanedContent.substring(startIndex, endIndex + 1);
+      }
+
+      // Remove trailing commas which often cause JSON.parse to fail
+      cleanedContent = cleanedContent.replace(/,\s*([}\]])/g, '$1');
+
+      // Fix unescaped newlines inside string values (common LLM error)
+      cleanedContent = cleanedContent.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, p1) => {
+        return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') + '"';
+      });
+
+      const data = JSON.parse(cleanedContent);
       if (typeof data === 'object' && data !== null) {
         return data;
       }
       return null;
     } catch (e) {
+      console.error("Failed to parse JSON in LegalAnalysisRenderer:", e, content);
       return null;
     }
   }, [content]);
