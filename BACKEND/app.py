@@ -2,10 +2,6 @@ import os
 import spaces
 import gradio as gr
 
-@spaces.GPU
-def gpu_worker():
-    return "ZeroGPU Online & Ready"
-
 # Automatically stitch ChromaDB sqlite parts if needed
 try:
     base_dir = os.path.dirname(__file__)
@@ -16,9 +12,12 @@ try:
 except Exception as e:
     print(f"Chroma stitching note: {e}")
 
+@spaces.GPU
+def warmup_gpu():
+    return "ZeroGPU Initialized & Online"
+
 from app.main import app as fastapi_app
 
-# Lightweight status UI for Hugging Face Spaces
 with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # ⚖️ NYAAY AI Backend Service
@@ -26,9 +25,13 @@ with gr.Blocks(title="NYAAY AI — Civic Legal OS Backend", theme=gr.themes.Soft
     
     All statutory RAG endpoints, zero-LLM intent routers, and dossier streaming APIs are live under `/api`.
     """)
-    btn = gr.Button("Check Engine Status")
+    btn = gr.Button("GPU Heartbeat Check")
     out = gr.Textbox(label="Status", value="Ready")
-    btn.click(gpu_worker, outputs=out)
+    btn.click(warmup_gpu, outputs=out)
+    demo.load(warmup_gpu, outputs=out)
 
-# Mount the Gradio UI onto the FastAPI application
-app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+# Mount our complete FastAPI application onto Gradio's internal FastAPI app
+demo.app.mount("/api", fastapi_app)
+
+if __name__ == "__main__":
+    demo.queue().launch()
