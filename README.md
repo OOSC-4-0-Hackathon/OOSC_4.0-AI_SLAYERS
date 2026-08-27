@@ -163,36 +163,7 @@ flowchart TD
 
 ---
 
-## 4. Platform Interface Showcase
-
-| 01. The Convergence & 3D Statutory Array | 02. Sub-500ms TTFT Live Streaming Proof |
-| :---: | :---: |
-| ![Landing Hero](SCREENSHOTS/1.png) | ![Live Streaming Proof](SCREENSHOTS/2.png) |
-| *Kinetic 3D paper fan with procedural contact shadows & RRF narrowing* | *Deterministic regex classification, hybrid retrieval & live dossier streaming* |
-
-| 03. Four Dimensions of Civic Empowerment | 04. Five-Part Case Dossier Standard |
-| :---: | :---: |
-| ![Core Pillars](SCREENSHOTS/3.png) | ![Five-Part Case Dossier](SCREENSHOTS/4.png) |
-| *RTI, Consumer, Tenant & Welfare entitlement modules* | *Invariant courtroom-ready output format* |
-
-| 05. Common Civic Scenarios Carousel | 06. 93 Indian Bare Acts Repository |
-| :---: | :---: |
-| ![Civic Scenarios](SCREENSHOTS/5.png) | ![93 Bare Acts](SCREENSHOTS/6.png) |
-| *Benchmark disputes with snap-scrolling and peek-bleed affordance* | *Complete indexed statutory repository with section inspector* |
-
-| 07. Civic Navigator Dossier Streaming | 08. Evidentiary Checklist (BSA 2023) |
-| :---: | :---: |
-| ![Civic Navigator](SCREENSHOTS/7.png) | ![Evidence Checklist](SCREENSHOTS/8.png) |
-| *Token-by-token statutory analysis with interactive citation pills* | *Pre-tribunal audit checklist under Bharatiya Sakshya Adhiniyam* |
-
-| 09. Day 1 → Day 30 Action Stepper | 10. Filing-Ready Legal Drafting Engine |
-| :---: | :---: |
-| ![Action Plan](SCREENSHOTS/9.png) | ![Drafting](SCREENSHOTS/11.png) |
-| *Limitation Act 1963 compliant milestone execution* | *Single-pass legal notice and affidavit generator with schema validation* |
-
----
-
-## 5. Getting Started (Local Setup)
+## 4. Getting Started (Local Setup)
 
 ### Quick Start (Windows PowerShell)
 To launch both frontend and backend concurrently in one command:
