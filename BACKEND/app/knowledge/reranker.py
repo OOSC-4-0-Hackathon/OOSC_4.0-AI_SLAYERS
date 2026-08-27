@@ -4,14 +4,32 @@ from sentence_transformers import CrossEncoder
 
 logger = logging.getLogger(__name__)
 
+try:
+    import spaces
+except ImportError:
+    # Dummy decorator for local dev
+    class spaces:
+        @staticmethod
+        def GPU(*args, **kwargs):
+            def decorator(func):
+                return func
+            if len(args) == 1 and callable(args[0]):
+                return args[0]
+            return decorator
+
 class RerankerService:
     def __init__(self, model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"):
-        logger.info(f"Loading reranker model: {model_name}")
-        self.model = CrossEncoder(model_name, max_length=512)
+        self.model_name = model_name
+        self.model = None
         
+    @spaces.GPU(duration=60)
     def rerank(self, query: str, chunks: List[Dict[str, Any]], top_k: int = 10) -> List[Dict[str, Any]]:
         if not chunks:
             return []
+            
+        if self.model is None:
+            logger.info(f"Loading reranker model: {self.model_name}")
+            self.model = CrossEncoder(self.model_name, max_length=512)
             
         # Prepare inputs: list of (query, document) pairs
         pairs = [[query, chunk["document"]] for chunk in chunks]

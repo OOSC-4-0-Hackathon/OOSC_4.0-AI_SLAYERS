@@ -5,6 +5,19 @@ import torch
 
 logger = logging.getLogger(__name__)
 
+try:
+    import spaces
+except ImportError:
+    # Dummy decorator for local dev
+    class spaces:
+        @staticmethod
+        def GPU(*args, **kwargs):
+            def decorator(func):
+                return func
+            if len(args) == 1 and callable(args[0]):
+                return args[0]
+            return decorator
+
 class EmbeddingService:
     def __init__(self):
         self.model_name = "BAAI/bge-base-en-v1.5"
@@ -21,6 +34,8 @@ class EmbeddingService:
             logger.info(f"Warming up embedding model {self.model_name} on {self.device}...")
             self.model = SentenceTransformer(self.model_name, device=self.device)
             logger.info("Embedding model warmed up successfully.")
+            
+    @spaces.GPU(duration=60)
     def embed_texts(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts."""
         if not texts:
