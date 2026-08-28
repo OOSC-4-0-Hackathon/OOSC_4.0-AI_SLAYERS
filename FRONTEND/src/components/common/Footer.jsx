@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Scale, BookOpen, Search, FileText, FileUp, LayoutDashboard, Shield, ExternalLink } from 'lucide-react';
+import { Scale, BookOpen, Search, FileText, FileUp, LayoutDashboard, Shield, ExternalLink, LogIn, UserPlus, Sparkles } from 'lucide-react';
 
 /**
  * Footer.
@@ -113,24 +113,27 @@ export default function Footer() {
             </h2>
             <ul className="space-y-2.5 text-[13px]">
               <li>
-                <Link to="/" className={linkClass}>
-                  Home
+                <Link to="/" className={`${linkClass} flex items-center space-x-2 group`}>
+                  <Sparkles aria-hidden="true" className="w-3.5 h-3.5 text-accent group-hover:scale-110 transition-transform" />
+                  <span>Home</span>
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className={`${linkClass} flex items-center space-x-1.5`}>
-                  <LayoutDashboard aria-hidden="true" className="w-3.5 h-3.5 text-accent" />
+                <Link to="/dashboard" className={`${linkClass} flex items-center space-x-2 group`}>
+                  <LayoutDashboard aria-hidden="true" className="w-3.5 h-3.5 text-accent group-hover:scale-110 transition-transform" />
                   <span>Dashboard</span>
                 </Link>
               </li>
               <li>
-                <Link to="/login" className={linkClass}>
-                  Sign in
+                <Link to="/login" className={`${linkClass} flex items-center space-x-2 group`}>
+                  <LogIn aria-hidden="true" className="w-3.5 h-3.5 text-accent group-hover:scale-110 transition-transform" />
+                  <span>Sign in</span>
                 </Link>
               </li>
               <li>
-                <Link to="/signup" className={linkClass}>
-                  Create account
+                <Link to="/signup" className={`${linkClass} flex items-center space-x-2 group`}>
+                  <UserPlus aria-hidden="true" className="w-3.5 h-3.5 text-accent group-hover:scale-110 transition-transform" />
+                  <span>Create account</span>
                 </Link>
               </li>
             </ul>
