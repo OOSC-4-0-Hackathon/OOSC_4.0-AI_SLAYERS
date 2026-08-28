@@ -72,14 +72,14 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
   /* ── Nav order: Dashboard → Civic Navigator → Kanoon Q&A → Doc Chat → Drafting → Reasoning ── */
   const NAV_ITEMS = [
     { path: '/dashboard',        label: t('nav.dashboard', 'Dashboard'),            icon: LayoutDashboard },
-    { path: '/civic',            label: t('nav.civicNavigator', 'Civic'),           icon: Search },
-    { path: '/know-your-kanoon', label: t('nav.kanoonQA', 'Kanoon'),               icon: BookOpen },
+    { path: '/civic',            label: t('nav.civicNavigator', 'Civic Navigator'), icon: Search },
+    { path: '/know-your-kanoon', label: t('nav.kanoonQA', 'Kanoon Q&A'),           icon: BookOpen },
     { path: '/upload-chat',      label: t('nav.docChat', 'Doc Chat'),               icon: FileUp },
     { path: '/dochub',           label: t('nav.drafting', 'Drafting'),             icon: FileText },
     { path: '/reasoning',        label: t('nav.reasoning', 'Reasoning'),            icon: Scale },
   ];
 
-  const innerClass = fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6';
+  const innerClass = fullWidth ? 'w-full px-4 md:px-6' : 'w-full px-4 sm:px-6 lg:px-8';
 
   /* Glassmorphic navy background (#121820 = rgb(18, 24, 32)) */
   const barBg = scrolled
@@ -96,11 +96,11 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
         borderBottom: '1px solid rgba(43, 53, 66, 0.6)',
       }}
     >
-      {/* ── Main row ── */}
-      <div className={`${innerClass} flex items-center justify-between h-16 gap-2 sm:gap-4 lg:gap-3 xl:gap-6`}>
+      {/* ── Main row: 3-part flex layout [logo (flex-none) | nav-links (flex-1) | utility-cluster (flex-none)] ── */}
+      <div className={`${innerClass} flex items-center justify-between h-16 gap-3 sm:gap-4 lg:gap-6`}>
 
-        {/* Brand */}
-        <Link to="/" className="flex items-center space-x-2.5 group select-none shrink-0" aria-label="NYAAY AI — home">
+        {/* 1. Brand / Logo (flex: 0 0 auto) */}
+        <Link to="/" className="flex items-center space-x-2.5 group select-none shrink-0 flex-none" aria-label="NYAAY AI — home">
           {/* Logo icon box */}
           <div className="w-8 h-8 rounded-lg bg-dark-raised text-paper flex items-center justify-center border border-rule-dark group-hover:border-accent transition-colors">
             <span className="font-serif font-bold text-sm tracking-tight text-paper">Ny</span>
@@ -121,10 +121,10 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
           </div>
         </Link>
 
-        {/* Center: Desktop nav — navy segmented container */}
-        <div className="hidden lg:flex items-center flex-1 justify-center min-w-0 px-2 lg:px-4">
+        {/* 2. Middle: Desktop nav — flexible middle section (flex: 1 1 auto, centered) sizing naturally to content */}
+        <div className="hidden lg:flex items-center flex-1 justify-center min-w-0">
           <nav
-            className="flex items-center p-1 rounded-lg bg-dark-raised/80 border border-rule-dark shadow-inner space-x-0.5 xl:space-x-1 overflow-x-auto scrollbar-none max-w-full"
+            className="flex items-center p-1 rounded-lg bg-dark-raised/80 border border-rule-dark shadow-inner space-x-0.5 xl:space-x-1"
             aria-label="Main navigation"
           >
             {NAV_ITEMS.map((item) => {
@@ -135,7 +135,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
                   key={item.path}
                   to={item.path}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex items-center space-x-1.5 px-2 xl:px-3 py-1.5 rounded-md text-[12.5px] xl:text-[13px] font-sans font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none whitespace-nowrap ${
+                  className={`relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 rounded-md text-[12.5px] xl:text-[13px] font-sans font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none whitespace-nowrap ${
                     isActive
                       ? 'text-paper font-semibold'
                       : 'text-slate hover:text-paper hover:bg-dark-rule/60'
@@ -159,19 +159,18 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
               );
             })}
           </nav>
-
         </div>
 
-        {/* Right: Utility Cluster (Dockets, Language Selector, Account, Sign out) */}
-        <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 ml-auto">
+        {/* 3. Right: Utility Cluster (flex: 0 0 auto) */}
+        <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 flex-none">
           {/* Dockets */}
           <Link
             to="/civic"
             className="h-8 flex items-center space-x-1.5 px-2.5 py-1.5 bg-dark-raised/80 hover:bg-accent/10 text-slate hover:text-paper border border-rule-dark hover:border-accent text-[13px] font-sans font-medium rounded-lg transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             aria-label="View saved case dockets"
           >
-            <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-slate-muted shrink-0" />
-            <span className="hidden xl:inline">{t('nav.dockets', 'Dockets')}</span>
+            <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-slate-muted" />
+            <span className="hidden sm:inline">{t('nav.dockets', 'Dockets')}</span>
           </Link>
 
           {/* Restyled Compact Language Selector */}
@@ -192,8 +191,8 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
                 className="h-8 flex items-center space-x-1 px-2.5 py-1.5 bg-accent hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed text-paper text-[13px] font-sans font-medium rounded-lg transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none cursor-pointer"
                 aria-label="Sign out"
               >
-                <LogOut aria-hidden="true" className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden xl:inline">{signingOut ? t('nav.signingOut', 'Signing out…') : t('nav.signOut', 'Sign out')}</span>
+                <LogOut aria-hidden="true" className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{signingOut ? t('nav.signingOut', 'Signing out…') : t('nav.signOut', 'Sign out')}</span>
               </button>
             </div>
           ) : (
