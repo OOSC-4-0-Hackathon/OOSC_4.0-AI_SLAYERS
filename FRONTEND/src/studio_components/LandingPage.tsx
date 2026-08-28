@@ -904,7 +904,11 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   return (
@@ -922,24 +926,24 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
         <div className="space-y-6 font-serif text-2xl sm:text-4xl lg:text-5xl leading-[1.3] font-medium tracking-tight">
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.15 ? 'text-paper font-semibold' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.08 ? 'text-paper font-semibold' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line1', 'A citizen enters with raw real-world distress.')}
           </p>
 
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.40 ? 'text-paper font-semibold' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.20 ? 'text-paper font-semibold' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line2', 'Bureaucracy buries rights under ninety-three disconnected statutes.')}
           </p>
 
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.65 ? 'text-accent font-bold italic' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.32 ? 'text-accent font-bold italic' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line3', 'The law already protects you — most people just cannot find the path through it.')}
