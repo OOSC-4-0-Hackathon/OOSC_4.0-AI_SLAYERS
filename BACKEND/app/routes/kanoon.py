@@ -19,7 +19,7 @@ async def ask_kanoon(
     user_token: dict = Depends(verify_firebase_token),
     db: Session = Depends(get_db)
 ):
-    return kanoon_service.query(payload, user_token.uid, db, background_tasks)
+    return await kanoon_service.query(payload, user_token.uid, db, background_tasks)
 
 @router.post("/query-stream")
 @limiter.limit("20/minute")
@@ -30,5 +30,5 @@ async def ask_kanoon_stream(
     user_token: dict = Depends(verify_firebase_token),
     db: Session = Depends(get_db)
 ):
-    stream_gen = kanoon_service.query_stream(payload, user_token.uid, db, background_tasks)
+    stream_gen = await kanoon_service.query_stream(payload, user_token.uid, db, background_tasks)
     return StreamingResponse(stream_gen, media_type="text/event-stream")
