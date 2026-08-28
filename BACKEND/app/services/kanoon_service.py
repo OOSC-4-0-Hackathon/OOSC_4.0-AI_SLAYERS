@@ -205,23 +205,68 @@ class KanoonService:
                 for acr, exp in expansions.items():
                     search_query = re.sub(rf'\b{acr}\b', exp, search_query, flags=re.IGNORECASE)
 
-                for event in rag_orchestrator.trigger_pipeline_stream(search_query, filters, formatted_history, task_type="CIVIC"):
-                    # parse event to accumulate for DB saving
-                    if event.startswith("data: "):
-                        try:
-                            data = json.loads(event[6:])
-                            if data['type'] == 'chunk':
-                                full_content += data['data']
-                            elif data['type'] == 'complete':
-                                citations_data = data.get('citations', [])
-                        except:
-                            pass
-                    yield event
-                    
-                # Once done, save to DB in background
-                # Format the DB payload similar to the non-streaming one
-                import re
-                raw_answer = full_content
+                if language == "en":
+                    # ── ENGLISH PATH: true token streaming, completely unchanged ──
+                    for event in rag_orchestrator.trigger_pipeline_stream(search_query, filters, formatted_history, task_type="CIVIC"):
+                        if event.startswith("data: "):
+                            try:
+                                data = json.loads(event[6:])
+                                if data['type'] == 'chunk':
+                                    full_content += data['data']
+                                elif data['type'] == 'complete':
+                                    citations_data = data.get('citations', [])
+                            except Exception:
+                                pass
+                        yield event
+
+                else:
+                    # ── NON-ENGLISH PATH: buffer RAG output, translate once, emit translated event ──
+                    # Pass status events through so frontend can show progress indicators.
+                    for event in rag_orchestrator.trigger_pipeline_stream(search_query, filters, formatted_history, task_type="CIVIC"):
+                        if event.startswith("data: "):
+                            try:
+                                data = json.loads(event[6:])
+                                if data['type'] == 'chunk':
+                                    full_content += data['data']
+                                    # Do NOT yield chunk events — we buffer silently
+                                elif data['type'] == 'complete':
+                                    citations_data = data.get('citations', [])
+                                    # Do NOT yield the English complete event — we replace it below
+                                elif data['type'] == 'status':
+                                    yield event  # Pass status updates through for UX
+                                elif data['type'] == 'metadata':
+                                    yield event  # Pass metadata (conversation_id etc.) through
+                                elif data['type'] == 'error':
+                                    error_msg = data['data']
+                                    from app.core.translate import translate_out
+                                    translated_error, _ = await translate_out(error_msg, language)
+                                    yield f"data: {json.dumps({'type': 'error', 'data': translated_error})}\n\n"
+                            except Exception:
+                                pass
+                        # Any non-data: lines pass through
+                        elif not event.startswith("data: "):
+                            yield event
+
+                    # OUTPUT: translate assembled English response → target language
+                    # Controlled solely by language (UI toggle). Independent of detected_lang.
+                    if full_content.strip():
+                        from app.core.translate import translate_out
+                        translated_text, translation_notice = await translate_out(full_content, language)
+
+                        # Emit single translated event (replaces chunk stream for non-English)
+                        yield f"data: {json.dumps({'type': 'translated', 'data': translated_text})}\n\n"
+                    else:
+                        translation_notice = None
+
+                    # Emit complete event with citations + optional notice
+                    complete_payload = {"type": "complete", "citations": citations_data}
+                    if translation_notice:
+                        complete_payload["translation_notice"] = translation_notice
+                    yield f"data: {json.dumps(complete_payload)}\n\n"
+
+                # ── Save to DB (both paths) ───────────────────────────────────
+                import re as re2
+                raw_answer = full_content  # always save the English RAG output
                 dynamic_summary = "Response generated based on retrieved legal knowledge."
                 try:
                     # If it's the new JSON format from CIVIC task
