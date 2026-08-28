@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Lazy-load all pages to optimize initial bundle size
@@ -45,7 +46,8 @@ function RouteFallback() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Public Routes */}
@@ -113,7 +115,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-      </AuthProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </Router>
   );
 }

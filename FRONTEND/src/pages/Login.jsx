@@ -82,14 +82,14 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
-    if (!email || !password) { setError(t('login.fillFields')); return; }
+    if (!email || !password) { setError(t('login.fillFields', 'Please enter both email and password.')); return; }
     setLoading(true);
     setError('');
     try {
       await login(email, password);
       goToDestination();
     } catch (err) {
-      setError(err.message || t('login.signInFailed'));
+      setError(err.message || t('login.signInFailed', 'Failed to sign in. Please check your credentials.'));
       setLoading(false);
     }
   };
@@ -102,7 +102,7 @@ export default function Login() {
       await signInWithGoogle();
       goToDestination();
     } catch (err) {
-      setError(err.message || t('login.googleFailed'));
+      setError(err.message || t('login.googleFailed', 'Google sign-in failed. Please try again.'));
       setLoading(false);
     }
   };
@@ -120,19 +120,19 @@ export default function Login() {
           {/* Case file header */}
           <div className="mb-6">
             <span className="stamp-badge px-2 py-0.5">
-              {t('login.badge')}
+              {t('login.badge', 'CASE FILE ACCESS')}
             </span>
             <h1 className="font-serif text-heading font-bold text-ink mt-3">
-              {t('login.signInTo')}<br />
-              <span className="text-accent italic font-normal">{t('login.yourCaseFile')}</span>
+              {t('login.signInTo', 'Sign in to')}<br />
+              <span className="text-accent italic font-normal">{t('login.yourCaseFile', 'your case file.')}</span>
             </h1>
           </div>
 
           {/* Why the visitor is here, when they were bounced */}
           {destinationLabel && (
             <div className="mb-5 p-3 bg-accent-wash border-l-2 border-accent rounded-[2px] text-[13px] text-accent-deep leading-relaxed">
-              {t('login.signInContinue')} <span className="font-semibold">{t(destinationLabel)}</span>.
-              {t('login.typedKept')}
+              {t('login.signInContinue', 'Sign in to continue to')} <span className="font-semibold">{t(destinationLabel, 'your destination')}</span>.
+              {t('login.typedKept', ' What you typed has been preserved.')}
             </div>
           )}
 
@@ -148,11 +148,11 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <FieldLabel htmlFor="email">{t('login.emailLabel')}</FieldLabel>
+              <FieldLabel htmlFor="email">{t('login.emailLabel', 'Email address')}</FieldLabel>
               <TextField
                 id="email"
                 type="email"
-                placeholder={t('login.emailPlaceholder')}
+                placeholder={t('login.emailPlaceholder', 'advocate@chamber.in or citizen@domain.in')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -160,7 +160,7 @@ export default function Login() {
             </div>
 
             <div>
-              <FieldLabel htmlFor="password">{t('login.passwordLabel')}</FieldLabel>
+              <FieldLabel htmlFor="password">{t('login.passwordLabel', 'Password')}</FieldLabel>
               <TextField
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -172,7 +172,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                    aria-label={showPassword ? t('login.hidePassword', 'Hide password') : t('login.showPassword', 'Show password')}
                     className="absolute right-1 top-1/2 -translate-y-1/2 p-2 rounded text-ink-muted hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                   >
                     {showPassword
@@ -189,14 +189,14 @@ export default function Login() {
               aria-busy={loading}
               className="w-full py-3 mt-1 bg-dark hover:bg-dark-rule disabled:opacity-50 disabled:cursor-not-allowed text-paper font-semibold rounded-[3px] text-[14px] transition-colors shadow-stamp flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              {loading ? t('login.signingIn') : t('login.signInButton')}
+              {loading ? t('login.signingIn', 'Signing in…') : t('login.signInButton', 'Sign in')}
               {!loading && <ArrowRight aria-hidden="true" className="w-4 h-4" />}
             </button>
           </form>
 
           <div className="flex items-center gap-3 my-5">
             <div className="h-px bg-rule flex-grow" />
-            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-muted">{t('login.or')}</span>
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-muted">{t('login.or', 'OR')}</span>
             <div className="h-px bg-rule flex-grow" />
           </div>
 
@@ -205,17 +205,17 @@ export default function Login() {
             disabled={loading}
             className="w-full py-3 bg-paper-sunken hover:bg-rule disabled:opacity-50 disabled:cursor-not-allowed border border-rule-strong rounded-[3px] text-[14px] font-medium text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
           >
-            {t('login.continueWithGoogle')}
+            {t('login.continueWithGoogle', 'Continue with Google')}
           </button>
 
           <p className="text-center text-[13px] text-ink-tertiary mt-6">
-            {t('login.noAccount')}{' '}
+            {t('login.noAccount', "Don't have an account?")}{' '}
             <Link
               to="/signup"
               state={from ? { from } : undefined}
               className="text-accent-text hover:text-accent-deep hover:underline font-semibold rounded focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             >
-              {t('login.createOne')}
+              {t('login.createOne', 'Create one')}
             </Link>
           </p>
         </motion.div>

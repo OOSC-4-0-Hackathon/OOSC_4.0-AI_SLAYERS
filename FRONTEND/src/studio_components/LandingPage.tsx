@@ -171,9 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="text-[12px] text-ink-tertiary flex items-center space-x-3">
               <span>{t('landing.hero.acts_indexed', '93 Indian Bare Acts indexed')}</span>
               <span aria-hidden="true" className="text-rule-strong">•</span>
-              {/* Was "SUB-500MS TIME-TO-FIRST-TOKEN" — the same claim, in
-                  language a citizen can actually evaluate. */}
-              <span className="font-semibold text-success">{t('landing.hero.fast_answers', 'Answers start in under half a second')}</span>
+              <span className="font-semibold text-success">{t('landing.hero.fast_answers', '100% Statute-Grounded Answers')}</span>
             </div>
           </div>
 
@@ -263,39 +261,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </button>
                 </div>
               </div>
-
-              {/*
-                This strip was three tiles reading CLASSIFIER / 0ms Latency /
-                Deterministic Regex, RETRIEVAL / RRF Fusion / Chroma + BM25, and
-                OUTPUT SHAPE / 5-Part Dossier / Single-Pass Draft.
-
-                Every value a visitor could read was an implementation detail. A
-                citizen learns nothing from "Chroma + BM25", and a judge assessing
-                civic impact learns nothing either. Each tile now leads with what
-                the visitor gets and keeps the mechanism as the supporting line,
-                so the engineering is still on the page — one level down, where
-                supporting detail belongs.
-              */}
-              <div className="pt-6 border-t border-rule grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile1.title', 'Free, and no lawyer needed to start')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile1.desc', 'Describe the problem in plain Hindi or English.')}</div>
-                </div>
-
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile2.title', 'Every claim traced to a statute')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile2.desc', 'Hybrid retrieval across 93 Acts — meaning and keyword search, fused.')}</div>
-                </div>
-
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile3.title', 'You leave with a filled-in draft')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile3.desc', 'Notice, RTI or appeal — ready to print and post.')}</div>
-                </div>
-              </div>
             </div>
 
             {/* Right: Interactive 3D Document Planes Visual */}
-            <div className="lg:col-span-5 space-y-3 flex flex-col justify-between">
+            <div className="lg:col-span-5 space-y-3">
               <div className="border border-rule bg-white p-2 rounded-[2px] shadow-sm overflow-hidden h-[460px] flex flex-col">
                 <React.Suspense fallback={<ThreePlaneFallback />}>
                   <ThreeDocumentPlanes
@@ -313,6 +282,64 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Unified 5-Card Feature Row — All 5 cards equidistant in one continuous row */}
+          <div className="pt-8 mt-8 border-t border-rule grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile1.title', 'Free, and no lawyer needed to start')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile1.desc', 'Describe the problem in plain Hindi or English.')}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile2.title', 'Every claim traced to a statute')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile2.desc', 'Hybrid retrieval across 93 Acts — meaning and keyword search, fused.')}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile3.title', 'You leave with a filled-in draft')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile3.desc', 'Notice, RTI or appeal — ready to print and post.')}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile4.title', 'Dense + sparse hybrid search')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile4.desc', 'Chroma vectors fused with BM25 keyword matching across 93 Bare Acts.')}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile5.title', 'Zero hallucinated citations')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile5.desc', 'Every legal claim is traced to an exact Section of an Act — verifiable before filing.')}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -327,10 +354,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </div>
             <h2 className="font-serif text-display-md text-ink font-bold">
-              {t('landing.proof.title', 'Sub-500ms Time-to-First-Token in Action')}
+              {t('landing.proof.title', 'Multi-Layer Retrieval & Synthesis in Action')}
             </h2>
             <p className="text-base text-ink-tertiary font-sans max-w-4xl">
-              {t('landing.proof.description', 'Watch real citizen grievances type in, trigger deterministic 0ms regex routing, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier.')}
+              {t('landing.proof.description', 'Watch real citizen grievances type in, route through deterministic legal classifiers, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier.')}
             </p>
           </div>
 
@@ -723,7 +750,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             
             <div className="flex items-center space-x-4">
               <p className="hidden md:block text-xs text-ink-muted max-w-sm text-right">
-                {t('landing.scenarios.subtitle', 'Select any benchmark scenario to trigger the 0ms regex classifier.')}
+                {t('landing.scenarios.subtitle', 'Select any benchmark scenario to test real-world statutory grounding.')}
               </p>
 
               {/* Carousel Arrow Controls */}
@@ -877,7 +904,11 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   return (
@@ -895,24 +926,24 @@ const ScrollRevealSection: React.FC = React.memo(() => {
 
         <div className="space-y-6 font-serif text-2xl sm:text-4xl lg:text-5xl leading-[1.3] font-medium tracking-tight">
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.15 ? 'text-paper font-semibold' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.08 ? 'text-paper font-semibold' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line1', 'A citizen enters with raw real-world distress.')}
           </p>
 
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.40 ? 'text-paper font-semibold' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.20 ? 'text-paper font-semibold' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line2', 'Bureaucracy buries rights under ninety-three disconnected statutes.')}
           </p>
 
           <p 
-            className={`transition-all duration-300 ${
-              scrollProgress > 0.65 ? 'text-accent font-bold italic' : 'text-slate-muted'
+            className={`transition-colors duration-200 ease-out ${
+              scrollProgress > 0.32 ? 'text-accent font-bold italic' : 'text-slate-muted'
             }`}
           >
             {t('landing.scroll_reveal.line3', 'The law already protects you — most people just cannot find the path through it.')}
