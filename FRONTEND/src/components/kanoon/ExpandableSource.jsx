@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Book, Scale, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 
 const ExpandableSource = ({ source }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Determine Source Type and appropriate icon/label
@@ -20,39 +22,39 @@ const ExpandableSource = ({ source }) => {
   };
   
   const getSourceTypeLabel = () => {
-    if (isJudgment) return 'Supreme Court Judgment';
-    if (isStatute) return 'Statute';
-    if (docType === 'constitution') return 'Constitution';
-    return docType ? docType.charAt(0).toUpperCase() + docType.slice(1) : 'Legal Authority';
+    if (isJudgment) return t('kanoon.supremeCourtJudgment', 'Supreme Court Judgment');
+    if (isStatute) return t('kanoon.statute', 'Statute');
+    if (docType === 'constitution') return t('kanoon.constitution', 'Constitution');
+    return docType ? docType.charAt(0).toUpperCase() + docType.slice(1) : t('kanoon.legalAuthority', 'Legal Authority');
   };
   
-  const relevantPassageText = isJudgment ? "Read relevant judgment passage" : (isStatute ? "Read relevant provision" : "Read relevant passage");
+  const relevantPassageText = isJudgment ? t('kanoon.readRelevantJudgment', "Read relevant judgment passage") : (isStatute ? t('kanoon.readRelevantProvision', "Read relevant provision") : t('kanoon.readRelevantPassage', "Read relevant passage"));
 
   const metadataRows = [];
   
   if (isJudgment) {
-    if (source.metadata?.court) metadataRows.push({ label: 'Court', value: source.metadata.court });
-    if (source.metadata?.judgment_date) metadataRows.push({ label: 'Judgment date', value: source.metadata.judgment_date });
-    if (source.metadata?.bench) metadataRows.push({ label: 'Bench', value: source.metadata.bench });
-    if (source.metadata?.citation) metadataRows.push({ label: 'Citation', value: source.metadata.citation });
-    if (source.metadata?.case_number) metadataRows.push({ label: 'Case number', value: source.metadata.case_number });
-    if (source.metadata?.petitioner) metadataRows.push({ label: 'Petitioner', value: source.metadata.petitioner });
-    if (source.metadata?.respondent) metadataRows.push({ label: 'Respondent', value: source.metadata.respondent });
-    if (source.metadata?.case_id) metadataRows.push({ label: 'Case ID', value: source.metadata.case_id });
+    if (source.metadata?.court) metadataRows.push({ label: t('kanoon.court', 'Court'), value: source.metadata.court });
+    if (source.metadata?.judgment_date) metadataRows.push({ label: t('kanoon.judgmentDate', 'Judgment date'), value: source.metadata.judgment_date });
+    if (source.metadata?.bench) metadataRows.push({ label: t('kanoon.bench', 'Bench'), value: source.metadata.bench });
+    if (source.metadata?.citation) metadataRows.push({ label: t('kanoon.citation', 'Citation'), value: source.metadata.citation });
+    if (source.metadata?.case_number) metadataRows.push({ label: t('kanoon.caseNumber', 'Case number'), value: source.metadata.case_number });
+    if (source.metadata?.petitioner) metadataRows.push({ label: t('kanoon.petitioner', 'Petitioner'), value: source.metadata.petitioner });
+    if (source.metadata?.respondent) metadataRows.push({ label: t('kanoon.respondent', 'Respondent'), value: source.metadata.respondent });
+    if (source.metadata?.case_id) metadataRows.push({ label: t('kanoon.caseId', 'Case ID'), value: source.metadata.case_id });
   } else if (isStatute) {
-    metadataRows.push({ label: 'Act/Code', value: sourceName });
-    if (source.article_or_section && source.article_or_section !== 'Unknown') metadataRows.push({ label: 'Section/Article', value: source.article_or_section });
-    if (source.metadata?.chapter) metadataRows.push({ label: 'Chapter', value: source.metadata.chapter });
-    if (source.metadata?.jurisdiction) metadataRows.push({ label: 'Jurisdiction', value: source.metadata.jurisdiction });
+    metadataRows.push({ label: t('kanoon.actCode', 'Act/Code'), value: sourceName });
+    if (source.article_or_section && source.article_or_section !== 'Unknown') metadataRows.push({ label: t('kanoon.sectionArticle', 'Section/Article'), value: source.article_or_section });
+    if (source.metadata?.chapter) metadataRows.push({ label: t('kanoon.chapter', 'Chapter'), value: source.metadata.chapter });
+    if (source.metadata?.jurisdiction) metadataRows.push({ label: t('kanoon.jurisdiction', 'Jurisdiction'), value: source.metadata.jurisdiction });
   } else {
-    if (source.metadata?.authority) metadataRows.push({ label: 'Authority', value: source.metadata.authority });
+    if (source.metadata?.authority) metadataRows.push({ label: t('kanoon.authority', 'Authority'), value: source.metadata.authority });
   }
 
   // Common metadata
-  metadataRows.push({ label: 'Source type', value: getSourceTypeLabel() });
+  metadataRows.push({ label: t('kanoon.sourceType', 'Source type'), value: getSourceTypeLabel() });
   
   // The full retrieved text
-  const fullText = source.full_relevant_text || source.text_snippet || "Text not available.";
+  const fullText = source.full_relevant_text || source.text_snippet || t('kanoon.textNotAvailable', "Text not available.");
   
   return (
     <div className="border border-border rounded-xl bg-surface mb-3 overflow-hidden transition-all duration-200">
@@ -87,13 +89,13 @@ const ExpandableSource = ({ source }) => {
           <div className="my-4 p-4 bg-surface rounded-lg border border-border/50 text-sm text-text-primary whitespace-pre-wrap leading-relaxed shadow-inner">
             <div className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
               {getSourceIcon()}
-              Complete Retrieved Passage
+              {t('kanoon.completeRetrievedPassage', 'Complete Retrieved Passage')}
             </div>
             {fullText}
           </div>
           
           <div className="mt-4 pt-4 border-t border-border/50">
-            <h5 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Source Metadata</h5>
+            <h5 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">{t('kanoon.sourceMetadata', 'Source Metadata')}</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
               {metadataRows.map((row, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row sm:items-start text-xs">

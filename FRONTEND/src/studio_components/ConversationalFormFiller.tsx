@@ -11,7 +11,10 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { startFormSession, sendFormAnswer, downloadPdf, downloadDocx } from '../services/formFillerService';
+import Toast from '../components/common/Toast';
 
 interface FormQuestion {
   id: string;
@@ -326,8 +329,10 @@ ____________________________________
   }
 ];
 
-export const ConversationalFormFiller: React.FC = () => {
+export function ConversationalFormFiller({ onExit }) {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
   const token = currentUser ? (currentUser as any).accessToken : null;
 
   const [selectedFormId, setSelectedFormId] = useState<string>('RTI_FORM_A');
@@ -340,6 +345,8 @@ export const ConversationalFormFiller: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string; time: string }>>([]);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
+  /* Export failures used to surface as a blocking window.alert(). */
+  const [exportError, setExportError] = useState<string>('');
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -361,7 +368,7 @@ export const ConversationalFormFiller: React.FC = () => {
       setIsAiThinking(true);
       
       try {
-        const data = await startFormSession(token, selectedFormId);
+        const data = await startFormSession(token, selectedFormId, language);
         if (isMounted) {
           setCurrentFieldId(data.current_field);
           setStatus(data.status);
@@ -376,7 +383,7 @@ export const ConversationalFormFiller: React.FC = () => {
           setStatus('ERROR');
           setChatMessages([{
             role: 'assistant',
-            content: "I'm sorry, I couldn't connect to the server. Please try refreshing or selecting the form again.",
+            content: t("formFiller.error.serverConnect", "I'm sorry, I couldn't connect to the server. Please try refreshing or selecting the form again."),
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }]);
         }
@@ -392,7 +399,7 @@ export const ConversationalFormFiller: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [selectedFormId, token, activeTemplate.initialFields]);
+  }, [selectedFormId, token, activeTemplate.initialFields, language, t]);
 
   // Find current question object for rendering placeholders
   const currentQ = activeTemplate.questions.find(q => q.fieldKey === currentFieldId);
@@ -416,12 +423,13 @@ export const ConversationalFormFiller: React.FC = () => {
 
     try {
       // Backend handles validation and single source of truth for the form structure
-      const data = await sendFormAnswer(token, {
+      const payload = {
         form_id: selectedFormId,
         collected_fields: formFields,
         user_answer: userText,
         history: updatedMessages.map(m => ({ role: m.role, content: m.content }))
-      });
+      };
+      const data = await sendFormAnswer(token, payload, language);
       
       setFormFields(data.collected_fields);
       setCurrentFieldId(data.current_field);
@@ -441,7 +449,7 @@ export const ConversationalFormFiller: React.FC = () => {
         ...prev,
         {
           role: 'assistant',
-          content: "Something went wrong while processing that answer. Please try sending it again.",
+          content: t("formFiller.error.processAnswer", "Something went wrong while processing that answer. Please try sending it again."),
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -484,7 +492,7 @@ export const ConversationalFormFiller: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download PDF:', err);
-      alert('Failed to generate PDF. Please try again.');
+      setExportError(t("formFiller.error.downloadPdf", "Could not generate the PDF. The document service may be unavailable - try DOCX, or download the plain-text copy."));
     }
   };
 
@@ -500,7 +508,7 @@ export const ConversationalFormFiller: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download DOCX:', err);
-      alert('Failed to generate DOCX. Please try again.');
+      setExportError(t("formFiller.error.downloadDocx", "Could not generate the DOCX. The document service may be unavailable - try PDF, or download the plain-text copy."));
     }
   };
 
@@ -511,28 +519,28 @@ export const ConversationalFormFiller: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
-      <div className="bg-[#FAF7F2] border border-[#E4DFD5] rounded-xl p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-paper border border-rule rounded-xl p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-[#EFECE6] text-xs font-mono text-[#8C271E] font-bold mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#C84B31]" />
-            <span>CONVERSATIONAL FORM-FILLER AGENT</span>
+          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-paper-sunken text-xs text-accent-deep font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
+            <span>{t("formFiller.header.agent", "AI Form Assistant")}</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#121820]">
-            Guided Intake & Live Auto-Form Generator
+          <h1 className="font-serif text-heading font-bold text-ink">
+            {t("formFiller.title", "Guided Intake & Live Auto-Form Generator")}
           </h1>
-          <p className="text-sm text-[#556377] mt-1">
-            Answer simple plain-language questions and watch the official government & court form populate in real time.
+          <p className="text-sm text-ink-tertiary mt-1">
+            {t("formFiller.subtitle", "Answer simple plain-language questions and watch the official government & court form populate in real time.")}
           </p>
         </div>
 
         {/* Template Selector Dropdown */}
         <div className="shrink-0 flex items-center space-x-3">
-          <label className="text-xs font-mono text-[#718096]">Target Form:</label>
+          <label className="text-xs text-ink-tertiary">{t("formFiller.label.targetForm", "Target Form:")}</label>
           <select
             value={selectedFormId}
             onChange={(e) => setSelectedFormId(e.target.value)}
             disabled={isAiThinking || status === 'STARTING'}
-            className="px-3.5 py-2 rounded-lg bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] font-bold focus:outline-none focus:ring-2 focus:ring-[#121820] shadow-xs disabled:opacity-50"
+            className="px-3.5 py-2 rounded-lg bg-white border border-rule-strong text-xs text-ink font-bold focus:outline-none focus:ring-2 focus:ring-dark shadow-xs disabled:opacity-50"
           >
             {FORM_TEMPLATES.map(t => (
               <option key={t.id} value={t.id}>
@@ -545,53 +553,53 @@ export const ConversationalFormFiller: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Conversational AI Intake Officer (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col bg-white border border-[#E4DFD5] rounded-xl shadow-xs overflow-hidden h-[620px]">
+        <div className="lg:col-span-5 flex flex-col bg-white border border-rule rounded-xl shadow-xs overflow-hidden h-[620px]">
           {/* Interview Officer Header */}
-          <div className="p-4 bg-[#FAF7F2] border-b border-[#E4DFD5] flex items-center justify-between">
+          <div className="p-4 bg-paper border-b border-rule flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#121820] text-white flex items-center justify-center">
-                <Bot className="w-4 h-4 text-[#FAF7F2]" />
+              <div className="w-8 h-8 rounded-full bg-dark text-white flex items-center justify-center">
+                <Bot className="w-4 h-4 text-paper" />
               </div>
               <div>
-                <h3 className="font-serif font-bold text-sm text-[#121820]">
-                  AI Legal Intake Officer
+                <h3 className="font-serif font-bold text-sm text-ink">
+                  {t("formFiller.intakeOfficer", "AI Legal Intake Officer")}
                 </h3>
-                <span className="text-[11px] font-mono text-emerald-700 font-medium flex items-center gap-1">
+                <span className="text-[12px] text-emerald-700 font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Interactive Q&A Active
+                  {t("formFiller.status.qaActive", "Interactive Q&A Active")}
                 </span>
               </div>
             </div>
 
-            <div className="text-right font-mono text-xs text-[#718096]">
-              <span>{completedCount} of {totalQuestions} required fields completed</span>
+            <div className="text-right text-xs text-ink-tertiary">
+              <span>{completedCount} {t("formFiller.progress.of", "of")} {totalQuestions} {t("formFiller.progress.fieldsCompleted", "required fields completed")}</span>
             </div>
           </div>
 
           {/* Chat Messages Log */}
-          <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#FAF7F2]/40 text-xs scroll-smooth">
+          <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-paper/40 text-xs scroll-smooth">
             {chatMessages.map((msg, i) => (
               <div
                 key={i}
                 className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-[#121820] text-white flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="w-3 h-3 text-[#FAF7F2]" />
+                  <div className="w-6 h-6 rounded-full bg-dark text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <Bot className="w-3 h-3 text-paper" />
                   </div>
                 )}
 
                 <div
                   className={`max-w-[85%] rounded-xl p-3 leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-[#121820] text-white rounded-tr-none'
-                      : 'bg-white border border-[#E4DFD5] text-[#2D3748] shadow-xs rounded-tl-none'
+                      ? 'bg-dark text-white rounded-tr-none'
+                      : 'bg-white border border-rule text-ink-secondary shadow-xs rounded-tl-none'
                   }`}
                 >
                   <p className="whitespace-pre-line">{msg.content}</p>
                   <span
-                    className={`block text-[10px] font-mono mt-1 ${
-                      msg.role === 'user' ? 'text-white/60 text-right' : 'text-[#A0AEC0]'
+                    className={`block text-[12px] mt-1 ${
+                      msg.role === 'user' ? 'text-white/60 text-right' : 'text-slate'
                     }`}
                   >
                     {msg.time}
@@ -599,7 +607,7 @@ export const ConversationalFormFiller: React.FC = () => {
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-6 h-6 rounded-full bg-[#C84B31] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center shrink-0 mt-0.5">
                     <User className="w-3 h-3" />
                   </div>
                 )}
@@ -608,32 +616,32 @@ export const ConversationalFormFiller: React.FC = () => {
             
             {isAiThinking && (
                <div className="flex items-start gap-2.5 justify-start">
-                  <div className="w-6 h-6 rounded-full bg-[#121820] text-white flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="w-3 h-3 text-[#FAF7F2]" />
+                  <div className="w-6 h-6 rounded-full bg-dark text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <Bot className="w-3 h-3 text-paper" />
                   </div>
-                  <div className="max-w-[85%] rounded-xl p-3 bg-white border border-[#E4DFD5] shadow-xs rounded-tl-none flex items-center space-x-1">
-                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                     <span className="w-1.5 h-1.5 bg-[#A0AEC0] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="max-w-[85%] rounded-xl p-3 bg-white border border-rule shadow-xs rounded-tl-none flex items-center space-x-1">
+                     <span className="w-1.5 h-1.5 bg-[#A2B1C6] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                     <span className="w-1.5 h-1.5 bg-[#A2B1C6] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                     <span className="w-1.5 h-1.5 bg-[#A2B1C6] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                </div>
             )}
           </div>
 
           {/* Interactive Question Input Box */}
-          <div className="p-3.5 bg-white border-t border-[#E4DFD5]">
+          <div className="p-3.5 bg-white border-t border-rule">
             {currentQ && status === 'IN_PROGRESS' && (
               <div className="mb-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-[#718096] mb-1">
-                  <span>Tip: {currentQ.explanation}</span>
+                <div className="flex items-center justify-between text-[12px] text-ink-tertiary mb-1">
+                  <span>{t("formFiller.tip", "Tip:")} {currentQ.explanation}</span>
                   {currentQ.example && (
                     <button
                       type="button"
                       onClick={() => handleUseExample(currentQ.example)}
-                      className="text-[#C84B31] hover:underline font-bold disabled:opacity-50"
+                      className="text-accent hover:underline font-bold disabled:opacity-50"
                       disabled={isAiThinking}
                     >
-                      Use sample text
+                      {t("formFiller.useSampleText", "Use sample text")}
                     </button>
                   )}
                 </div>
@@ -643,17 +651,17 @@ export const ConversationalFormFiller: React.FC = () => {
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder={status === 'COMPLETE' ? 'Form complete' : (currentQ ? currentQ.placeholder : 'Type your answer...')}
+                placeholder={status === 'COMPLETE' ? t("formFiller.placeholder.complete", "Form complete") : (currentQ ? currentQ.placeholder : t("formFiller.placeholder.typeAnswer", "Type your answer..."))}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 disabled={isAiThinking || status === 'COMPLETE' || status === 'STARTING'}
-                className="flex-1 px-3 py-2 text-xs rounded-lg border border-[#D5CEC2] focus:outline-none focus:ring-1 focus:ring-[#121820] bg-[#FAF7F2] disabled:opacity-60"
+                className="flex-1 px-3 py-2 text-xs rounded-lg border border-rule-strong focus:outline-none focus:ring-1 focus:ring-dark bg-paper disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={!inputVal.trim() || isAiThinking || status === 'COMPLETE' || status === 'STARTING'}
-                className="p-2 rounded-lg bg-[#121820] text-white hover:bg-[#242F3E] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Submit answer"
+                className="p-2 rounded-lg bg-dark text-white hover:bg-dark-rule disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title={t("formFiller.button.submitAnswer", "Submit answer")}
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -662,14 +670,14 @@ export const ConversationalFormFiller: React.FC = () => {
         </div>
 
         {/* Right Column: Live Auto-Populating Legal Form Preview (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col bg-white border border-[#E4DFD5] rounded-xl shadow-xs overflow-hidden h-[620px]">
+        <div className="lg:col-span-7 flex flex-col bg-white border border-rule rounded-xl shadow-xs overflow-hidden h-[620px]">
           {/* Document Header Controls */}
-          <div className="p-4 bg-[#FAF7F2] border-b border-[#E4DFD5] flex flex-wrap items-center justify-between gap-3">
+          <div className="p-4 bg-paper border-b border-rule flex flex-wrap items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#718096] block">
-                Official Statutory Form Preview
+              <span className="text-[12px] uppercase tracking-wider text-ink-tertiary block">
+                {t("formFiller.preview.title", "Official Statutory Form Preview")}
               </span>
-              <h3 className="font-serif font-bold text-sm text-[#121820]">
+              <h3 className="font-serif font-bold text-sm text-ink">
                 {activeTemplate.name}
               </h3>
             </div>
@@ -678,63 +686,72 @@ export const ConversationalFormFiller: React.FC = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleCopyForm}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-rule-strong text-xs text-ink hover:bg-paper transition-colors flex items-center space-x-1.5 shadow-xs"
               >
-                {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#556377]" />}
-                <span>{isCopied ? 'Copied' : 'Copy Text'}</span>
+                {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-ink-tertiary" />}
+                <span>{isCopied ? t("formFiller.button.copied", "Copied") : t("formFiller.button.copyText", "Copy Text")}</span>
               </button>
 
               <button
                 onClick={handleDownloadPdf}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-rule-strong text-xs text-ink hover:bg-paper transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-rose-600" />
-                <span>PDF</span>
+                <span>{t("formFiller.button.pdf", "PDF")}</span>
               </button>
 
               <button
                 onClick={handleDownloadDocx}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-rule-strong text-xs text-ink hover:bg-paper transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5 text-blue-600" />
-                <span>DOCX</span>
+                <span>{t("formFiller.button.docx", "DOCX")}</span>
               </button>
 
               <button
                 onClick={handleDownloadTxt}
-                className="px-3 py-1.5 rounded-md bg-white border border-[#D5CEC2] text-xs font-mono text-[#121820] hover:bg-[#FAF7F2] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-white border border-rule-strong text-xs text-ink hover:bg-paper transition-colors flex items-center space-x-1.5 shadow-xs"
               >
-                <Download className="w-3.5 h-3.5 text-[#556377]" />
-                <span>TXT</span>
+                <Download className="w-3.5 h-3.5 text-ink-tertiary" />
+                <span>{t("formFiller.button.txt", "TXT")}</span>
               </button>
 
               <button
                 onClick={handlePrint}
-                className="px-3 py-1.5 rounded-md bg-[#121820] text-white text-xs font-mono hover:bg-[#242F3E] transition-colors flex items-center space-x-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-md bg-dark text-white text-xs hover:bg-dark-rule transition-colors flex items-center space-x-1.5 shadow-xs"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>Print</span>
+                <span>{t("formFiller.button.print", "Print")}</span>
               </button>
             </div>
           </div>
 
           {/* High-Fidelity Paper Canvas */}
-          <div className="flex-1 p-6 overflow-y-auto bg-[#FDFCFB]">
-            <div className="max-w-2xl mx-auto bg-white p-8 border border-[#E4DFD5] shadow-xs rounded-sm font-mono text-xs text-[#121820] leading-relaxed whitespace-pre-wrap selection:bg-amber-100">
+          <div className="flex-1 p-6 overflow-y-auto bg-paper">
+            <div className="max-w-2xl mx-auto bg-white p-8 border border-rule shadow-xs rounded-sm text-xs text-ink leading-relaxed whitespace-pre-wrap selection:bg-amber-100">
               {activeTemplate.generateFormText(formFields)}
             </div>
           </div>
 
           {/* Footer Metadata */}
-          <div className="p-3 bg-[#FAF7F2] border-t border-[#E4DFD5] text-[11px] font-mono text-[#718096] flex items-center justify-between">
+          <div className="p-3 bg-paper border-t border-rule text-[12px] text-ink-tertiary flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Grounded in Indian Central/State Gazette Rules</span>
+              <span>{t("formFiller.footer.grounded", "Grounded in Indian Central/State Gazette Rules")}</span>
             </span>
-            <span>Target Authority: <strong>{activeTemplate.authority.split('/')[0]}</strong></span>
+            <span>{t("formFiller.footer.targetAuthority", "Target Authority:")} <strong>{activeTemplate.authority.split('/')[0]}</strong></span>
           </div>
         </div>
       </div>
+
+      <Toast
+        isOpen={!!exportError}
+        message={exportError}
+        variant="error"
+        duration={0}
+        dismissible
+        onClose={() => setExportError('')}
+      />
     </div>
   );
 };

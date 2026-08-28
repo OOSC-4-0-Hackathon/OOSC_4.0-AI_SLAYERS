@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { Search, Plus, MessageSquare, MoreHorizontal, Pencil, Trash2, Pin } from 'lucide-react';
 import { renameConversation, deleteConversation, pinConversation } from "../../services/chatService";
 import { useAuth } from "../../contexts/AuthContext";
+import ConfirmationModal from "../common/ConfirmationModal";
+import Toast from "../common/Toast";
+import { useTranslation } from 'react-i18next';
 
 const ChatSidebar = ({
   conversations,
@@ -10,11 +13,22 @@ const ChatSidebar = ({
   onNewChat,
   onConversationsChanged
 }) => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [menuOpenId, setMenuOpenId] = useState(null);
+  /* Deleting a conversation is destructive and used to go through
+     window.confirm(). Rename/pin/delete failures were also swallowed into
+     console.error, so the row simply didn't change and the user was told
+     nothing. */
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const reportFailure = (action) =>
+    setToast({ variant: 'error', message: t('chatSidebar.failureMessage', { action }) });
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversations;
@@ -55,18 +69,31 @@ const ChatSidebar = ({
       await renameConversation(token, id, editTitle);
       setEditingId(null);
       if (onConversationsChanged) onConversationsChanged();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      setEditingId(null);
+      reportFailure(t('chatSidebar.renameSession'));
+    }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this conversation?")) return;
+  const confirmDelete = async () => {
+    const id = pendingDeleteId;
+    if (!id) return;
+    setDeleting(true);
     try {
       const token = await currentUser.getIdToken();
       await deleteConversation(token, id);
       setMenuOpenId(null);
+      setPendingDeleteId(null);
       if (onConversationsChanged) onConversationsChanged();
       if (activeConversationId === id) onNewChat();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      setPendingDeleteId(null);
+      reportFailure(t('chatSidebar.deleteSession'));
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleTogglePin = async (c) => {
@@ -75,14 +102,20 @@ const ChatSidebar = ({
       await pinConversation(token, c.id, !c.is_pinned);
       setMenuOpenId(null);
       if (onConversationsChanged) onConversationsChanged();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      reportFailure(c.is_pinned ? t('chatSidebar.unpinSession') : t('chatSidebar.pinSession'));
+    }
   };
+
+  const pendingDeleteTitle =
+    conversations.find((c) => c.id === pendingDeleteId)?.title || t('chatSidebar.thisConversation');
 
   const renderGroup = (title, items) => {
     if (items.length === 0) return null;
     return (
       <div className="mb-5">
-        <h3 className="label-stamp text-ink-fog mb-2 px-3">{title}</h3>
+        <h3 className="label-stamp mb-2 px-3">{title}</h3>
         <div className="space-y-0.5">
           {items.map(c => (
             <div
@@ -109,7 +142,7 @@ const ChatSidebar = ({
                 </form>
               ) : (
                 <span className="flex-1 min-w-0 truncate text-[13px] font-medium">
-                  {c.title || "New Conversation"}
+                  {c.title || t('chatSidebar.newConversation')}
                 </span>
               )}
 
@@ -128,19 +161,19 @@ const ChatSidebar = ({
                         onClick={(e) => { e.stopPropagation(); handleTogglePin(c); }}
                         className="w-full text-left px-3 py-1.5 text-[12px] text-ink hover:bg-paper-warm flex items-center gap-2 transition-colors"
                       >
-                        <Pin size={12} /> {c.is_pinned ? 'Unpin' : 'Pin'}
+                        <Pin size={12} /> {c.is_pinned ? t('chatSidebar.unpin') : t('chatSidebar.pin')}
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditTitle(c.title); setEditingId(c.id); setMenuOpenId(null); }}
                         className="w-full text-left px-3 py-1.5 text-[12px] text-ink hover:bg-paper-warm flex items-center gap-2 transition-colors"
                       >
-                        <Pencil size={12} /> Rename
+                        <Pencil size={12} /> {t('chatSidebar.rename')}
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
+                        onClick={(e) => { e.stopPropagation(); setPendingDeleteId(c.id); setMenuOpenId(null); }}
                         className="w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-error-bg flex items-center gap-2 transition-colors"
                       >
-                        <Trash2 size={12} /> Delete
+                        <Trash2 size={12} /> {t('chatSidebar.deleteAction')}
                       </button>
                     </div>
                   )}
@@ -154,12 +187,13 @@ const ChatSidebar = ({
   };
 
   return (
+    <>
     <div className="w-72 flex-shrink-0 bg-paper-warm border-r border-paper-rule flex flex-col h-full" onClick={() => setMenuOpenId(null)}>
       {/* Sidebar Header */}
       <div className="px-4 py-4 border-b border-paper-rule flex items-center justify-between bg-paper">
         <div>
-          <span className="label-stamp text-ink-fog block">CASE HISTORY</span>
-          <span className="text-[13px] font-semibold text-ink">Past Sessions</span>
+          <span className="label-stamp block">{t('chatSidebar.caseHistory')}</span>
+          <span className="text-[13px] font-semibold text-ink">{t('chatSidebar.pastSessions')}</span>
         </div>
         <button
           onClick={onNewChat}
@@ -176,7 +210,7 @@ const ChatSidebar = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-fog" size={13} />
           <input
             type="text"
-            placeholder="Search sessions..."
+            placeholder={t('chatSidebar.searchSessions')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-3 py-2 bg-paper border border-paper-rule rounded-button text-[13px] focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber transition-all text-ink placeholder-ink-fog"
@@ -188,24 +222,46 @@ const ChatSidebar = ({
       <div className="flex-1 overflow-y-auto p-3">
         {conversations.length === 0 ? (
           <div className="text-center mt-12 px-4">
-            <span className="font-mono text-[9px] text-ink-fog uppercase tracking-widest block mb-2">NO SESSIONS YET</span>
-            <p className="text-[12px] text-ink-muted">Start a new query to begin your case file history.</p>
+            <span className="label-stamp block mb-2">{t('chatSidebar.noSessionsYet')}</span>
+            <p className="text-[12px] text-ink-muted leading-relaxed">{t('chatSidebar.startNewQuery')}</p>
           </div>
         ) : filteredConversations.length === 0 ? (
           <div className="text-center mt-10">
-            <p className="text-[12px] text-ink-muted">No matches for "{searchQuery}".</p>
+            <p className="text-[12px] text-ink-muted">{t('chatSidebar.noMatches', { query: searchQuery })}</p>
           </div>
         ) : (
           <>
-            {renderGroup("PINNED", grouped.pinned)}
-            {renderGroup("TODAY", grouped.today)}
-            {renderGroup("YESTERDAY", grouped.yesterday)}
-            {renderGroup("PREVIOUS 7 DAYS", grouped.previous7Days)}
-            {renderGroup("OLDER", grouped.older)}
+            {renderGroup(t('chatSidebar.pinned'), grouped.pinned)}
+            {renderGroup(t('chatSidebar.today'), grouped.today)}
+            {renderGroup(t('chatSidebar.yesterday'), grouped.yesterday)}
+            {renderGroup(t('chatSidebar.previous7Days'), grouped.previous7Days)}
+            {renderGroup(t('chatSidebar.older'), grouped.older)}
           </>
         )}
       </div>
     </div>
+
+    <ConfirmationModal
+      isOpen={!!pendingDeleteId}
+      title={t('chatSidebar.deleteSessionTitle')}
+      body={t('chatSidebar.deleteSessionBody', { title: pendingDeleteTitle })}
+      confirmText={t('chatSidebar.delete')}
+      cancelText={t('chatSidebar.keepIt')}
+      isDestructive
+      loading={deleting}
+      onConfirm={confirmDelete}
+      onCancel={() => setPendingDeleteId(null)}
+    />
+
+    <Toast
+      isOpen={!!toast}
+      message={toast?.message}
+      variant={toast?.variant}
+      duration={0}
+      dismissible
+      onClose={() => setToast(null)}
+    />
+    </>
   );
 };
 

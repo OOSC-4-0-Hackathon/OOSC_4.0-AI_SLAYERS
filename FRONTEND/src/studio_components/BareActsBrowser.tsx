@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   BookOpen, 
   Search, 
@@ -19,6 +20,7 @@ interface BareActsBrowserProps {
 export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
   onSelectActForQuery
 }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedActModal, setSelectedActModal] = useState<BareAct | null>(null);
@@ -34,33 +36,33 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       {/* Header */}
-      <div className="border-b border-[#E4DFD5] pb-6 space-y-2">
+      <div className="border-b border-rule pb-6 space-y-2">
         <div className="flex items-center space-x-2">
-          <span className="stamp-badge text-[10px] px-2 py-0.5">
-            STATUTORY REPOSITORY // 93 BARE ACTS
+          <span className="stamp-badge px-2 py-0.5">
+            {t('bareActs.statutoryRepository', 'STATUTORY REPOSITORY // 93 BARE ACTS')}
           </span>
-          <span className="font-mono text-xs text-[#7A8699]">
-            INDIAN LEGISLATIVE DATABASE
+          <span className="text-xs text-ink-muted">
+            {t('bareActs.indianLegislativeDatabase', 'INDIAN LEGISLATIVE DATABASE')}
           </span>
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-black text-[#121820]">
-          Indian Bare Acts Grounding Index
+        <h1 className="font-serif text-display-md font-bold text-ink">
+          {t('bareActs.groundingIndexTitle', 'Indian Bare Acts Grounding Index')}
         </h1>
-        <p className="text-sm text-[#5A687D] max-w-2xl font-sans">
-          Search the grounded statutory repository powering NYAAY AI's hybrid dense and sparse RRF retrieval engine.
+        <p className="text-sm text-ink-tertiary max-w-2xl font-sans">
+          {t('bareActs.groundingIndexDesc', "Search the grounded statutory repository powering NYAAY AI's hybrid dense and sparse RRF retrieval engine.")}
         </p>
       </div>
 
       {/* Search & Category Filter */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-[#7A8699] absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-ink-muted absolute left-3.5 top-3.5" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search across 93 Bare Acts by title, section, or subject (e.g. 'RTI', 'Eviction', 'Warranty', 'Sec 106')..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E4DFD5] focus:border-[#121820] rounded-[2px] text-xs font-sans outline-none"
+            placeholder={t('bareActs.searchPlaceholder', "Search across 93 Bare Acts by title, section, or subject (e.g. 'RTI', 'Eviction', 'Warranty', 'Sec 106')...")}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-rule focus:border-dark rounded-[2px] text-xs font-sans outline-none"
           />
         </div>
 
@@ -68,15 +70,15 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full py-2.5 px-3 bg-white border border-[#E4DFD5] text-xs font-mono rounded-[2px] outline-none"
+            className="w-full py-2.5 px-3 bg-white border border-rule text-xs rounded-[2px] outline-none"
           >
-            <option value="ALL">ALL CATEGORIES ({BARE_ACTS_CATALOG.length})</option>
-            <option value="CIVIC_RIGHTS">Civic & Information Rights</option>
-            <option value="CONSUMER_COMMERCIAL">Consumer & Commercial</option>
-            <option value="PROPERTY_HOUSING">Property & Tenancy</option>
-            <option value="CONSTITUTIONAL">Constitutional Charter</option>
-            <option value="PENAL_PROCEDURAL">Procedural & Penal</option>
-            <option value="ENVIRONMENTAL_LABOR">Environmental & Labor</option>
+            <option value="ALL">{t('bareActs.allCategories', 'ALL CATEGORIES')} ({BARE_ACTS_CATALOG.length})</option>
+            <option value="CIVIC_RIGHTS">{t('bareActs.catCivicRights', 'Civic & Information Rights')}</option>
+            <option value="CONSUMER_COMMERCIAL">{t('bareActs.catConsumerCommercial', 'Consumer & Commercial')}</option>
+            <option value="PROPERTY_HOUSING">{t('bareActs.catPropertyHousing', 'Property & Tenancy')}</option>
+            <option value="CONSTITUTIONAL">{t('bareActs.catConstitutional', 'Constitutional Charter')}</option>
+            <option value="PENAL_PROCEDURAL">{t('bareActs.catPenalProcedural', 'Procedural & Penal')}</option>
+            <option value="ENVIRONMENTAL_LABOR">{t('bareActs.catEnvironmentalLabor', 'Environmental & Labor')}</option>
           </select>
         </div>
       </div>
@@ -86,51 +88,51 @@ export const BareActsBrowser: React.FC<BareActsBrowserProps> = ({
         {filteredActs.map((act) => (
           <div
             key={act.id}
-            className="border border-[#E4DFD5] bg-white hover:border-[#121820] hover:shadow-xs transition-all rounded-[2px] p-5 flex flex-col justify-between space-y-4"
+            className="border border-rule bg-white hover:border-dark hover:shadow-xs transition-all rounded-[2px] p-5 flex flex-col justify-between space-y-4"
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] font-bold text-[#C84B31] uppercase">
+                <span className="text-[12px] font-bold text-accent-text uppercase">
                   {act.actCode}
                 </span>
-                <span className="font-mono text-[10px] text-[#7A8699]">
+                <span className="text-[12px] text-ink-muted">
                   {act.year}
                 </span>
               </div>
 
-              <h3 className="font-serif font-bold text-lg text-[#121820]">
+              <h3 className="font-serif font-bold text-lg text-ink">
                 {act.title}
               </h3>
 
-              <div className="font-mono text-[11px] text-[#556377]">
-                Category: {CATEGORY_LABELS[act.category]}
+              <div className="text-[12px] text-ink-tertiary">
+                {t('bareActs.categoryPrefix', 'Category:')} {CATEGORY_LABELS[act.category]}
               </div>
 
-              <p className="text-xs text-[#5A687D] font-sans line-clamp-3 leading-relaxed">
+              <p className="text-xs text-ink-tertiary font-sans line-clamp-3 leading-relaxed">
                 {act.summary}
               </p>
             </div>
 
             {/* Key Sections Tags */}
-            <div className="space-y-3 pt-3 border-t border-[#F2EFE9]">
+            <div className="space-y-3 pt-3 border-t border-paper-sunken">
               <div className="flex flex-wrap gap-1">
                 {act.keySections.slice(0, 3).map((sec, idx) => (
-                  <span key={idx} className="font-mono text-[10px] bg-[#FAF7F2] text-[#121820] border border-[#E4DFD5] px-1.5 py-0.5 rounded-[2px]">
+                  <span key={idx} className="text-[12px] bg-paper text-ink border border-rule px-1.5 py-0.5 rounded-[2px]">
                     {sec}
                   </span>
                 ))}
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-[#7A8699]">
-                  {act.sectionCount} SECTIONS
+                <span className="text-[12px] text-ink-muted">
+                  {act.sectionCount} {t('bareActs.sections', 'SECTIONS')}
                 </span>
                 <button
                   onClick={() => onSelectActForQuery(act)}
-                  className="px-3 py-1 bg-[#121820] hover:bg-[#2B3542] text-[#FAF7F2] font-mono text-[11px] rounded-[2px] transition-colors flex items-center space-x-1"
+                  className="px-3 py-1 bg-dark hover:bg-dark-rule text-paper text-[12px] rounded-[2px] transition-colors flex items-center space-x-1"
                 >
-                  <span>QUERY THIS ACT</span>
-                  <ArrowRight className="w-3 h-3 text-[#C84B31]" />
+                  <span>{t('bareActs.queryThisAct', 'QUERY THIS ACT')}</span>
+                  <ArrowRight className="w-3 h-3 text-accent" />
                 </button>
               </div>
             </div>

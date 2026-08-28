@@ -13,6 +13,7 @@ router = APIRouter()
 
 class StartSessionRequest(BaseModel):
     form_id: str
+    language: Optional[str] = "en"
 
 class ChatMessage(BaseModel):
     role: str
@@ -23,19 +24,26 @@ class ChatRequest(BaseModel):
     collected_fields: Dict[str, str]
     user_answer: str
     history: List[ChatMessage]
+    language: Optional[str] = "en"
+    detected_lang: Optional[str] = "en"
 
 class DownloadRequest(BaseModel):
     content: str
 
 @router.post("/start")
 @limiter.limit("10/minute")
-def start_session(
+async def start_session(
     request: Request,
     payload: StartSessionRequest,
     user_token: VerifiedToken = Depends(verify_firebase_token)
 ):
     try:
+        from app.core.translate import translate_out
         response = form_filler_service.start_session(payload.form_id)
+        if payload.language and payload.language != "en":
+            response["question"], _ = await translate_out(response["question"], payload.language)
+            if "explanation" in response:
+                response["explanation"], _ = await translate_out(response["explanation"], payload.language)
         return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -44,19 +52,33 @@ def start_session(
 
 @router.post("/chat")
 @limiter.limit("20/minute")
-def chat(
+async def chat(
     request: Request,
     payload: ChatRequest,
     user_token: VerifiedToken = Depends(verify_firebase_token)
 ):
     try:
+        from app.core.translate import translate_in, translate_out
+        user_answer = payload.user_answer
+        detected_lang = payload.detected_lang or "en"
+        language = payload.language or "en"
+
+        if detected_lang != "en":
+            user_answer = await translate_in(user_answer, detected_lang)
+
         history_dicts = [{"role": msg.role, "content": msg.content} for msg in payload.history]
         response = form_filler_service.process_answer(
             form_id=payload.form_id,
             collected_fields=payload.collected_fields,
-            user_answer=payload.user_answer,
+            user_answer=user_answer,
             history=history_dicts
         )
+        
+        if language != "en":
+            if "question" in response:
+                response["question"], _ = await translate_out(response["question"], language)
+            if "explanation" in response:
+                response["explanation"], _ = await translate_out(response["explanation"], language)
         return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -14,7 +14,7 @@ class UploadChatService:
         api_key = settings.GEMINI_API_KEY or "DUMMY_KEY_FOR_TESTING"
         self.client = genai.Client(api_key=api_key)
 
-    def query(self, request: ChatQueryRequest, db: Session, user_uid: str, background_tasks) -> ChatQueryResponse:
+    async def query(self, request: ChatQueryRequest, db: Session, user_uid: str, background_tasks) -> ChatQueryResponse:
         from app.ai.orchestrator import rag_orchestrator
         from app.services.title_service import generate_conversation_title_async
         import json
@@ -61,6 +61,14 @@ class UploadChatService:
         )
         db.add(user_msg)
         db.commit()
+        
+        detected_lang = request.detected_lang or "en"
+        language = request.language or "en"
+        
+        query_for_rag = request.question
+        if detected_lang != "en":
+            from app.core.translate import translate_in
+            query_for_rag = await translate_in(query_for_rag, detected_lang)
 
         # Load real history from DB instead of empty array
         past_messages = db.query(Message).filter(Message.conversation_id == conversation.id).order_by(Message.created_at.asc()).all()
@@ -76,7 +84,7 @@ class UploadChatService:
         }
         
         response_data = rag_orchestrator.trigger_pipeline(
-            question=request.question,
+            question=query_for_rag,
             filters=filters,
             history=formatted_history
         )
@@ -94,6 +102,13 @@ class UploadChatService:
             dynamic_summary = paragraphs[0] if paragraphs else "Response based on retrieved document chunks."
             if len(dynamic_summary) > 250:
                 dynamic_summary = dynamic_summary[:247] + "..."
+            
+        if language != "en":
+            from app.core.translate import translate_out
+            raw_answer, notice = await translate_out(raw_answer, language)
+            dynamic_summary, _ = await translate_out(dynamic_summary, language)
+            if notice:
+                response_data["translation_notice"] = notice
             
         response_data["summary"] = dynamic_summary
         response_data["answer"] = raw_answer

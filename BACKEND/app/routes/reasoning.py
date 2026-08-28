@@ -18,14 +18,14 @@ class ReasoningResponse(BaseModel):
     created_at: str
 
 @router.post("/generate", response_model=ReasoningResponse)
-def generate_analysis(
+async def generate_analysis(
     request: ReasoningRequest,
     background_tasks: BackgroundTasks,
     user_token: VerifiedToken = Depends(verify_firebase_token),
     db: Session = Depends(get_db)
 ):
     try:
-        response = reasoning_service.generate_analysis(request, user_token.uid, db, background_tasks)
+        response = await reasoning_service.generate_analysis(request, user_token.uid, db, background_tasks)
         return response
     except Exception as e:
         import traceback

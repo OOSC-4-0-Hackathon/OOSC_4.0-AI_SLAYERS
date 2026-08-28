@@ -1,10 +1,14 @@
 import api from './api';
 
-export const generateReasoning = async (token, userFacts, conversationId = null, signal) => {
+import { detectQueryLang } from '../utils/detectQueryLang';
+
+export const generateReasoning = async (token, userFacts, conversationId = null, signal, language = 'en') => {
   try {
     const payload = {
       user_facts: userFacts,
-      tenant_id: "global"
+      tenant_id: "global",
+      language,
+      detected_lang: detectQueryLang(userFacts)
     };
     if (conversationId) {
       payload.conversation_id = conversationId;

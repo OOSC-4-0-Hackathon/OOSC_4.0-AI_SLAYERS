@@ -22,12 +22,15 @@ def upload_document(
 
 @router.post("/query", response_model=ChatQueryResponse)
 @limiter.limit("30/minute")
-def query_document(
+async def query_document(
     request: Request,
     payload: ChatQueryRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
     user_token: VerifiedToken = Depends(verify_firebase_token),
+    db: Session = Depends(get_db)
 ):
-    user_uid = user_token.uid
-    return upload_chat_service.query(payload, db, user_uid, background_tasks)
+    try:
+        response = await upload_chat_service.query(payload, db, user_token.uid, background_tasks)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

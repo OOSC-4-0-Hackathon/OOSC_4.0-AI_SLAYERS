@@ -1,7 +1,10 @@
 import React, { useRef, useEffect } from 'react';
 import { Send, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Describe your legal situation..." }) => {
+const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder }) => {
+  const { t } = useTranslation();
+  const actualPlaceholder = placeholder || t('chatInput.placeholder');
   const textareaRef = useRef(null);
 
   // Auto-resize textarea
@@ -30,7 +33,7 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Descri
           value={value}
           onChange={onChange}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          placeholder={actualPlaceholder}
           disabled={isLoading}
           rows={1}
           className="w-full max-h-[200px] py-3.5 pl-4 pr-14 bg-transparent text-ink text-[14px] placeholder-ink-fog focus:outline-none resize-none"
@@ -50,8 +53,8 @@ const ChatInput = ({ value, onChange, onSubmit, isLoading, placeholder = "Descri
         </div>
       </div>
       <div className="text-center mt-2">
-        <p className="font-mono text-[10px] text-ink-fog uppercase tracking-wider">
-          NYAAY AI · Grounded in 93 Indian Bare Acts · Verify before filing
+        <p className="text-[12px] text-ink-fog uppercase tracking-wider">
+          {t('chatInput.footerDisclaimer')}
         </p>
       </div>
     </div>

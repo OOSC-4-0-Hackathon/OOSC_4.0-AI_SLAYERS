@@ -12,6 +12,8 @@ class ChatQueryRequest(BaseModel):
     document_id: str
     question: str = Field(..., min_length=5, max_length=10000)
     conversation_id: Optional[str] = Field(None, description="Optional ID of an existing conversation to continue")
+    language: Optional[str] = "en"
+    detected_lang: Optional[str] = "en"
 
 class ChatQueryResponse(BaseModel):
     conversation_id: str

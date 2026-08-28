@@ -1,5 +1,6 @@
 import React from 'react';
 import './DocumentRenderer.css';
+import { useTranslation } from 'react-i18next';
 
 // === Rendering Rules ===
 // These match the backend rules exactly to ensure pagination parity
@@ -58,14 +59,17 @@ const SignatureBlock = ({ closing, signatures }) => (
   </div>
 );
 
-const VerificationBlock = ({ text, place, date }) => (
-  <div className="ast-verification-block">
-    <h2 className="ast-heading" style={{ fontSize: RENDERING_RULES.fontSize }}>VERIFICATION</h2>
-    <p className="ast-paragraph">{text}</p>
-    <p className="ast-paragraph">Date: {date}</p>
-    <p className="ast-paragraph">Place: {place}</p>
-  </div>
-);
+const VerificationBlock = ({ text, place, date }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="ast-verification-block">
+      <h2 className="ast-heading" style={{ fontSize: RENDERING_RULES.fontSize }}>{t('docHub.document.verification')}</h2>
+      <p className="ast-paragraph">{text}</p>
+      <p className="ast-paragraph">{t('docHub.document.date')} {date}</p>
+      <p className="ast-paragraph">{t('docHub.document.place')} {place}</p>
+    </div>
+  );
+};
 
 // === Helper to parse inline markdown bold ===
 const parseBoldText = (text) => {
@@ -82,6 +86,8 @@ const parseBoldText = (text) => {
 // === AST Renderer Engine ===
 
 export default function DocumentRenderer({ layoutAST }) {
+  const { t } = useTranslation();
+  
   if (!layoutAST || !layoutAST.nodes) return null;
 
   return (
@@ -110,7 +116,7 @@ export default function DocumentRenderer({ layoutAST }) {
           case 'subject':
             return (
               <p key={node.id} className="ast-subject">
-                <strong>SUBJECT: {node.content.text}</strong>
+                <strong>{t('docHub.document.subject')}: {node.content.text}</strong>
               </p>
             );
 

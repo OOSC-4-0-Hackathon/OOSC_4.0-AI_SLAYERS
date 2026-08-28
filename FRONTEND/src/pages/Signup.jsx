@@ -1,151 +1,298 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AlertTriangle, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/common/Navbar';
 
-function FieldLabel({ children }) {
-  return <label className="block label-stamp text-ink-muted mb-1.5">{children}</label>;
+function FieldLabel({ htmlFor, children }) {
+  /* htmlFor was missing on every label on this form. */
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-tertiary mb-1.5"
+    >
+      {children}
+    </label>
+  );
 }
 
-function TextField({ id, type = 'text', placeholder, value, onChange }) {
+function TextField({ id, type = 'text', placeholder, value, onChange, onBlur, error, autoComplete, trailing }) {
   return (
-    <input
-      id={id}
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full px-4 py-3 bg-paper border border-paper-border hover:border-ink-fog rounded-input
-        text-[14px] text-ink placeholder-ink-fog
-        focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber transition-colors"
-    />
+    <div>
+      <div className="relative">
+        <input
+          id={id}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          autoComplete={autoComplete}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`w-full px-4 py-3 ${trailing ? 'pr-11' : ''} bg-paper border rounded-[3px] text-[14px] text-ink placeholder-ink-muted
+            focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors
+            ${error ? 'border-error' : 'border-rule-strong hover:border-ink-muted'}`}
+        />
+        {trailing}
+      </div>
+      {error && (
+        <p id={`${id}-error`} className="mt-1.5 text-[12px] text-error">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 
 export default function Signup() {
-  const { signup, signInWithGoogle, error: authError } = useAuth();
+  const { t } = useTranslation();
+  const { signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [validationError, setValidationError] = useState('');
+  const [formError, setFormError] = useState('');
+  /* Per-field errors shown next to the field that caused them, rather than one
+     banner that says only the first thing that went wrong. */
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-  const validate = () => {
-    if (!name.trim()) { setValidationError('Full name is required.'); return false; }
-    if (!email) { setValidationError('Email is required.'); return false; }
-    if (!/\S+@\S+\.\S+/.test(email)) { setValidationError('Enter a valid email address.'); return false; }
-    if (password.length < 6) { setValidationError('Password must be at least 6 characters.'); return false; }
-    if (password !== confirmPassword) { setValidationError('Passwords do not match.'); return false; }
-    return true;
+  const from = location.state?.from;
+
+  const validateField = (field, values) => {
+    const v = { name, email, password, confirmPassword, ...values };
+    switch (field) {
+      case 'name':
+        return v.name.trim() ? '' : t('signup.nameRequired');
+      case 'email':
+        if (!v.email) return t('signup.emailRequired');
+        return /\S+@\S+\.\S+/.test(v.email) ? '' : t('signup.emailInvalid');
+      case 'password':
+        return v.password.length >= 6 ? '' : t('signup.passwordMin');
+      case 'confirmPassword':
+        if (!v.confirmPassword) return t('signup.repeatPassword');
+        return v.password === v.confirmPassword ? '' : t('signup.passwordsNotMatch');
+      default:
+        return '';
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched((tState) => ({ ...tState, [field]: true }));
+    setFieldErrors((e) => ({ ...e, [field]: validateField(field) }));
+  };
+
+  const goToDestination = () => {
+    if (from?.pathname) {
+      navigate(from.pathname + (from.search || ''), { state: from.state, replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setValidationError('');
-    if (!validate()) return;
+    if (loading) return;
+    setFormError('');
+
+    const next = {};
+    ['name', 'email', 'password', 'confirmPassword'].forEach((f) => {
+      const msg = validateField(f);
+      if (msg) next[f] = msg;
+    });
+    setFieldErrors(next);
+    setTouched({ name: true, email: true, password: true, confirmPassword: true });
+    if (Object.keys(next).length > 0) return;
+
     setLoading(true);
     try {
       await signup(email, password, name);
-      navigate('/dashboard');
+      goToDestination();
     } catch (err) {
-      setValidationError(err.message || 'Signup failed. Please try again.');
-    } finally {
+      setFormError(err.message || t('signup.createFailed'));
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
-    setValidationError('');
+    if (loading) return;
+    setFormError('');
     setLoading(true);
     try {
       await signInWithGoogle();
-      navigate('/dashboard');
+      goToDestination();
     } catch (err) {
-      setValidationError(err.message || 'Google sign-in failed.');
-    } finally {
+      setFormError(err.message || t('signup.googleFailed'));
       setLoading(false);
     }
   };
 
-  const displayError = validationError || authError;
+  const passwordStrongEnough = password.length >= 6;
 
   return (
-    <div className="min-h-screen bg-[#F9F8F5] ledger-grid text-[#121820]">
+    <div className="min-h-screen bg-paper ledger-grid text-ink font-sans">
       <Navbar />
-      <div className="flex items-center justify-center min-h-screen px-4 pt-24 pb-12">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-[140px] lg:pt-28 pb-12">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-[440px] bg-white/90 backdrop-blur-sm border border-[#E4DFD5] p-8 rounded-[4px] shadow-sm"
+          className="w-full max-w-[440px] bg-white/90 backdrop-blur-sm border border-rule p-8 rounded-[4px] shadow-card"
         >
           <div className="mb-6">
-            <span className="stamp-badge px-2 py-0.5 text-[10px] mb-2">
-              CASE / REG-001
+            <span className="stamp-badge px-2 py-0.5">
+              {t('signup.badge')}
             </span>
-            <h1
-              className="font-serif text-3xl font-bold text-[#121820] mt-2 leading-tight"
-            >
-              Open your<br /><span className="text-[#C84B31] italic font-normal">case file.</span>
+            <h1 className="font-serif text-heading font-bold text-ink mt-3">
+              {t('signup.openYour')}<br />
+              <span className="text-accent italic font-normal">{t('signup.caseFile')}</span>
             </h1>
-            <p className="text-[12px] font-mono text-[#7A8699] mt-2">Free during OOSC 4.0 hackathon period.</p>
+            <p className="text-[13px] text-ink-tertiary mt-2">
+              {t('signup.freeHackathon')}
+            </p>
           </div>
 
-          {displayError && (
-            <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-[2px] text-[13px] text-red-700 font-mono">
-              {displayError}
+          {from && (
+            <div className="mb-5 p-3 bg-accent-wash border-l-2 border-accent rounded-[2px] text-[13px] text-accent-deep leading-relaxed">
+              {t('signup.createContinue')}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div>
-              <FieldLabel>Full name</FieldLabel>
-              <TextField id="name" placeholder="Priya Sharma" value={name} onChange={e => setName(e.target.value)} />
+          {formError && (
+            <div
+              role="alert"
+              className="mb-5 p-3 bg-error-bg border border-error/30 rounded-[2px] text-[13px] text-error flex items-start gap-2 leading-relaxed"
+            >
+              <AlertTriangle aria-hidden="true" className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{formError}</span>
             </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             <div>
-              <FieldLabel>Email address</FieldLabel>
-              <TextField id="email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+              <FieldLabel htmlFor="name">{t('signup.fullNameLabel')}</FieldLabel>
+              <TextField
+                id="name"
+                placeholder={t('signup.fullNamePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => handleBlur('name')}
+                error={touched.name ? fieldErrors.name : ''}
+                autoComplete="name"
+              />
             </div>
+
             <div>
-              <FieldLabel>Password</FieldLabel>
-              <TextField id="password" type="password" placeholder="Min. 6 characters" value={password} onChange={e => setPassword(e.target.value)} />
+              <FieldLabel htmlFor="email">{t('signup.emailLabel')}</FieldLabel>
+              <TextField
+                id="email"
+                type="email"
+                placeholder={t('signup.emailPlaceholder')}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => handleBlur('email')}
+                error={touched.email ? fieldErrors.email : ''}
+                autoComplete="email"
+              />
             </div>
+
             <div>
-              <FieldLabel>Confirm password</FieldLabel>
-              <TextField id="confirmPassword" type="password" placeholder="Repeat password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+              <FieldLabel htmlFor="password">{t('signup.passwordLabel')}</FieldLabel>
+              <TextField
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder={t('signup.passwordPlaceholder')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => handleBlur('password')}
+                error={touched.password ? fieldErrors.password : ''}
+                autoComplete="new-password"
+                trailing={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? t('signup.hidePassword') : t('signup.showPassword')}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 rounded text-ink-muted hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  >
+                    {showPassword
+                      ? <EyeOff aria-hidden="true" className="w-4 h-4" />
+                      : <Eye aria-hidden="true" className="w-4 h-4" />}
+                  </button>
+                }
+              />
+              {/* Live requirement feedback, so the rule is visible before submit */}
+              {password.length > 0 && !fieldErrors.password && (
+                <p className={`mt-1.5 text-[12px] flex items-center gap-1 ${passwordStrongEnough ? 'text-success' : 'text-ink-tertiary'}`}>
+                  {passwordStrongEnough && <Check aria-hidden="true" className="w-3 h-3" />}
+                  {passwordStrongEnough ? t('signup.longEnough') : t('signup.moreCharsNeeded', { count: 6 - password.length })}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <FieldLabel htmlFor="confirmPassword">{t('signup.confirmPasswordLabel')}</FieldLabel>
+              <TextField
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                placeholder={t('signup.confirmPasswordPlaceholder')}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={() => handleBlur('confirmPassword')}
+                error={touched.confirmPassword ? fieldErrors.confirmPassword : ''}
+                autoComplete="new-password"
+              />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#121820] hover:bg-[#222C3A] disabled:opacity-50 text-[#FAF7F2] font-mono font-bold rounded-[2px] text-[13px] transition-colors shadow-xs mt-1"
+              aria-busy={loading}
+              className="w-full py-3 mt-1 bg-dark hover:bg-dark-rule disabled:opacity-50 disabled:cursor-not-allowed text-paper font-semibold rounded-[3px] text-[14px] transition-colors shadow-stamp flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('signup.creatingAccount') : t('signup.createAccountButton')}
+              {!loading && <ArrowRight aria-hidden="true" className="w-4 h-4" />}
             </button>
           </form>
 
           <div className="flex items-center gap-3 my-5">
-            <div className="h-px bg-[#E4DFD5] flex-grow" />
-            <span className="font-mono text-[10px] text-[#7A8699]">OR</span>
-            <div className="h-px bg-[#E4DFD5] flex-grow" />
+            <div className="h-px bg-rule flex-grow" />
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-muted">{t('signup.or')}</span>
+            <div className="h-px bg-rule flex-grow" />
           </div>
 
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full py-3 bg-[#F4F1EB] hover:bg-[#EFECE6] border border-[#DDD6C9] rounded-[2px] text-[13px] font-mono font-medium text-[#121820] transition-colors"
+            className="w-full py-3 bg-paper-sunken hover:bg-rule disabled:opacity-50 disabled:cursor-not-allowed border border-rule-strong rounded-[3px] text-[14px] font-medium text-ink transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
           >
-            Continue with Google
+            {t('signup.continueWithGoogle')}
           </button>
 
-          <p className="text-center text-[13px] text-[#7A8699] mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="text-[#C84B31] hover:underline font-semibold">
-              Sign in
+          {/* An account-creation form on a legal product should say what the
+              user is agreeing to, and be able to link to it. */}
+          <p className="text-[12px] text-ink-tertiary leading-relaxed mt-5 text-center">
+            {t('signup.byCreating')} <Link to="/legal/terms" className="text-accent-text hover:text-accent-deep underline">{t('signup.terms')}</Link>,{' '}
+            <Link to="/legal/privacy" className="text-accent-text hover:text-accent-deep underline">{t('signup.privacy')}</Link>, {t('signup.and')}{' '}
+            <Link to="/legal/disclaimer" className="text-accent-text hover:text-accent-deep underline">{t('signup.disclaimer')}</Link>.
+            {t('signup.notLawFirm')}
+          </p>
+
+          <p className="text-center text-[13px] text-ink-tertiary mt-5">
+            {t('signup.alreadyHaveAccount')}{' '}
+            <Link
+              to="/login"
+              state={from ? { from } : undefined}
+              className="text-accent-text hover:text-accent-deep hover:underline font-semibold rounded focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+            >
+              {t('signup.signIn')}
             </Link>
           </p>
         </motion.div>

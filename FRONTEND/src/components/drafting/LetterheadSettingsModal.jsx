@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { LETTERHEAD_TEMPLATES, WATERMARK_OPTIONS, DEFAULT_LETTERHEAD_CONFIG } from './templates/index';
+import { useTranslation } from 'react-i18next';
 
 const LS_KEY = 'nyaay_letterhead_config';
 
@@ -25,6 +27,7 @@ export function useLetterheadConfig() {
  * Saves all settings to localStorage. Never asked per-draft.
  */
 export default function LetterheadSettingsModal({ isOpen, onClose, config, onSave }) {
+  const { t } = useTranslation();
   const [local, setLocal] = useState(config);
   useEffect(() => { setLocal(config); }, [config, isOpen]);
 
@@ -40,8 +43,10 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
-          <h2 className="font-semibold text-base">Letterhead & Document Settings</h2>
-          <button onClick={onClose} className="material-symbols-outlined text-zinc-500 hover:text-black">close</button>
+          <h2 className="font-semibold text-base">{t('drafting.letterheadModalTitle', 'Letterhead & Document Settings')}</h2>
+          <button onClick={onClose} className="p-1 rounded text-ink-muted hover:text-ink hover:bg-paper-sunken transition-colors" title={t('drafting.close', 'Close')}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="px-6 py-5 space-y-5">
@@ -49,20 +54,20 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
           {/* Mode */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-2">
-              Letterhead Mode
+              {t('drafting.letterheadMode', 'Letterhead Mode')}
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {LETTERHEAD_TEMPLATES.map(t => (
+              {LETTERHEAD_TEMPLATES.map(tOption => (
                 <button
-                  key={t.id}
-                  onClick={() => update('mode', t.id)}
+                  key={tOption.id}
+                  onClick={() => update('mode', tOption.id)}
                   className={`text-sm px-3 py-2 rounded border transition-all ${
-                    local.mode === t.id
+                    local.mode === tOption.id
                       ? 'border-primary-hover bg-primary-hover text-white'
                       : 'border-zinc-300 hover:border-zinc-500'
                   }`}
                 >
-                  {t.label}
+                  {tOption.label}
                 </button>
               ))}
             </div>
@@ -71,13 +76,13 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
           {/* Name */}
           {local.mode !== 'plain' && (
             <>
-              <Field label="Name / Firm Name" value={local.name} onChange={v => update('name', v)} placeholder="e.g. Adv. Ramesh Sharma / Sharma & Associates" />
-              <Field label="Line 2 (Designation / Specialisation)" value={local.line2} onChange={v => update('line2', v)} placeholder="e.g. Advocates & Legal Consultants" />
+              <Field label={t('drafting.nameFirmName', 'Name / Firm Name')} value={local.name} onChange={v => update('name', v)} placeholder={t('drafting.namePlaceholder', 'e.g. Adv. Ramesh Sharma / Sharma & Associates')} />
+              <Field label={t('drafting.line2', 'Line 2 (Designation / Specialisation)')} value={local.line2} onChange={v => update('line2', v)} placeholder={t('drafting.line2Placeholder', 'e.g. Advocates & Legal Consultants')} />
               {local.mode === 'advocate' && (
-                <Field label="Enrollment Number" value={local.enrollmentNo} onChange={v => update('enrollmentNo', v)} placeholder="e.g. MH/1234/2015" />
+                <Field label={t('drafting.enrollmentNoLabel', 'Enrollment Number')} value={local.enrollmentNo} onChange={v => update('enrollmentNo', v)} placeholder={t('drafting.enrollmentPlaceholder', 'e.g. MH/1234/2015')} />
               )}
-              <Field label="Address" value={local.address} onChange={v => update('address', v)} placeholder="Chamber / Office Address" />
-              <Field label="Contact (Phone / Email)" value={local.contact} onChange={v => update('contact', v)} placeholder="+91 98765 43210 | advocate@email.com" />
+              <Field label={t('drafting.address', 'Address')} value={local.address} onChange={v => update('address', v)} placeholder={t('drafting.addressPlaceholder', 'Chamber / Office Address')} />
+              <Field label={t('drafting.contact', 'Contact (Phone / Email)')} value={local.contact} onChange={v => update('contact', v)} placeholder={t('drafting.contactPlaceholder', '+91 98765 43210 | advocate@email.com')} />
             </>
           )}
 
@@ -86,13 +91,13 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
           {/* Reference Number Mode */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-2">
-              Reference Number
+              {t('drafting.refNumber', 'Reference Number')}
             </label>
             <div className="flex gap-3">
               {[
-                { id: 'auto',   label: 'Auto-generate' },
-                { id: 'manual', label: 'Manual' },
-                { id: 'hidden', label: 'Hide' },
+                { id: 'auto',   label: t('drafting.autoGenerate', 'Auto-generate') },
+                { id: 'manual', label: t('drafting.manual', 'Manual') },
+                { id: 'hidden', label: t('drafting.hide', 'Hide') },
               ].map(opt => (
                 <label key={opt.id} className="flex items-center gap-1.5 text-sm cursor-pointer">
                   <input
@@ -108,7 +113,7 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
               ))}
             </div>
             {local.refNumberMode === 'manual' && (
-              <Field label="" value={local.manualRefNumber} onChange={v => update('manualRefNumber', v)} placeholder="e.g. FIRM/LN/2026/001" />
+              <Field label="" value={local.manualRefNumber} onChange={v => update('manualRefNumber', v)} placeholder={t('drafting.refPlaceholder', 'e.g. FIRM/LN/2026/001')} />
             )}
           </div>
 
@@ -117,15 +122,15 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
           {/* Default Template */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-2">
-              Default Template
+              {t('drafting.defaultTemplate', 'Default Template')}
             </label>
             <select
               value={local.preferredTemplate}
               onChange={e => update('preferredTemplate', e.target.value)}
               className="w-full border border-zinc-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-zinc-600"
             >
-              {LETTERHEAD_TEMPLATES.map(t => (
-                <option key={t.id} value={t.id}>{t.label}</option>
+              {LETTERHEAD_TEMPLATES.map(tOption => (
+                <option key={tOption.id} value={tOption.id}>{tOption.label}</option>
               ))}
             </select>
           </div>
@@ -133,7 +138,7 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
           {/* Default Watermark */}
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block mb-2">
-              Default Watermark
+              {t('drafting.defaultWatermark', 'Default Watermark')}
             </label>
             <select
               value={local.preferredWatermark}
@@ -154,19 +159,19 @@ export default function LetterheadSettingsModal({ isOpen, onClose, config, onSav
               onChange={e => update('showDraftVersion', e.target.checked)}
               className="accent-primary-hover"
             />
-            Show "Draft Version" in document footer
+            {t('drafting.showDraftVersion', 'Show "Draft Version" in document footer')}
           </label>
 
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-zinc-200">
-          <button onClick={onClose} className="px-4 py-2 text-sm rounded border border-zinc-300 hover:bg-zinc-50">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm rounded border border-zinc-300 hover:bg-zinc-50">{t('drafting.cancel', 'Cancel')}</button>
           <button
             onClick={() => { onSave(local); onClose(); }}
             className="px-5 py-2 text-sm rounded bg-zinc-900 text-white hover:bg-zinc-700"
           >
-            Save Settings
+            {t('drafting.saveSettings', 'Save Settings')}
           </button>
         </div>
       </div>

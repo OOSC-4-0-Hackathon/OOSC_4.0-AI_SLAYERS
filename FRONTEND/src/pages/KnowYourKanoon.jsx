@@ -9,9 +9,13 @@ import KanoonRenderer from '../components/kanoon/KanoonRenderer';
 import EmptyState from '../components/common/EmptyState';
 import { askKanoon } from '../services/kanoonService';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const KanoonChatArea = ({ refreshConversations }) => {
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
+  const { t } = useTranslation();
   const location = useLocation();
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -40,7 +44,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
     
     try {
       const token = await currentUser.getIdToken();
-      const response = await askKanoon(token, userMessage.content, activeConversationId);
+      const response = await askKanoon(token, userMessage.content, activeConversationId, language);
       
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -54,7 +58,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
       }
       
     } catch (err) {
-      setError(err.message || 'Failed to get an answer. Please try again.');
+      setError(err.message || t('kanoon.error.failedToGetAnswer', 'Failed to get an answer. Please try again.'));
     } finally {
       setIsGenerating(false);
     }
@@ -77,9 +81,9 @@ const KanoonChatArea = ({ refreshConversations }) => {
   };
 
   const EXAMPLE_QUESTIONS = [
-    "Can my landlord evict me without notice?",
-    "What are my rights during police questioning?",
-    "What is anticipatory bail?",
+    t('kanoon.exampleQuestion1', "Can my landlord evict me without notice?"),
+    t('kanoon.exampleQuestion2', "What are my rights during police questioning?"),
+    t('kanoon.exampleQuestion3', "What is anticipatory bail?"),
   ];
 
   return (
@@ -98,8 +102,8 @@ const KanoonChatArea = ({ refreshConversations }) => {
               <BookOpen className="w-4 h-4 text-amber" />
             </div>
             <div>
-              <span className="label-stamp text-ink-fog block">LEGAL RESEARCH</span>
-              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>Know Your Kanoon</h1>
+              <span className="label-stamp text-ink-fog block">{t('kanoon.header.legalResearch', 'LEGAL RESEARCH')}</span>
+              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>{t('kanoon.header.title', 'Know Your Kanoon')}</h1>
             </div>
           </div>
         </header>
@@ -108,10 +112,10 @@ const KanoonChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
             <EmptyState
-              icon={<span className="font-serif italic text-[22px] font-bold text-[#C8821A]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
-              eyebrow="KANOON Q&A"
-              title={<>Ask any legal question.<br /><span className="italic font-normal">Get a statute-grounded answer.</span></>}
-              subtitle="Indian law, grounded in statute."
+              icon={<span className="font-serif italic text-[22px] font-bold text-accent" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>§</span>}
+              eyebrow={t('kanoon.emptyState.eyebrow', 'KANOON Q&A')}
+              title={<>{t('kanoon.emptyState.titleLine1', 'Ask any legal question.')}<br /><span className="italic font-normal">{t('kanoon.emptyState.titleLine2', 'Get a statute-grounded answer.')}</span></>}
+              subtitle={t('kanoon.emptyState.subtitle', 'Indian law, grounded in statute.')}
               actions={EXAMPLE_QUESTIONS.map(q => ({ label: q, onClick: () => setInputValue(q) }))}
             />
           ) : (
@@ -132,7 +136,11 @@ const KanoonChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Retrieving...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">
+                        {language === 'en' 
+                          ? t('kanoon.status.retrieving', 'Retrieving...') 
+                          : t('civic.status.translating', { defaultValue: `Translating to ${language.toUpperCase()}...`, lang: language.toUpperCase() })}
+                      </span>
                     </div>
                   )}
                 />
@@ -156,7 +164,7 @@ const KanoonChatArea = ({ refreshConversations }) => {
               onChange={(e) => setInputValue(e.target.value)}
               onSubmit={handleSendMessage}
               isLoading={isGenerating}
-              placeholder="E.g., Can my landlord evict me without notice?"
+              placeholder={t('kanoon.input.placeholder', 'E.g., Can my landlord evict me without notice?')}
             />
           </div>
         </div>

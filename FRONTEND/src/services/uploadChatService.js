@@ -1,4 +1,5 @@
 import api from './api';
+import { detectQueryLang } from '../utils/detectQueryLang';
 
 export const uploadDocument = async (token, file) => {
   const formData = new FormData();
@@ -24,11 +25,13 @@ export const uploadDocument = async (token, file) => {
   }
 };
 
-export const queryDocument = async (token, documentId, question, conversationId = null, signal = null) => {
+export const queryDocument = async (token, documentId, question, conversationId = null, signal = null, language = 'en') => {
   try {
     const payload = {
       document_id: documentId,
-      question: question
+      question: question,
+      language,
+      detected_lang: detectQueryLang(question)
     };
     
     if (conversationId) {

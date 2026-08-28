@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 
 const MessageBubble = ({ message, renderContent }) => {
+  const { t } = useTranslation();
   const isUser = message.role === 'user';
 
   return (
@@ -11,7 +13,7 @@ const MessageBubble = ({ message, renderContent }) => {
         <div className="flex-shrink-0 mt-0.5">
           {isUser ? (
             <div className="w-7 h-7 bg-paper-rule rounded-stamp flex items-center justify-center border border-paper-border">
-              <span className="font-mono text-[9px] font-bold text-ink-muted uppercase">YOU</span>
+              <span className="text-[12px] font-bold text-ink-muted uppercase">{t('messageBubble.you')}</span>
             </div>
           ) : (
             <div className="w-7 h-7 bg-ink rounded-stamp flex items-center justify-center shadow-stamp">
@@ -27,8 +29,8 @@ const MessageBubble = ({ message, renderContent }) => {
 
         {/* Content */}
         <div className={`flex flex-col min-w-0 flex-1 ${isUser ? 'items-end' : 'items-start'}`}>
-          <div className="font-mono text-[10px] font-bold mb-2 text-ink-fog uppercase tracking-wider">
-            {isUser ? 'YOUR QUERY' : 'NYAAY AI // CASE ANALYSIS'}
+          <div className="text-[12px] font-bold mb-2 text-ink-fog uppercase tracking-wider">
+            {isUser ? t('messageBubble.yourQuery') : t('messageBubble.nyaayAnalysis')}
           </div>
           <div className={`text-[14px] leading-relaxed ${
             isUser

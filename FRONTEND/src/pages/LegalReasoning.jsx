@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Scale, AlertCircle } from 'lucide-react';
 import WorkspaceContainer from '../components/common/WorkspaceContainer';
 import ConversationLayout from '../components/chat/ConversationLayout';
@@ -8,9 +9,12 @@ import LegalAnalysisRenderer from '../components/reasoning/LegalAnalysisRenderer
 import EmptyState from '../components/common/EmptyState';
 import { generateReasoning } from '../services/reasoningService';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const LegalReasoningChatArea = ({ refreshConversations }) => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -53,7 +57,8 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
         token,
         userMessage.content, 
         activeConversationId, // pass conversation_id
-        abortControllerRef.current.signal
+        abortControllerRef.current.signal,
+        language
       );
       
       setMessages(prev => [...prev, {
@@ -112,8 +117,8 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
               <Scale className="w-4 h-4 text-amber" />
             </div>
             <div>
-              <span className="label-stamp text-ink-fog block">LEGAL STRATEGY</span>
-              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>Legal Reasoning</h1>
+              <span className="label-stamp text-ink-fog block">{t('legalReasoning.subtitle')}</span>
+              <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>{t('legalReasoning.title')}</h1>
             </div>
           </div>
         </header>
@@ -122,14 +127,14 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
         <div className="flex-1 overflow-y-auto bg-paper-warm/30 relative scroll-smooth">
           {messages.length === 0 ? (
             <EmptyState
-              icon={<span className="font-serif italic text-[22px] font-bold text-[#C8821A]" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>}
-              eyebrow="CASE STRATEGY"
-              title={<>Build both sides<br /><span className="italic font-normal">of your case.</span></>}
-              subtitle="Arguments, risk, statute — all in one session."
+              icon={<span className="font-serif italic text-[22px] font-bold text-accent" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>⚖</span>}
+              eyebrow={t('legalReasoning.emptyState.eyebrow')}
+              title={<>{t('legalReasoning.emptyState.titleLine1')}<br /><span className="italic font-normal">{t('legalReasoning.emptyState.titleLine2')}</span></>}
+              subtitle={t('legalReasoning.emptyState.subtitle')}
               actions={[
-                { label: 'Contract Dispute', onClick: () => setInputValue('Analyze a potential contract dispute regarding late delivery...') },
-                { label: 'Eviction Notice', onClick: () => setInputValue('What are the legal steps for an eviction notice...') },
-                { label: 'BNS Analysis', onClick: () => setInputValue('Analyze the new BNS provisions regarding...') },
+                { label: t('legalReasoning.emptyState.action1'), onClick: () => setInputValue('Analyze a potential contract dispute regarding late delivery...') },
+                { label: t('legalReasoning.emptyState.action2'), onClick: () => setInputValue('What are the legal steps for an eviction notice...') },
+                { label: t('legalReasoning.emptyState.action3'), onClick: () => setInputValue('Analyze the new BNS provisions regarding...') },
               ]}
             />
           ) : (
@@ -150,7 +155,7 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Reasoning...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">{t('legalReasoning.reasoning')}</span>
                     </div>
                   )}
                 />
@@ -174,7 +179,7 @@ const LegalReasoningChatArea = ({ refreshConversations }) => {
               onChange={(e) => setInputValue(e.target.value)}
               onSubmit={handleSendMessage}
               isLoading={isGenerating}
-              placeholder="Ask a legal question, request drafting modifications..."
+              placeholder={t('legalReasoning.placeholder')}
             />
           </div>
         </div>

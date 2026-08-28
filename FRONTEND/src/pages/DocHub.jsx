@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import PageContainer from '../components/common/PageContainer';
 
@@ -8,19 +9,27 @@ import Button from '../components/common/Button';
 
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+
+import DocumentToolbar from '../components/drafting/DocumentToolbar';
+import DocumentPage from '../components/drafting/DocumentPage';
+import LetterheadSettingsModal from '../components/drafting/LetterheadSettingsModal';
 
 import { generateDraft, editDraft, downloadPdf, downloadDocx } from '../services/draftingService';
 
 import Toast from '../components/common/Toast';
 
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 
 
 export default function DocHub() {
+  const { t } = useTranslation();
 
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
+  const location = useLocation();
 
   const [step, setStep] = useState(1);
 
@@ -56,7 +65,7 @@ export default function DocHub() {
 
     if (!userFacts.trim()) {
 
-      setError("Please describe the situation first.");
+      setError(t('docHub.errors.describeSituation'));
 
       return;
 
@@ -73,8 +82,8 @@ export default function DocHub() {
     try {
 
       const token = await currentUser?.getIdToken(true);
-      if (!token) throw new Error('Please sign in to generate a draft.');
-      const result = await generateDraft(token, userFacts, providedFields);
+      if (!token) throw new Error(t('docHub.errors.loginRequired'));
+      const result = await generateDraft(token, userFacts, providedFields, language);
 
       // Set isGenerating false BEFORE updating step/draftResult
       // so the Step 4 preview condition (step===4 && !isGenerating && draftResult)
@@ -103,13 +112,13 @@ export default function DocHub() {
 
       } else if (result.status === "ERROR") {
 
-        setError(result.message || "An error occurred while generating the draft.");
+        setError(result.message || t('docHub.errors.generateDraft'));
 
         setStep(1);
 
       } else {
 
-        setError("Unexpected response from server.");
+        setError(t('docHub.errors.unexpected'));
 
         setStep(1);
 
@@ -119,7 +128,7 @@ export default function DocHub() {
 
       console.error(err);
 
-      setError("Failed to generate draft. Please try again.");
+      setError(t('docHub.errors.failedGenerate'));
 
       setIsGenerating(false);
 
@@ -142,7 +151,7 @@ export default function DocHub() {
     try {
 
       const token = await currentUser?.getIdToken(true);
-      const result = await editDraft(token, draftResult, editInstructions);
+      const result = await editDraft(token, draftResult, editInstructions, language);
 
       setDraftResult(result);
 
@@ -150,7 +159,7 @@ export default function DocHub() {
 
       setIsEditing(false);
 
-      setToastMessage(`Updated to V${result.metadata.version}`);
+      setToastMessage(t('docHub.toasts.updatedToV', { version: result.metadata.version }));
 
       setIsToastOpen(true);
 
@@ -158,7 +167,7 @@ export default function DocHub() {
 
       console.error(err);
 
-      setError("Failed to edit draft.");
+      setError(t('docHub.errors.failedEdit'));
 
     } finally {
 
@@ -182,7 +191,7 @@ export default function DocHub() {
 
     try {
 
-      setToastMessage("Generating PDF...");
+      setToastMessage(t('docHub.toasts.generatingPdf'));
 
       setIsToastOpen(true);
 
@@ -207,7 +216,7 @@ export default function DocHub() {
 
     } catch (err) {
 
-      setError("Failed to generate PDF.");
+      setError(t('docHub.errors.failedPdf'));
 
     }
 
@@ -219,7 +228,7 @@ export default function DocHub() {
 
     try {
 
-      setToastMessage("Generating DOCX...");
+      setToastMessage(t('docHub.toasts.generatingDocx'));
 
       setIsToastOpen(true);
 
@@ -244,7 +253,7 @@ export default function DocHub() {
 
     } catch (err) {
 
-      setError("Failed to generate DOCX.");
+      setError(t('docHub.errors.failedDocx'));
 
     }
 
@@ -260,7 +269,7 @@ export default function DocHub() {
 
     navigator.clipboard.writeText(text);
 
-    setToastMessage("Draft text copied to clipboard!");
+    setToastMessage(t('docHub.toasts.draftCopied'));
 
     setIsToastOpen(true);
 
@@ -274,7 +283,7 @@ export default function DocHub() {
 
     // Safely normalise parties: handle both Dict<str,str> and Array formats
     const partiesEntries = Array.isArray(draftResult.parties)
-      ? draftResult.parties.map((p) => [p.role || p.name || 'Party', p.name || p.details || ''])
+      ? draftResult.parties.map((p) => [p.role || p.name || t('docHub.document.party'), p.name || p.details || ''])
       : Object.entries(draftResult.parties || {});
 
     // Safely normalise body: handle both plain strings and section objects
@@ -315,9 +324,7 @@ export default function DocHub() {
               <p key={idx} className="indent-8">{para}</p>
             ))
           ) : (
-            <p className="text-gray-400 italic text-center py-8">
-              No document content was returned. Please try again with more details.
-            </p>
+            <p className="text-gray-400 italic text-center py-8">{t('docHub.document.noContent')}</p>
           )}
 
         </div>
@@ -326,15 +333,15 @@ export default function DocHub() {
 
           <div className="mt-10">
 
-            <h2 className="text-center font-bold text-[14pt] mb-4">VERIFICATION</h2>
+            <h2 className="text-center font-bold text-[14pt] mb-4">{t('docHub.document.verification')}</h2>
 
             <p className="text-justify mb-4">{draftResult.verification.text}</p>
 
             <div className="flex flex-col gap-2">
 
-              <p>Date: {draftResult.verification.date}</p>
+              <p>{t('docHub.document.date')} {draftResult.verification.date}</p>
 
-              <p>Place: {draftResult.verification.place}</p>
+              <p>{t('docHub.document.place')} {draftResult.verification.place}</p>
 
             </div>
 
@@ -366,7 +373,7 @@ export default function DocHub() {
 
           <div className="mt-16 break-before-page">
 
-            <h2 className="text-center font-bold text-[14pt] mb-4">ANNEXURES</h2>
+            <h2 className="text-center font-bold text-[14pt] mb-4">{t('docHub.document.annexures')}</h2>
 
             <ol className="list-decimal list-inside space-y-2">
 
@@ -398,22 +405,18 @@ export default function DocHub() {
 
         {/* Breadcrumb */}
 
-        <Link to="/dashboard" className="flex items-center gap-1 label-stamp text-ink-fog hover:text-ink transition-colors">
-          ← Dashboard
-        </Link>
+        <Link to="/dashboard" className="flex items-center gap-1 label-stamp text-ink-fog hover:text-ink transition-colors">{t('docHub.ui.dashboard')}</Link>
 
 
 
         {/* Header */}
 
         <div>
-          <span className="label-stamp text-ink-fog">LEGAL DRAFTING</span>
+          <span className="label-stamp text-ink-fog">{t('docHub.ui.legalDrafting')}</span>
           <h1 className="text-[32px] font-bold text-ink mt-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-            Document Drafting<br /><span className="italic font-normal">Filing-ready, in seconds.</span>
+            {t('docHub.ui.documentDrafting')}<br /><span className="italic font-normal">{t('docHub.ui.filingReady')}</span>
           </h1>
-          <p className="text-[13px] text-ink-muted mt-2">
-            Generate production-grade, filing-ready legal documents.
-          </p>
+          <p className="text-[13px] text-ink-muted mt-2">{t('docHub.ui.generateDescription')}</p>
         </div>
 
 
@@ -426,28 +429,59 @@ export default function DocHub() {
 
 
 
+        {/* Visual 3-Step Mini Stepper */}
+        <div className="bg-white border border-rule rounded-[4px] p-3 shadow-2xs">
+          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step >= 1 ? 'bg-dark text-white border-dark font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">{t('docHub.ui.step1Label')}</span>
+              <span>{t('docHub.ui.step1Desc')}</span>
+            </div>
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step === 3 ? 'bg-accent text-white border-accent font-bold' :
+              step >= 2 ? 'bg-dark text-white border-dark font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">{t('docHub.ui.step2Label')}</span>
+              <span>{t('docHub.ui.step2Desc')}</span>
+            </div>
+            <div className={`p-2 rounded-[2px] border transition-all ${
+              step === 4 ? 'bg-emerald-700 text-white border-emerald-700 font-bold' : 'bg-paper text-ink-muted border-rule'
+            }`}>
+              <span className="font-mono text-[10px] block opacity-80">{t('docHub.ui.step3Label')}</span>
+              <span>{t('docHub.ui.step3Desc')}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Step 1: Input Facts */}
 
         {step === 1 && (
 
           <Card className="p-8">
-            <span className="label-stamp text-ink-fog block mb-2">STEP 1 OF 3 // INPUT</span>
-            <h2 className="text-[22px] font-bold text-ink mb-1" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>Describe the Situation</h2>
-            <p className="text-[13px] text-ink-muted mb-5">
-              Explain your issue in plain language. The AI will determine the correct document type and format it appropriately.
-            </p>
+            <span className="label-stamp text-ink-fog block mb-2">{t('docHub.ui.step1Title')}</span>
+            <h2 className="text-[22px] font-bold text-ink mb-1" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>{t('docHub.ui.describeSituationTitle')}</h2>
+            <p className="text-[13px] text-ink-muted mb-5">{t('docHub.ui.explainIssue')}</p>
 
             <textarea
-              className="w-full h-48 p-4 border border-paper-rule bg-paper rounded-card focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber resize-none text-[14px] text-ink placeholder:text-ink-fog transition-all duration-150"
-              placeholder="E.g., I bought a washing machine from SuperStore on 12th Jan 2024 for 25000 INR. It stopped working after a week. They are refusing to replace it or refund my money..."
+              className="w-full h-48 p-4 border border-rule bg-paper rounded-[4px] focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent resize-none text-[14px] text-ink placeholder:text-ink-muted transition-all duration-150 shadow-2xs"
+              placeholder={t('docHub.ui.placeholder')}
               value={userFacts}
               onChange={(e) => setUserFacts(e.target.value)}
             />
 
             <div className="mt-4 flex justify-end">
-              <Button onClick={() => handleGenerate(null)} disabled={!userFacts.trim() || isGenerating}>
-                Analyze &amp; Draft
-              </Button>
+              <button
+                onClick={() => handleGenerate(null)}
+                disabled={!userFacts.trim() || isGenerating}
+                className={`px-6 py-2.5 rounded-[3px] text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs ${
+                  userFacts.trim() 
+                    ? 'bg-accent hover:bg-accent-hover text-white' 
+                    : 'bg-paper-sunken border border-rule text-ink-muted opacity-60 cursor-not-allowed'
+                }`}
+              >
+                {t('docHub.ui.analyzeDraft')}
+              </button>
             </div>
           </Card>
 
@@ -461,9 +495,9 @@ export default function DocHub() {
 
           <Card className="p-16 flex flex-col items-center justify-center gap-4">
             <div className="w-10 h-10 border-2 border-paper-rule border-t-amber rounded-full animate-spin" />
-            <span className="label-stamp text-ink-fog">{step === 4 ? "APPLYING EDITS..." : "ANALYSING FACTS..."}</span>
+            <span className="label-stamp text-ink-fog">{step === 4 ? t('docHub.ui.applyingEdits') : t('docHub.ui.analysingFacts')}</span>
             <p className="text-[13px] text-ink-muted text-center max-w-md">
-              {step === 4 ? "Re-drafting the document based on your instructions." : "Identifying the correct document type and retrieving legal formats."}
+              {step === 4 ? t('docHub.ui.redrafting') : t('docHub.ui.identifyingType')}
             </p>
           </Card>
 
@@ -476,10 +510,10 @@ export default function DocHub() {
         {step === 3 && (
 
           <Card className="p-8">
-            <span className="label-stamp text-ink-fog block mb-2">STEP 2 OF 3 // DETAILS REQUIRED</span>
-            <h2 className="text-[22px] font-bold text-ink mb-2" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>Missing Information</h2>
+            <span className="label-stamp text-ink-fog block mb-2">{t('docHub.ui.step2Title')}</span>
+            <h2 className="text-[22px] font-bold text-ink mb-2" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>{t('docHub.ui.missingInfo')}</h2>
             <p className="text-[13px] text-ink-muted mb-6 p-4 bg-paper-warm rounded-card border border-paper-rule">
-              We've identified that you need a <strong className="text-ink">{missingInfo.documentType.replace(/_/g, ' ')}</strong>. To draft a legally sound document, please provide the following essential details.
+              {t('docHub.ui.weIdentified')}<strong className="text-ink">{missingInfo.documentType.replace(/_/g, ' ')}</strong>{t('docHub.ui.toDraft')}
             </p>
 
             <div className="space-y-4">
@@ -489,7 +523,7 @@ export default function DocHub() {
                   <input
                     type="text"
                     className="p-3 bg-paper border border-paper-rule rounded-button focus:ring-1 focus:ring-amber focus:border-amber focus:outline-none text-[14px] text-ink w-full max-w-md transition-all duration-150"
-                    placeholder={`Enter ${field.replace(/_/g, ' ')}`}
+                    placeholder={`${t('docHub.ui.enter')} ${field.replace(/_/g, ' ')}`}
                     value={missingInfo.provided[field] || ""}
                     onChange={(e) => setMissingInfo(prev => ({
                       ...prev,
@@ -501,8 +535,8 @@ export default function DocHub() {
             </div>
 
             <div className="mt-8 flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={handleMissingInfoSubmit}>Generate Final Draft</Button>
+              <Button variant="outline" onClick={() => setStep(1)}>{t('docHub.ui.back')}</Button>
+              <Button onClick={handleMissingInfoSubmit}>{t('docHub.ui.generateFinalDraft')}</Button>
             </div>
           </Card>
 
@@ -521,18 +555,18 @@ export default function DocHub() {
             <div className="sticky top-4 z-20 bg-paper/90 backdrop-blur-md p-4 border border-paper-rule rounded-card shadow-card flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between">
                 <div>
-                  <span className="label-stamp text-ink-fog block">DRAFT v{draftResult.metadata.version}</span>
+                  <span className="label-stamp text-ink-fog block">{t('docHub.ui.draftV', { version: draftResult.metadata.version })}</span>
                   <span className="text-[14px] font-semibold text-ink">{draftResult.document_type.replace(/_/g, ' ')}</span>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
-                  <Button variant="outline" onClick={() => window.print()} className="!py-2 !px-3 text-xs flex items-center gap-1">Print</Button>
-                  <Button variant="outline" onClick={handleDownloadPdf} className="!py-2 !px-3 text-xs flex items-center gap-1 hover:text-error hover:border-error/30">PDF</Button>
-                  <Button variant="outline" onClick={handleDownloadDocx} className="!py-2 !px-3 text-xs flex items-center gap-1 hover:text-amber hover:border-amber/30">DOCX</Button>
+                  <Button variant="outline" onClick={() => window.print()} className="!py-2 !px-3 text-xs flex items-center gap-1">{t('docHub.ui.print')}</Button>
+                  <Button variant="outline" onClick={handleDownloadPdf} className="!py-2 !px-3 text-xs flex items-center gap-1 hover:text-error hover:border-error/30">{t('docHub.ui.pdf')}</Button>
+                  <Button variant="outline" onClick={handleDownloadDocx} className="!py-2 !px-3 text-xs flex items-center gap-1 hover:text-amber hover:border-amber/30">{t('docHub.ui.docx')}</Button>
                   <div className="w-px h-6 bg-paper-rule mx-1 self-center" />
-                  <Button variant={isEditing ? 'secondary' : 'outline'} onClick={() => setIsEditing(!isEditing)} className="!py-2 !px-3 text-xs">Edit Draft</Button>
-                  <Button variant="outline" onClick={handleCopyText} className="!py-2 !px-3 text-xs">Copy Text</Button>
-                  <Button variant="outline" onClick={() => setStep(1)} className="!py-2 !px-3 text-xs">Start Over</Button>
+                  <Button variant={isEditing ? 'secondary' : 'outline'} onClick={() => setIsEditing(!isEditing)} className="!py-2 !px-3 text-xs">{t('docHub.ui.editDraft')}</Button>
+                  <Button variant="outline" onClick={handleCopyText} className="!py-2 !px-3 text-xs">{t('docHub.ui.copyText')}</Button>
+                  <Button variant="outline" onClick={() => setStep(1)} className="!py-2 !px-3 text-xs">{t('docHub.ui.startOver')}</Button>
                 </div>
               </div>
 
@@ -545,14 +579,12 @@ export default function DocHub() {
                   <input
                     type="text"
                     className="flex-1 p-3 bg-paper border border-paper-rule rounded-button text-[14px] focus:outline-none focus:ring-1 focus:ring-amber focus:border-amber transition-all"
-                    placeholder="E.g., Make the 3rd paragraph more aggressive, add my middle name..."
+                    placeholder={t('docHub.ui.editPlaceholder')}
                     value={editInstructions}
                     onChange={(e) => setEditInstructions(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleEditSubmit()}
                   />
-                  <Button onClick={handleEditSubmit} disabled={!editInstructions.trim()} className="!py-2 !px-4 text-xs">
-                    Apply Edit
-                  </Button>
+                  <Button onClick={handleEditSubmit} disabled={!editInstructions.trim()} className="!py-2 !px-4 text-xs">{t('docHub.ui.applyEdit')}</Button>
                 </div>
               )}
 

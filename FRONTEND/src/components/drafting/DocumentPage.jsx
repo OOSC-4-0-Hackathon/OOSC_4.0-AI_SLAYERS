@@ -1,6 +1,8 @@
 import React from 'react';
+import { Gavel } from 'lucide-react';
 import { getTemplateMeta, RIBBON_COLORS } from './templates/index';
 import DocumentRenderer from './renderer/DocumentRenderer';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Generates a stable reference number for a draft session.
@@ -43,6 +45,7 @@ export default function DocumentPage({
   isLastPage,
   layoutAST,
 }) {
+  const { t } = useTranslation();
   const ribbonColor = watermark !== 'NONE' ? RIBBON_COLORS[watermark] : null;
 
   return (
@@ -86,14 +89,14 @@ export default function DocumentPage({
       {layoutAST ? (
         <DocumentRenderer layoutAST={layoutAST} />
       ) : (
-        <p style={{ textAlign: 'center', color: '#666', marginTop: '40pt' }}>No layout AST provided.</p>
+        <p style={{ textAlign: 'center', color: '#666', marginTop: '40pt' }}>{t('drafting.noLayoutAST', 'No layout AST provided.')}</p>
       )}
 
       {/* === FOOTER === */}
       <div className="legal-page-footer">
         <hr className="legal-footer-rule" />
         <div className="legal-footer-content">
-          <span>Page {pageNumber} of {totalPages}</span>
+          <span>{t('drafting.pageOf', { page: pageNumber, total: totalPages, defaultValue: `Page ${pageNumber} of ${totalPages}` })}</span>
         </div>
       </div>
     </div>
@@ -102,6 +105,7 @@ export default function DocumentPage({
 
 /* ─── Letterhead Header ─────────────────────────────────────────────────────── */
 function LetterheadHeader({ config, docType }) {
+  const { t } = useTranslation();
   const mode = config?.mode ?? 'plain';
 
   /* Affidavits never show a letterhead */
@@ -115,7 +119,7 @@ function LetterheadHeader({ config, docType }) {
         <div className="legal-logo-placeholder">
           {config?.logoSrc
             ? <img src={config.logoSrc} alt="Firm Logo" className="legal-logo-img" />
-            : <span className="legal-logo-icon material-symbols-outlined">gavel</span>
+            : <Gavel className="w-8 h-8 text-ink-muted inline-block" />
           }
         </div>
       )}
@@ -124,7 +128,7 @@ function LetterheadHeader({ config, docType }) {
         {config?.name && <p className="legal-letterhead-name">{config.name}</p>}
         {config?.line2 && <p className="legal-letterhead-line2">{config.line2}</p>}
         {mode === 'advocate' && config?.enrollmentNo && (
-          <p className="legal-letterhead-meta">Enrol. No.: {config.enrollmentNo}</p>
+          <p className="legal-letterhead-meta">{t('drafting.enrollmentNo', { no: config.enrollmentNo, defaultValue: `Enrol. No.: ${config.enrollmentNo}` })}</p>
         )}
         {config?.address && <p className="legal-letterhead-meta">{config.address}</p>}
         {config?.contact && <p className="legal-letterhead-meta">{config.contact}</p>}

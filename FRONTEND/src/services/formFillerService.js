@@ -6,10 +6,11 @@ const authHeaders = (token) => {
     return { Authorization: `Bearer ${activeToken}` };
 };
 
-export const startFormSession = async (token, formId) => {
+export const startFormSession = async (token, formId, language = 'en') => {
     try {
         const response = await api.post('/form-filler/start', {
-            form_id: formId
+            form_id: formId,
+            language
         }, { headers: authHeaders(token) });
         return response.data;
     } catch (error) {
@@ -17,9 +18,16 @@ export const startFormSession = async (token, formId) => {
     }
 };
 
-export const sendFormAnswer = async (token, payload) => {
+import { detectQueryLang } from '../utils/detectQueryLang';
+
+export const sendFormAnswer = async (token, payload, language = 'en') => {
     try {
-        const response = await api.post('/form-filler/chat', payload, { headers: authHeaders(token) });
+        const enrichedPayload = {
+            ...payload,
+            language,
+            detected_lang: payload.user_answer ? detectQueryLang(payload.user_answer) : 'en'
+        };
+        const response = await api.post('/form-filler/chat', enrichedPayload, { headers: authHeaders(token) });
         return response.data;
     } catch (error) {
         throw error;

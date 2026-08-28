@@ -1,12 +1,15 @@
 import api from './api';
+import { detectQueryLang } from '../utils/detectQueryLang';
 
 const authHeaders = (token) => ({ Authorization: `Bearer ${token}` });
 
-export const generateDraft = async (token, userFacts, providedFields = null) => {
+export const generateDraft = async (token, userFacts, providedFields = null, language = 'en') => {
   try {
     const response = await api.post('/drafting/generate', {
       user_facts: userFacts,
-      provided_fields: providedFields
+      provided_fields: providedFields,
+      language,
+      detected_lang: detectQueryLang(userFacts)
     }, { headers: authHeaders(token) });
     return response.data;
   } catch (error) {
@@ -14,11 +17,13 @@ export const generateDraft = async (token, userFacts, providedFields = null) => 
   }
 };
 
-export const editDraft = async (token, documentObject, editInstructions) => {
+export const editDraft = async (token, documentObject, editInstructions, language = 'en') => {
   try {
     const response = await api.post('/drafting/edit', {
       document_object: documentObject,
-      edit_instructions: editInstructions
+      edit_instructions: editInstructions,
+      language,
+      detected_lang: detectQueryLang(editInstructions)
     }, { headers: authHeaders(token) });
     return response.data;
   } catch (error) {

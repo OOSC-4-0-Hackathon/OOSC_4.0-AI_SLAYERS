@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FileText, AlertCircle, UploadCloud, FileUp } from 'lucide-react';
 import WorkspaceContainer from '../components/common/WorkspaceContainer';
 import ConversationLayout from '../components/chat/ConversationLayout';
@@ -7,16 +8,22 @@ import MessageBubble from '../components/chat/MessageBubble';
 import UploadChatRenderer from '../components/uploadChat/UploadChatRenderer';
 import EmptyState from '../components/common/EmptyState';
 import { uploadDocument, queryDocument } from '../services/uploadChatService';
+import ConfirmationModal from '../components/common/ConfirmationModal';
+import Toast from '../components/common/Toast';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const UploadChatArea = ({ refreshConversations }) => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
   
   // File Upload State
   const [file, setFile] = useState(null);
   const [documentMetadata, setDocumentMetadata] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   // Chat State
@@ -58,12 +65,12 @@ const UploadChatArea = ({ refreshConversations }) => {
     
     const ext = file.name.split('.').pop().toLowerCase();
     if (ext !== 'pdf' && ext !== 'docx') {
-      setUploadError("Only PDF and DOCX files are supported.");
+      setUploadError(t('uploadChat.errors.unsupportedFile'));
       return;
     }
     
     if (file.size > 10 * 1024 * 1024) {
-      setUploadError("File size exceeds the 10MB limit.");
+      setUploadError(t('uploadChat.errors.sizeLimit'));
       return;
     }
 
@@ -79,7 +86,7 @@ const UploadChatArea = ({ refreshConversations }) => {
       setActiveConversationId(null);
       setMessages([]);
     } catch (err) {
-      setUploadError(err.message || "Failed to upload document.");
+      setUploadError(err.message || t('uploadChat.errors.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -103,7 +110,8 @@ const UploadChatArea = ({ refreshConversations }) => {
         documentMetadata.document_id, 
         userMessage.content, 
         activeConversationId, 
-        abortControllerRef.current.signal
+        abortControllerRef.current.signal,
+        language
       );
       
       setMessages(prev => [...prev, {
@@ -121,7 +129,7 @@ const UploadChatArea = ({ refreshConversations }) => {
       if (err.name === 'CanceledError' || err.message === 'canceled') {
         console.log('Request canceled');
       } else {
-        setChatError(err.message || "Failed to get an answer.");
+        setChatError(err.message || t('uploadChat.errors.queryFailed'));
       }
     } finally {
       setIsGenerating(false);
@@ -169,9 +177,9 @@ const UploadChatArea = ({ refreshConversations }) => {
               <FileUp className="w-4 h-4 text-amber" />
             </div>
             <div>
-              <span className="label-stamp text-ink-fog block">DOCUMENT ANALYSIS</span>
+              <span className="label-stamp text-ink-fog block">{t('uploadChat.subtitle')}</span>
               <h1 className="text-[15px] font-semibold text-ink leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-                {documentMetadata ? documentMetadata.filename : 'Document Chat'}
+                {documentMetadata ? documentMetadata.filename : t('uploadChat.title')}
               </h1>
             </div>
           </div>
@@ -185,19 +193,34 @@ const UploadChatArea = ({ refreshConversations }) => {
                 {/* Icon + heading via shared pattern */}
                 <div className="flex flex-col items-center text-center mb-6">
                   <div className="w-14 h-14 bg-paper border border-paper-rule rounded-[4px] flex items-center justify-center mb-6 shadow-[0_1px_3px_rgba(26,24,20,0.06)]">
-                    <UploadCloud className="w-6 h-6 text-[#C8821A]" />
+                    <UploadCloud className="w-6 h-6 text-accent" />
                   </div>
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#A8A39A] mb-3 block">DOCUMENT UPLOAD</span>
-                  <h2 className="text-[22px] font-bold text-[#1A1814] mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
-                    Upload a document.<br /><span className="italic font-normal">Ask it anything.</span>
+                  <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted mb-3 block">{t('uploadChat.emptyState.eyebrow')}</span>
+                  <h2 className="text-[22px] font-bold text-ink mb-2 leading-tight" style={{ fontFamily: 'Newsreader, Georgia, serif' }}>
+                    {t('uploadChat.emptyState.titleLine1')}<br /><span className="italic font-normal">{t('uploadChat.emptyState.titleLine2')}</span>
                   </h2>
-                  <p className="text-[13px] text-[#7A7469] leading-relaxed">
-                    Upload a PDF or DOCX to extract clauses and red flags.
-                  </p>
+                  <p className="text-[13px] text-ink-muted leading-relaxed">{t('uploadChat.emptyState.subtitle')}</p>
                 </div>
 
-                {/* Upload zone */}
-                <div className="border-2 border-dashed border-[#D4CFC4] hover:border-[#C8821A]/40 rounded-[4px] p-6 transition-colors">
+                {/* Upload zone with drag-and-drop */}
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const droppedFile = e.dataTransfer.files[0];
+                    if (droppedFile) {
+                      setFile(droppedFile);
+                      setUploadError("");
+                    }
+                  }}
+                  className={`border-2 rounded-[4px] p-6 transition-all duration-200 ${
+                    isDragging 
+                      ? 'border-accent bg-accent/10 shadow-md scale-[1.01]' 
+                      : 'border-dashed border-rule-strong hover:border-accent bg-white'
+                  }`}
+                >
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -206,45 +229,52 @@ const UploadChatArea = ({ refreshConversations }) => {
                     className="hidden"
                   />
 
-                  {file ? (
+                  {uploading ? (
+                    <div className="text-center py-4 space-y-3 animate-stamp">
+                      <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+                      <div className="space-y-1">
+                        <p className="font-mono text-xs font-bold text-accent uppercase">
+                          {t('uploadChat.processing')}
+                        </p>
+                        <p className="text-[12px] text-ink-muted">{t('uploadChat.extracting')}</p>
+                      </div>
+                      <div className="w-full bg-paper-sunken h-1.5 rounded-full overflow-hidden max-w-[200px] mx-auto">
+                        <div className="h-full bg-accent animate-pulse w-3/4 rounded-full" />
+                      </div>
+                    </div>
+                  ) : file ? (
                     <div className="text-center space-y-3">
-                      <p className="font-mono text-[11px] font-medium text-[#C8821A] bg-[#F9EDD5] inline-block px-3 py-1 rounded-[3px] border border-[#C8821A]/30">
+                      <p className="text-[12px] font-medium text-accent-text bg-accent-wash inline-block px-3 py-1 rounded-[3px] border border-accent/30 font-mono">
                         {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </p>
                       <div className="flex gap-2 justify-center">
                         <button
                           onClick={() => fileInputRef.current?.click()}
                           disabled={uploading}
-                          className="px-4 py-2 bg-[#F2EFE9] border border-[#D4CFC4] text-[#1A1814] rounded-[3px] hover:border-[#1A1814] font-medium text-[13px] transition-colors"
+                          className="px-4 py-2 bg-paper-sunken border border-rule-strong text-ink rounded-[3px] hover:border-dark font-medium text-[13px] transition-colors cursor-pointer"
                         >
-                          Change
+                          {t('uploadChat.changeBtn')}
                         </button>
                         <button
                           onClick={handleUpload}
                           disabled={uploading}
-                          className="px-5 py-2 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2"
-                        >
-                          {uploading ? (
-                            <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Uploading...</>
-                          ) : 'Upload & Parse'}
-                        </button>
+                          className="px-5 py-2 bg-dark hover:bg-dark-rule text-white rounded-[3px] font-semibold text-[13px] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer shadow-xs"
+                        >{t('uploadChat.uploadBtn')}</button>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center">
+                    <div className="text-center space-y-2">
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="px-6 py-2.5 bg-[#121820] hover:bg-[#222C3A] text-white rounded-[3px] font-semibold text-[13px] transition-colors"
-                      >
-                        Select File
-                      </button>
-                      <p className="mt-3 font-mono text-[11px] text-[#A8A39A]">PDF or DOCX · max 10MB</p>
+                        className="px-6 py-2.5 bg-dark hover:bg-dark-rule text-white rounded-[3px] font-semibold text-[13px] transition-colors cursor-pointer shadow-xs"
+                      >{t('uploadChat.selectFileBtn')}</button>
+                      <p className="text-[12px] text-ink-muted">{t('uploadChat.dragDrop')}</p>
                     </div>
                   )}
 
                   {uploadError && (
-                    <p className="text-[#B83A2A] text-[13px] mt-4 bg-[#FAEAE8] py-2 px-3 rounded-[3px] border border-[#B83A2A]/30 text-center">
+                    <p className="text-accent-text text-[13px] mt-4 bg-accent-wash py-2 px-3 rounded-[3px] border border-accent-hover/30 text-center font-medium">
                       {uploadError}
                     </p>
                   )}
@@ -269,7 +299,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full bg-amber animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="font-mono text-[11px] text-ink-fog uppercase tracking-wider ml-1">Analysing...</span>
+                      <span className="text-[12px] text-ink-fog uppercase tracking-wider ml-1">{t('uploadChat.analysing')}</span>
                     </div>
                   )}
                 />
@@ -294,7 +324,7 @@ const UploadChatArea = ({ refreshConversations }) => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onSubmit={handleSendMessage}
                 isLoading={isGenerating}
-                placeholder="Ask a question about this document..."
+                placeholder={t('uploadChat.placeholder')}
               />
             </div>
           </div>
