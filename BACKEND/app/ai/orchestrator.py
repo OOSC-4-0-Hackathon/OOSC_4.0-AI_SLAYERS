@@ -105,7 +105,10 @@ Output ONLY the expanded search query, nothing else."""
                     res = temp_client.models.generate_content(
                         model='gemini-3.6-flash',
                         contents=user_prompt,
-                        config=types.GenerateContentConfig(system_instruction=sys_prompt)
+                        config=types.GenerateContentConfig(
+                            system_instruction=sys_prompt,
+                            thinking_config=thinking_config(getattr(settings, "ANALYSIS_THINKING_LEVEL", "minimal"))
+                        )
                     )
                     break
                 except Exception as e:
@@ -398,7 +401,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                         contents=user_prompt,
                         config=types.GenerateContentConfig(
                             system_instruction=sys_prompt,
-                            response_mime_type="application/json"
+                            response_mime_type="application/json",
+                            thinking_config=thinking_config(getattr(settings, "ANALYSIS_THINKING_LEVEL", "minimal"))
                         )
                     )
                     break

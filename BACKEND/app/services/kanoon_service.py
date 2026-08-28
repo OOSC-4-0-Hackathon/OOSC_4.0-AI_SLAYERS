@@ -14,6 +14,25 @@ class KanoonService:
     async def query(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks) -> KanoonQueryResponse:
         detected_lang = request.detected_lang or "en"
         language = request.language or "en"
+        
+        # Auto-detect language fallback if frontend failed to provide it
+        import re
+        q = request.question
+        if re.search(r'[ऀ-ॿ]', q):
+            auto_lang = "hi"
+        elif re.search(r'[ঀ-৿]', q):
+            auto_lang = "bn"
+        elif re.search(r'[஀-௿]', q):
+            auto_lang = "ta"
+        else:
+            auto_lang = "en"
+            
+        if detected_lang == "en" and auto_lang != "en":
+            detected_lang = auto_lang
+        # If UI language is English but query is in another language, respond in that language
+        if language == "en" and auto_lang != "en":
+            language = auto_lang
+
         from app.models.chat import Conversation, Message, FeatureType, MessageRole
         from app.ai.orchestrator import rag_orchestrator
         from app.services.title_service import generate_conversation_title_async
@@ -142,6 +161,25 @@ class KanoonService:
     async def query_stream(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks):
         detected_lang = request.detected_lang or "en"
         language = request.language or "en"
+        
+        # Auto-detect language fallback if frontend failed to provide it
+        import re
+        q = request.question
+        if re.search(r'[ऀ-ॿ]', q):
+            auto_lang = "hi"
+        elif re.search(r'[ঀ-৿]', q):
+            auto_lang = "bn"
+        elif re.search(r'[஀-௿]', q):
+            auto_lang = "ta"
+        else:
+            auto_lang = "en"
+            
+        if detected_lang == "en" and auto_lang != "en":
+            detected_lang = auto_lang
+        # If UI language is English but query is in another language, respond in that language
+        if language == "en" and auto_lang != "en":
+            language = auto_lang
+
         from app.models.chat import Conversation, Message, FeatureType, MessageRole
         from app.ai.orchestrator import rag_orchestrator
         from app.services.title_service import generate_conversation_title_async
