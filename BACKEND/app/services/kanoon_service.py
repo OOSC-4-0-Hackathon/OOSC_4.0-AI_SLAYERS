@@ -11,7 +11,9 @@ class KanoonService:
         api_key = settings.GEMINI_API_KEY or "DUMMY_KEY_FOR_TESTING"
         self.client = genai.Client(api_key=api_key)
             
-    def query(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks) -> KanoonQueryResponse:
+    async def query(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks) -> KanoonQueryResponse:
+        detected_lang = request.detected_lang or "en"
+        language = request.language or "en"
         from app.models.chat import Conversation, Message, FeatureType, MessageRole
         from app.ai.orchestrator import rag_orchestrator
         from app.services.title_service import generate_conversation_title_async
@@ -109,6 +111,13 @@ class KanoonService:
                 if len(dynamic_summary) > 250:
                     dynamic_summary = dynamic_summary[:247] + "..."
 
+        # Translation OUT
+        translation_notice = None
+        if language != "en":
+            from app.core.translate import translate_out
+            raw_answer, translation_notice = await translate_out(raw_answer, language)
+            dynamic_summary, _ = await translate_out(dynamic_summary, language)
+
         final_json = {
             "answer": raw_answer,
             "summary": dynamic_summary,
@@ -130,7 +139,9 @@ class KanoonService:
         return KanoonQueryResponse(conversation_id=conversation.id, **final_json)
 
 
-    def query_stream(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks):
+    async def query_stream(self, request: KanoonQueryRequest, user_id: str, db: Session, background_tasks):
+        detected_lang = request.detected_lang or "en"
+        language = request.language or "en"
         from app.models.chat import Conversation, Message, FeatureType, MessageRole
         from app.ai.orchestrator import rag_orchestrator
         from app.services.title_service import generate_conversation_title_async
@@ -185,7 +196,7 @@ class KanoonService:
         filters = {"tenant_id": "global"}
         
         # Generator for SSE
-        def stream_generator():
+        async def stream_generator():
             try:
                 full_content = ""
                 citations_data = []
@@ -194,7 +205,11 @@ class KanoonService:
                 yield f"data: {json.dumps({'type': 'metadata', 'conversation_id': conversation.id})}\n\n"
                 
                 # Lightweight deterministic acronym expansion for better BM25 recall
-                search_query = request.question
+                if detected_lang != "en":
+                    from app.core.translate import translate_in
+                    search_query = await translate_in(request.question, detected_lang)
+                else:
+                    search_query = request.question
                 expansions = {
                     "RTI": "RTI Right to Information",
                     "FIR": "FIR First Information Report Police",
