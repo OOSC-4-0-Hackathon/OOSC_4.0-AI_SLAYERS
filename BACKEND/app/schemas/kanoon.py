@@ -5,6 +5,8 @@ from typing import Optional
 class KanoonQueryRequest(BaseModel):
     question: str = Field(..., min_length=5, max_length=10000, description="The legal question to ask")
     conversation_id: Optional[str] = Field(None, description="Optional ID of an existing conversation to continue")
+    language: Optional[str] = Field("en")
+    detected_lang: Optional[str] = Field("en")
 
 class KanoonQueryResponse(BaseModel):
     conversation_id: str = Field(..., description="ID of the conversation this query belongs to")

@@ -1,6 +1,12 @@
+import { detectQueryLang } from '../utils/detectQueryLang';
 import api from './api';
 
-export const askCivicStream = async (payload, onMessage, onComplete, onError) => {
+export const askCivicStream = async (payload, onMessage, onComplete, onError, language = 'en') => {
+    const enrichedPayload = {
+        ...payload,
+        language,
+        detected_lang: payload.question ? detectQueryLang(payload.question) : 'en'
+    };
     try {
         let token = localStorage.getItem('token');
         if (!token) {
@@ -15,7 +21,7 @@ export const askCivicStream = async (payload, onMessage, onComplete, onError) =>
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(enrichedPayload)
         });
 
         if (!response.ok) {

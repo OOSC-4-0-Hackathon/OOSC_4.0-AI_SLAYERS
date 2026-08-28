@@ -1,8 +1,9 @@
+import { detectQueryLang } from '../utils/detectQueryLang';
 import api from './api';
 
-export const askKanoon = async (token, question, conversationId = null) => {
+export const askKanoon = async (token, question, conversationId = null, language = 'en') => {
   try {
-    const payload = { question };
+    const payload = { question, language, detected_lang: detectQueryLang(question) };
     if (conversationId) {
       payload.conversation_id = conversationId;
     }
