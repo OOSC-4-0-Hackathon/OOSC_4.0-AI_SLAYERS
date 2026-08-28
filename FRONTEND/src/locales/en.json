@@ -273,7 +273,7 @@
             "civic_empowerment": "Civic empowerment",
             "build_id": "NYAAY-RAG-2026",
             "acts_indexed": "93 Indian Bare Acts indexed",
-            "fast_answers": "Answers start in under half a second",
+            "fast_answers": "100% Statute-Grounded Answers",
             "try_label": "TRY:",
             "try_rti_query": "I filed an RTI application 38 days ago with the Municipal Corporation regarding road repair tender. No response received.",
             "try_eviction_query": "Landlord sent a WhatsApp message giving me 7 days to vacate despite full rent paid and active lease agreement.",
@@ -342,7 +342,7 @@
             "badge": "TEST GROUNDED DISPUTES",
             "benchmark": "5 BENCHMARK SCENARIOS",
             "title": "Common Civic Scenarios",
-            "subtitle": "Select any benchmark scenario to trigger the 0ms regex classifier.",
+            "subtitle": "Select any benchmark scenario to test real-world statutory grounding.",
             "scroll_left": "Scroll left",
             "scroll_right": "Scroll right",
             "launch": "LAUNCH",
@@ -388,8 +388,8 @@
         },
         "proof": {
             "live_proof": "LIVE PROOF",
-            "title": "Sub-500ms Time-to-First-Token in Action",
-            "description": "Watch real citizen grievances type in, trigger deterministic 0ms regex routing, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier."
+            "title": "Multi-Layer Retrieval & Synthesis in Action",
+            "description": "Watch real citizen grievances type in, route through deterministic legal classifiers, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier."
         },
         "pillars": {
             "title": "Empowering Citizens Across 4 Civic Dimensions",

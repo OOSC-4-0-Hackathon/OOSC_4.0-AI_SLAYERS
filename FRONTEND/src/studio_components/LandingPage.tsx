@@ -171,9 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="text-[12px] text-ink-tertiary flex items-center space-x-3">
               <span>{t('landing.hero.acts_indexed', '93 Indian Bare Acts indexed')}</span>
               <span aria-hidden="true" className="text-rule-strong">•</span>
-              {/* Was "SUB-500MS TIME-TO-FIRST-TOKEN" — the same claim, in
-                  language a citizen can actually evaluate. */}
-              <span className="font-semibold text-success">{t('landing.hero.fast_answers', 'Answers start in under half a second')}</span>
+              <span className="font-semibold text-success">{t('landing.hero.fast_answers', '100% Statute-Grounded Answers')}</span>
             </div>
           </div>
 
@@ -327,10 +325,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </div>
             <h2 className="font-serif text-display-md text-ink font-bold">
-              {t('landing.proof.title', 'Sub-500ms Time-to-First-Token in Action')}
+              {t('landing.proof.title', 'Multi-Layer Retrieval & Synthesis in Action')}
             </h2>
             <p className="text-base text-ink-tertiary font-sans max-w-4xl">
-              {t('landing.proof.description', 'Watch real citizen grievances type in, trigger deterministic 0ms regex routing, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier.')}
+              {t('landing.proof.description', 'Watch real citizen grievances type in, route through deterministic legal classifiers, fuse Chroma dense + BM25 sparse vectors, and stream into the 5-part invariant dossier.')}
             </p>
           </div>
 
@@ -723,7 +721,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             
             <div className="flex items-center space-x-4">
               <p className="hidden md:block text-xs text-ink-muted max-w-sm text-right">
-                {t('landing.scenarios.subtitle', 'Select any benchmark scenario to trigger the 0ms regex classifier.')}
+                {t('landing.scenarios.subtitle', 'Select any benchmark scenario to test real-world statutory grounding.')}
               </p>
 
               {/* Carousel Arrow Controls */}
