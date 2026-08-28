@@ -19,3 +19,4 @@ reportlab
 
 sentence-transformers>=2.2.2
 psycopg2-binary>=2.9.9
+groq>=0.4.0
