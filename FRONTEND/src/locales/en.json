@@ -289,6 +289,14 @@
                 "title": "You leave with a filled-in draft",
                 "desc": "Notice, RTI or appeal — ready to print and post."
             },
+            "tile4": {
+                "title": "Dense + sparse hybrid search",
+                "desc": "Chroma vectors fused with BM25 keyword matching across 93 Bare Acts."
+            },
+            "tile5": {
+                "title": "Zero hallucinated citations",
+                "desc": "Every legal claim is traced to an exact Section of an Act — verifiable before filing."
+            },
             "planes": {
                 "caption1": "Statutes ranked against your problem",
                 "caption2": "Click any plane to inspect"
