@@ -14,10 +14,10 @@ import i18n from '../i18n';
  */
 
 export const LANGUAGES = [
-  { code: 'en', label: 'EN', fullName: 'English' },
-  { code: 'hi', label: 'HI', fullName: 'Hindi' },
-  { code: 'bn', label: 'BN', fullName: 'Bengali' },
-  { code: 'ta', label: 'TA', fullName: 'Tamil' },
+  { code: 'en', label: 'EN', fullName: 'English', nativeName: 'English' },
+  { code: 'hi', label: 'HI', fullName: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'bn', label: 'BN', fullName: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'ta', label: 'TA', fullName: 'Tamil', nativeName: 'தமிழ்' },
 ];
 
 const LanguageContext = createContext({

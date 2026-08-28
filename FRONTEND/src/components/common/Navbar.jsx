@@ -11,11 +11,11 @@ import {
   LayoutDashboard,
   FolderArchive,
   LogOut,
-  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import LanguageSelector from './LanguageSelector';
+
 /**
  * AppNav — unified navigation bar for all routes.
  *
@@ -68,17 +68,16 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
   };
 
   const { t } = useTranslation();
-  const { language, setLanguage, LANGUAGES } = useLanguage();
 
   /* ── Nav order: Home → Dashboard → Civic Navigator → Kanoon Q&A → Doc Chat → Drafting → Reasoning ── */
   const NAV_ITEMS = [
-    { path: '/',                 label: t('nav.home', 'Home'),            icon: Sparkles },
-    { path: '/dashboard',        label: t('nav.dashboard', 'Dashboard'),       icon: LayoutDashboard },
+    { path: '/',                 label: t('nav.home', 'Home'),                      icon: Sparkles },
+    { path: '/dashboard',        label: t('nav.dashboard', 'Dashboard'),            icon: LayoutDashboard },
     { path: '/civic',            label: t('nav.civicNavigator', 'Civic Navigator'), icon: Search },
-    { path: '/know-your-kanoon', label: t('nav.kanoonQA', 'Kanoon Q&A'),      icon: BookOpen },
-    { path: '/upload-chat',      label: t('nav.docChat', 'Doc Chat'),        icon: FileUp },
-    { path: '/dochub',           label: t('nav.drafting', 'Drafting'),        icon: FileText },
-    { path: '/reasoning',        label: t('nav.reasoning', 'Reasoning'),       icon: Scale },
+    { path: '/know-your-kanoon', label: t('nav.kanoonQA', 'Kanoon Q&A'),           icon: BookOpen },
+    { path: '/upload-chat',      label: t('nav.docChat', 'Doc Chat'),               icon: FileUp },
+    { path: '/dochub',           label: t('nav.drafting', 'Drafting'),             icon: FileText },
+    { path: '/reasoning',        label: t('nav.reasoning', 'Reasoning'),            icon: Scale },
   ];
 
   const innerClass = fullWidth ? 'w-full px-4 md:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6';
@@ -99,12 +98,12 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
       }}
     >
       {/* ── Main row ── */}
-      <div className={`${innerClass} flex items-center justify-between h-16 gap-3 sm:gap-6`}>
+      <div className={`${innerClass} flex items-center justify-between h-16 gap-2 sm:gap-4 lg:gap-3 xl:gap-6`}>
 
         {/* Brand */}
         <Link to="/" className="flex items-center space-x-2.5 group select-none shrink-0" aria-label="NYAAY AI — home">
           {/* Logo icon box */}
-          <div className="w-8 h-8 rounded-[4px] bg-dark-raised text-paper flex items-center justify-center border border-rule-dark group-hover:border-accent transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-dark-raised text-paper flex items-center justify-center border border-rule-dark group-hover:border-accent transition-colors">
             <span className="font-serif font-bold text-sm tracking-tight text-paper">Ny</span>
           </div>
 
@@ -116,84 +115,76 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
             <span className="text-[12px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent text-paper font-bold border border-accent">
               AI
             </span>
-            <span className="hidden xl:inline text-[#2B3542]" aria-hidden="true">|</span>
-            <span className="hidden xl:inline text-[12px] font-sans font-medium uppercase tracking-wider text-slate">
+            <span className="hidden 2xl:inline text-[#2B3542]" aria-hidden="true">|</span>
+            <span className="hidden 2xl:inline text-[12px] font-sans font-medium uppercase tracking-wider text-slate">
               Civic Legal OS
             </span>
           </div>
         </Link>
 
-        {/* Desktop nav — navy segmented container */}
-        <nav
-          className="hidden lg:flex items-center p-1 rounded-[6px] bg-dark-raised/80 border border-rule-dark shadow-inner"
-          aria-label="Main navigation"
-        >
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                aria-current={isActive ? 'page' : undefined}
-                className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-[4px] text-[13px] font-sans font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
-                  isActive
-                    ? 'text-paper font-semibold'
-                    : 'text-slate hover:text-paper hover:bg-dark-rule/60'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-active-indicator"
-                    className="absolute inset-0 bg-accent rounded-[4px] shadow-xs"
-                    transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                  />
-                )}
-                <Icon
-                  aria-hidden="true"
-                  className={`w-3.5 h-3.5 shrink-0 relative z-10 ${
-                    isActive ? 'text-paper' : 'text-slate-muted'
+        {/* Center: Desktop nav — navy segmented container */}
+        <div className="hidden lg:flex items-center space-x-2 xl:space-x-3 min-w-0">
+          <nav
+            className="flex items-center p-1 rounded-lg bg-dark-raised/80 border border-rule-dark shadow-inner space-x-0.5 xl:space-x-1"
+            aria-label="Main navigation"
+          >
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`relative flex items-center space-x-1.5 px-2 xl:px-3 py-1.5 rounded-md text-[12.5px] xl:text-[13px] font-sans font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none whitespace-nowrap ${
+                    isActive
+                      ? 'text-paper font-semibold'
+                      : 'text-slate hover:text-paper hover:bg-dark-rule/60'
                   }`}
-                />
-                <span className="relative z-10">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-active-indicator"
+                      className="absolute inset-0 bg-accent rounded-md shadow-xs"
+                      transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                    />
+                  )}
+                  <Icon
+                    aria-hidden="true"
+                    className={`w-3.5 h-3.5 shrink-0 relative z-10 ${
+                      isActive ? 'text-paper' : 'text-slate-muted'
+                    }`}
+                  />
+                  <span className="relative z-10">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Right: actions */}
-        <div className="flex items-center space-x-2 shrink-0">
+          {/* Thin vertical separator between primary navigation and utility cluster */}
+          <div className="h-5 w-px bg-rule-dark/80 shrink-0" aria-hidden="true" />
+        </div>
+
+        {/* Right: Utility Cluster (Dockets, Language Selector, Account, Sign out) */}
+        <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
           {/* Dockets */}
           <Link
             to="/civic"
-            className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-dark-raised/80 hover:bg-dark-rule text-slate hover:text-paper border border-rule-dark text-[13px] font-sans font-medium rounded-[4px] transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+            className="h-8 flex items-center space-x-1.5 px-2.5 py-1.5 bg-dark-raised/80 hover:bg-accent/10 text-slate hover:text-paper border border-rule-dark hover:border-accent text-[13px] font-sans font-medium rounded-lg transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
             aria-label="View saved case dockets"
           >
             <FolderArchive aria-hidden="true" className="w-3.5 h-3.5 text-slate-muted" />
-            <span className="hidden md:inline">{t('nav.dockets', 'Dockets')}</span>
+            <span className="hidden sm:inline">{t('nav.dockets', 'Dockets')}</span>
           </Link>
 
-          {/* Language Switcher Dropdown */}
-          <div className="relative shrink-0">
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="appearance-none bg-dark-raised/80 hover:bg-dark-rule border border-rule-dark text-slate hover:text-paper text-[12px] font-sans font-medium rounded-[4px] pl-2.5 pr-7 py-1.5 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none transition-all shadow-xs cursor-pointer"
-              aria-label="Select Language"
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code} className="bg-dark text-slate">
-                  {lang.fullName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-muted pointer-events-none" />
-          </div>
+          {/* Restyled Compact Language Selector */}
+          <LanguageSelector />
 
+          {/* User Authentication & Action Pill */}
           {currentUser ? (
-            <div className="flex items-center space-x-2">
-              {/* Account identifier — mono, because it is data */}
-              <span className="hidden sm:inline text-xs text-slate bg-dark-raised/80 border border-rule-dark px-2.5 py-1.5 rounded-[4px] truncate max-w-[120px]">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              {/* Account identifier — mono data badge */}
+              <span className="hidden md:flex items-center h-8 text-xs font-mono text-slate bg-dark-raised/80 border border-rule-dark px-2.5 py-1.5 rounded-lg truncate max-w-[130px]">
                 {currentUser.displayName || currentUser.email?.split('@')[0]}
               </span>
 
@@ -201,7 +192,7 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
                 onClick={handleLogout}
                 disabled={signingOut}
                 aria-busy={signingOut}
-                className="flex items-center space-x-1 px-2.5 py-1.5 bg-accent hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed text-paper text-[13px] font-sans font-medium rounded-[4px] transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none"
+                className="h-8 flex items-center space-x-1 px-2.5 py-1.5 bg-accent hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed text-paper text-[13px] font-sans font-medium rounded-lg transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none cursor-pointer"
                 aria-label="Sign out"
               >
                 <LogOut aria-hidden="true" className="w-3.5 h-3.5" />
@@ -209,16 +200,16 @@ export default function Navbar({ fullWidth = false, tabs, activeTab, onTabChange
               </button>
             </div>
           ) : (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
               <Link
                 to="/login"
-                className="px-3 py-1.5 text-[13px] font-sans font-medium text-slate hover:text-paper transition-colors rounded-[4px] focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                className="h-8 flex items-center px-2.5 sm:px-3 py-1.5 text-[13px] font-sans font-medium text-slate hover:text-paper hover:bg-dark-raised/60 transition-colors rounded-lg focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
               >
                 {t('nav.signIn', 'Sign in')}
               </Link>
               <Link
                 to="/signup"
-                className="px-3 py-1.5 bg-accent hover:bg-accent-hover text-paper text-[13px] font-sans font-medium rounded-[4px] transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none"
+                className="h-8 flex items-center px-2.5 sm:px-3 py-1.5 bg-accent hover:bg-accent-hover text-paper text-[13px] font-sans font-medium rounded-lg transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-[#FAF7F2] focus-visible:outline-none"
               >
                 {t('nav.getStarted', 'Get started')}
               </Link>
