@@ -13,7 +13,15 @@ class HybridRetriever:
     def __init__(self):
         pass # removed unused _bm25_cache and _corpus_cache per out-of-scope cleanup
 
-    def search(self, query: str, query_embedding: List[float], n_results: int = 10, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any", domain_multiplier_weight: float = 0.10) -> List[Dict[str, Any]]:
+    def _fuse_candidates(self, query: str, query_embedding: List[float], candidate_pool: int, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any", domain_multiplier_weight: float = 0.10) -> List[Dict[str, Any]]:
+        """Dense + BM25 + RRF fusion WITHOUT the cross-encoder rerank.
+
+        Returns up to `candidate_pool` candidates ordered by RRF, each with
+        `retrieval_method`, `rrf_rank`, and `rrf_score` populated. This is the
+        cheap part of retrieval (~0.08s); the expensive cross-encoder rerank
+        (~0.1s/pair on CPU) is applied separately so a multi-query fan-out can
+        gather candidates from every sub-query and rerank the union ONCE.
+        """
         # 1. Dense Retrieval (ChromaDB)
         initial_k = 20
         dense_results = vector_store.search(query_embedding, n_results=initial_k, where=where, search_sc=True)
@@ -30,9 +38,9 @@ class HybridRetriever:
                         break
 
         bm25, corpus_ids, corpus_docs, corpus_metadatas, id_to_index = bm25_manager.get_index(tenant_id)
-        
+
         if not bm25 or not corpus_docs:
-            return dense_results[:n_results]
+            return dense_results[:candidate_pool]
 
         tokenized_query = bm25_manager.tokenize_text(query)
         
@@ -83,7 +91,6 @@ class HybridRetriever:
             
         # 4. Sort and apply Candidate Pool limit (A1)
         sorted_rrf = sorted(rrf_scores.items(), key=lambda item: item[1], reverse=True)
-        candidate_pool = getattr(settings, "RERANK_CANDIDATE_POOL", 30)
         top_ids = [cid for cid, _ in sorted_rrf[:candidate_pool]]
         
         # 5. Reconstruct the candidate list of dicts (O(K) lookups) (B7)
@@ -114,10 +121,32 @@ class HybridRetriever:
                             "rrf_rank": rank + 1,
                             "rrf_score": rrf_scores[cid]
                         },
-                        "distance": 0.0 
+                        "distance": 0.0
                     })
-                
-        # 6. Cross-Encoder Reranking
+
+        return candidate_results
+
+    def search(self, query: str, query_embedding: List[float], n_results: int = 10, where: Optional[Dict[str, Any]] = None, predicted_domains: Dict[str, float] = None, document_type_priority: str = "any", domain_multiplier_weight: float = 0.10, candidate_pool: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Full single-query retrieval: fuse candidates then cross-encoder rerank.
+
+        Kept for the sync pipeline and the streaming provisional search. The
+        multi-query path calls `_fuse_candidates` directly and reranks the
+        merged union once (see orchestrator._multi_query_retrieve).
+
+        `candidate_pool` overrides RERANK_CANDIDATE_POOL. Callers that only need
+        a cheap seed (the streaming provisional search) pass a smaller pool so
+        the rerank cost stays hidden behind the concurrent analysis LLM call.
+        """
+        if candidate_pool is None:
+            candidate_pool = getattr(settings, "RERANK_CANDIDATE_POOL", 30)
+        candidate_results = self._fuse_candidates(
+            query, query_embedding, candidate_pool, where=where,
+            predicted_domains=predicted_domains,
+            document_type_priority=document_type_priority,
+            domain_multiplier_weight=domain_multiplier_weight,
+        )
+
+        # Cross-Encoder Reranking
         if candidate_results:
             from app.knowledge.reranker import reranker_service
             final_results = reranker_service.rerank(query, candidate_results, top_k=n_results)
@@ -126,11 +155,16 @@ class HybridRetriever:
                 r["metadata"]["rrf_score"] = r["metadata"].get("final_score", r["metadata"].get("rrf_score", 0.0))
         else:
             final_results = []
-            
+
         return final_results
 
 
-    def search_sc_only(self, query: str, query_embedding: List[float], n_results: int = 10, predicted_domains: Dict[str, float] = None) -> List[Dict[str, Any]]:
+    def _fuse_sc_candidates(self, query: str, query_embedding: List[float], candidate_pool: int = 30, predicted_domains: Dict[str, float] = None) -> List[Dict[str, Any]]:
+        """Supreme-Court-only dense + BM25 + RRF fusion WITHOUT rerank.
+
+        Returns up to `candidate_pool` SC candidates ordered by RRF, each with
+        `rrf_score` and `retrieval_method` populated.
+        """
         initial_k = 30
         
         # 1. Build where clause for domain filtering
@@ -204,10 +238,23 @@ class HybridRetriever:
 
         add_to_rrf(dense_sc, "distance", "dense")
         add_to_rrf(bm25_sc, "bm25_score", "bm25")
-        
+
         candidate_results = sorted(list(merged.values()), key=lambda x: x["rrf_score"], reverse=True)
-        
-        # 5. Rerank
+        # Mirror rrf_score/rrf_rank into metadata so SC candidates share the same
+        # contract as _fuse_candidates: the multi-query merge sorts on
+        # metadata["rrf_score"], and downstream consumers expect every chunk to
+        # carry an rrf_rank.
+        for rank, c in enumerate(candidate_results):
+            c["metadata"]["rrf_score"] = c["rrf_score"]
+            c["metadata"]["rrf_rank"] = rank + 1
+        return candidate_results[:candidate_pool]
+
+    def search_sc_only(self, query: str, query_embedding: List[float], n_results: int = 10, predicted_domains: Dict[str, float] = None) -> List[Dict[str, Any]]:
+        """Full SC-only retrieval: fuse SC candidates then rerank."""
+        candidate_pool = getattr(settings, "RERANK_CANDIDATE_POOL", 30)
+        candidate_results = self._fuse_sc_candidates(query, query_embedding, candidate_pool, predicted_domains)
+
+        # Rerank
         if candidate_results:
             from app.knowledge.reranker import reranker_service
             ranked_sc = reranker_service.rerank(query, candidate_results, top_k=n_results)

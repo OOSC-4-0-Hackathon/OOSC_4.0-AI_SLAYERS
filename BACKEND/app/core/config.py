@@ -16,11 +16,32 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_API_KEYS: str = ""
     CIVIC_MODEL: str = "gemini-flash-lite-latest"
-    MIN_RETRIEVAL_THRESHOLD: float = 0.015
     RERANK_CANDIDATE_POOL: int = 30
-    RERANK_SCORE_FLOOR: float = 0.02
+    # Cross-encoder rerank is ~0.1s/pair on CPU and dominates retrieval latency.
+    # The multi-query path gathers cheap fused candidates from every sub-query
+    # (+SC), dedupes, then reranks this many of the union ONCE — instead of
+    # reranking each sub-query's pool separately. Bounds worst-case rerank cost.
+    RERANK_MERGED_POOL: int = 32
+    # The streaming provisional search runs concurrently with the analysis LLM
+    # (~2.5s) purely to produce seed chunks. Reranking a full 30-candidate pool
+    # there made it the long pole of that block; a smaller pool keeps its cost
+    # fully hidden behind the analysis call.
+    PROVISIONAL_CANDIDATE_POOL: int = 14
+    PROVISIONAL_N_RESULTS: int = 12
     MAX_SUB_QUERIES: int = 3
     RERANK_BATCH_SIZE: int = 32
+    TORCH_NUM_THREADS: int = 4
+    # Gemini "thinking" is ON by default and was the single largest latency cost
+    # (~7s on the analysis call) while also consuming max_output_tokens, which
+    # truncated structured JSON. Only "minimal" and "low" are accepted by
+    # gemini-3.6-flash / gemini-flash-lite-latest — thinking_budget=0 and
+    # thinking_level="none" are rejected with HTTP 400.
+    # Analysis is pure structured extraction, so it runs at "minimal". Generation
+    # also runs at "minimal": measured against the answer model it was both
+    # faster and far more consistent than "low" (which spiked to ~21s), and RAG
+    # answer quality comes from the retrieved context rather than model thinking.
+    ANALYSIS_THINKING_LEVEL: str = "minimal"
+    GEN_THINKING_LEVEL: str = "minimal"
     # Firebase UIDs permitted to view operational metrics. Keep empty by
     # default so metrics are never exposed accidentally.
     ADMIN_UIDS: List[str] = []

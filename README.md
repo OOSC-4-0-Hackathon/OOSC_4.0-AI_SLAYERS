@@ -1,146 +1,187 @@
-# NYAAY AI — Civic & Legal Empowerment Platform
+# NYAAY AI — Civic Legal Operating System
 
-**Legal rights, translated into citizen action.**
+<div align="center">
+  <h2>Not Just a Legal Engine.<br><em>A Companion to Justice. ⚖️</em></h2>
+  <p>From laws to landmark judgments — making India’s legal knowledge easier to find, understand, and access.</p>
+  <br>
+  <table align="center">
+    <tr>
+      <td align="center" width="200">
+        <h2>93</h2>
+        <p><b>Acts & Statutes</b></p>
+      </td>
+      <td align="center" width="200">
+        <h2>4,371</h2>
+        <p><b>SC Judgments</b></p>
+      </td>
+      <td align="center" width="200">
+        <h2>21</h2>
+        <p><b>Govt Schemes</b></p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+**Statute-grounded AI legal aid and case dossier engine for Indian citizens.**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-5.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Gemini API](https://img.shields.io/badge/Google_Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL_3D-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_DB-FF6F61?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.trychroma.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://oosc-4-0-ai-slayers.vercel.app)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Design_Tokens-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-> NYAAY AI acts as an intelligent intermediary between complex Indian statutes and everyday citizens, converting intimidating legal rights into structured, step-by-step resolution dossiers and auto-generated legal documents.
+> **NYAAY AI** is an intelligent civic intermediary that converts a citizen's raw, emotional description of a bureaucratic dispute into an invariant, courtroom-tested, statute-cited legal dossier paired with auto-generated filing documents — with **100% statutory trace across 93 indexed Indian Bare Acts and 0% hallucinated citations.**
 
-[**🌐 Live Demo**](https://oosc-4-0-ai-slayers.vercel.app) &nbsp;|&nbsp; [**📹 Demo Video (≤10 min)**](#5-live-demo--screenshots) &nbsp;|&nbsp; [**📖 Documentation**](#4-architecture) &nbsp;|&nbsp; [**🐛 Report Bug**](https://github.com/Ayushk212/OOSC_4.0-AI_SLAYERS/issues)
-
----
-
-## 1. Problem Framing & Our Approach
-
-### The Challenge
-**Hackathon Track 3: AI for Civic and Legal Empowerment** *(Theme: Civic Tech, Legal Access, and Government Transparency)*
-
-In India, citizens regularly face procedural delays, withheld security deposits, defective consumer goods, and unfulfilled administrative requests. While protective laws exist (such as the *Consumer Protection Act 2019*, *Right to Information Act 2005*, and state *Rent Control Acts*), legal language is dense, remedies are scattered across disparate portals, and formal legal consultation is prohibitively expensive for everyday grievances. As a result, millions of enforceable rights go unexercised.
-
-### Our Approach
-NYAAY AI transforms static legal information into dynamic citizen execution. Rather than serving as a generic open-ended legal chatbot prone to dynamic URL hallucinations, NYAAY AI combines deterministic intent classification with a hybrid statutory RAG pipeline. It outputs structured, low-latency civic action plans paired with single-pass legal document generation—empowering citizens from initial grievance to formal filing.
+[**🌐 Live Platform**](https://oosc-4-0-ai-slayers.vercel.app) &nbsp;|&nbsp; [**📹 System Architecture**](#3-technical-architecture) &nbsp;|&nbsp; [**✨ Signature Capabilities**](#2-signature-capabilities--engineering-differentiators) &nbsp;|&nbsp; [**💻 Local Setup**](#5-getting-started-local-setup)
 
 ---
 
-## 2. Key Feature Showcase
+## 1. Problem Statement & Civic Mission
 
-| Feature | Engineering & Performance Highlight | Visual Preview |
-| :--- | :--- | :--- |
-| **🧭 Civic Navigator** | **Real-Time Structured Dossiers**<br>Delivers a 5-part actionable breakdown via Server-Sent Events (SSE) streaming with a Time-to-First-Token (TTFT) under 500ms.<br>• *Problem & Rights Violated*<br>• *Evidence Required (Checklist)*<br>• *Relevant Authority to Approach*<br>• *Chronological Action Plan*<br>• *Recommended Legal Drafts* | `[Civic Navigator UI]` |
-| **⚡ Zero-LLM Router** | **Engineering Differentiator: 0.0ms Overhead**<br>Bypasses LLM calls entirely for high-frequency query domains (`RTI`, `Consumer Protection`, `Tenant Rights`) using deterministic regex dictionary matching. Eliminates unnecessary API latency and preserves quota for RAG synthesis. | `[Regex Classifier]` |
-| **📝 Single-Pass Legal Drafting** | **Optimized Generative Pipeline**<br>Injects document schemas, mandatory fields, and user facts into a single LLM prompt pass. Simultaneously identifies document type (Affidavits, Legal Notices, RTI Applications), flags missing user inputs, and outputs structured JSON drafts. | `[Document Generator]` |
-| **🚀 Pre-Warmed Lifespan Models** | **Latency Optimization**<br>Loads `SentenceTransformer` dense embeddings (`BAAI/bge-base-en-v1.5`) directly into memory during FastAPI server startup lifespan hooks. Completely eliminates the 40-second cold-start penalty on initial user requests. | `[Lifespan Pre-warming]` |
+### The Challenge *(OOSC 4.0 Track 3: AI for Civic and Legal Empowerment)*
+Every year, millions of Indian citizens face administrative roadblocks, arbitrary security deposit withholdings, delayed RTI responses, rejected consumer warranty claims, and unfair employer deductions. 
+
+While protective Indian legislation exists (*Consumer Protection Act 2019*, *RTI Act 2005*, *Transfer of Property Act 1882*, *Bharatiya Nyaya Sanhita 2023*), citizens face three critical barriers:
+1. **Scattered Legislation**: Rights are fragmented across 93+ distinct Bare Acts and state amendments.
+2. **Dense Legalese & Intimidation**: Citizens cannot map emotional grievances to precise statutory sections.
+3. **Expensive Legal Entry**: Consultation fees make enforcing everyday civic rights financially impractical.
+
+### Our Approach: Grounded Statutory AI
+NYAAY AI is built on one foundational principle: **It never hallucinates law.** Every right, evidentiary threshold, appellate authority, and legal notice clause generated by the platform is strictly grounded in and cited back to an authentic Section of an indexed Bare Act.
 
 ---
 
-## 3. Architecture
+## 2. Signature Capabilities & Engineering Differentiators
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                      CIVIC LEGAL OS // 5-STEP JOURNEY                            │
+│                                                                                  │
+│   [01 INTAKE]  →  [02 RESEARCH]  →  [03 DRAFTING]  →  [04 ANALYSIS]  →  [05 STRATEGY]   │
+│  Civic Navigator    Kanoon Q&A      Legal Drafting     Document Chat    Legal Reasoning │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. 🧭 Civic Navigator & The Convergence (93 → 34 → 1 RAG Narrowing)
+- **Kinetic 3D Statutory Array**: Visualizes the platform's multi-stage narrowing pipeline in real time. Features procedural contact shadows, tabletop ground surface, atmospheric depth fog, and single-source directional paper lighting.
+- **Ticking Telemetry Readout**: Displays instantaneous pipeline metrics: `93 ACTS → 0ms REGEX CLASSIFIER → 34 CHUNKS RETRIEVED → RRF FUSION → 1 EXACT ACT LOCKED`.
+- **5-Part Invariant Case Dossier**: Automatically streams structured resolutions divided into:
+  1. *Problem & Rights Violated* (§ Specific Act sections)
+  2. *Evidence Required* (Bharatiya Sakshya Adhiniyam 2023 audit checklist)
+  3. *Competent Authority to Approach* (First Appellate Officer / District Commission)
+  4. *Chronological Action Plan* (Day 1 → Day 30 phased execution)
+  5. *Filing-Ready Legal Draft* (Auto-populated notice or affidavit)
+
+### 2. ⚡ Zero-LLM Deterministic Classifier (0.0ms Latency)
+- Bypasses LLM calls entirely for high-frequency civic domains (`RTI 2005`, `Consumer Protection 2019`, `Tenant Rights / TPA 1882`) using deterministic regex dictionary classification.
+- Eliminates unnecessary API token costs and guarantees instant domain routing.
+
+### 3. 🔍 Hybrid RAG Engine (ChromaDB Dense + BM25 Sparse + RRF)
+- Pre-warms `BAAI/bge-base-en-v1.5` embeddings in server memory on startup, eliminating the 40-second cold start penalty.
+- Fuses semantic embeddings with exact statutory section keywords via **Reciprocal Rank Fusion (RRF)** with statutory metadata boosting.
+
+### 4. 🏷️ Interactive Inline Citation Pills & Token-by-Token Streaming
+- Every statutory section is rendered as an interactive monospace pill (`[ACT] · §[SECTION]`).
+- Hovering or clicking a citation pill reveals a popover card displaying authentic statutory section excerpts, legal thresholds, and a one-click statute inspector.
+- High-throughput `StreamingText` ticker ensures low Time-to-First-Token (<500ms TTFT).
+
+### 5. ⚖️ Two-Column Comparative Legal Reasoning
+- Evaluates litigation risk with a side-by-side split:
+  - **Your Position / Pro Se Advantage** (Statutory rights, procedural precedents, and remedies in green).
+  - **Opposing Position / Exposure Points** (Counter-arguments, limitation risks, and burdens of proof in amber).
+
+### 6. 📝 Schema-Enforced Document Drafting & Contract Chat
+- Single-pass legal drafting engine that dynamically selects the correct legal instrument (RTI Form A, Section 106 Reply Notice, Consumer Complaint, Affidavits) and validates missing fields.
+- Document Chat with active drag-and-drop feedback, automated clause extraction, and multi-stage indexing status shimmer.
+
+---
+
+## 3. Technical Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Frontend (React 18 + Vite)"]
-        UI["User Interface"]
-        FAuth["Firebase Auth (JWT)"]
-        SSEConsumer["Native SSE Stream Consumer"]
+    subgraph Client ["Frontend (React 18 + Vite + Tailwind)"]
+        UI["Editorial Paper Interface (#FAF7F2 / #121820)"]
+        Conv["The Convergence 3D Engine (Three.js)"]
+        CitPill["Interactive Citation Pills [ACT · §SEC]"]
+        Stream["Token-by-Token Streaming Consumer"]
+        FAuth["Firebase Client Auth"]
     end
 
     subgraph Backend ["FastAPI Backend (Python 3.11+)"]
-        AuthMiddleware["Firebase Admin Auth Middleware"]
-        Router["FastAPI API Endpoints"]
+        AuthMid["Firebase Admin SDK Middleware"]
+        Router["Async FastAPI Routers"]
         
-        subgraph Classification ["Domain Routing"]
-            RegexRouter{"Zero-LLM Regex Router"}
+        subgraph RoutingEngine ["Classification & Ingestion"]
+            RegexRouter{"0ms Deterministic Regex Classifier"}
         end
         
-        subgraph RAGEngine ["Hybrid Statutory RAG Engine"]
+        subgraph RAGCore ["Hybrid Statutory RAG Engine"]
             Embedder["Pre-Warmed BAAI/bge-base-en-v1.5"]
-            ChromaDB[("ChromaDB (Dense Vector Search)")]
-            BM25[("BM25 (Sparse Keyword Search)")]
-            RRF["Reciprocal Rank Fusion + Statutory Metadata Boosting"]
+            Chroma[("ChromaDB Vector Store (93 Bare Acts)")]
+            BM25[("BM25 Keyword Index")]
+            RRF["Reciprocal Rank Fusion + Metadata Booster"]
         end
 
         KeyRotator["Thread-Safe Gemini API Key Rotator"]
-        LLM["Google Gemini 2.5 Flash"]
+        LLM["Google Gemini 2.5 Flash Engine"]
     end
 
     UI --> FAuth
-    UI -- "HTTP / SSE Request" --> AuthMiddleware
-    AuthMiddleware --> Router
+    UI -- "Authenticated SSE Request" --> AuthMid
+    AuthMid --> Router
     Router --> RegexRouter
     
-    RegexRouter -- "Pre-classified Intent" --> RAGEngine
-    RegexRouter -- "Direct Route" --> RAGEngine
+    RegexRouter -- "0ms Domain Match" --> RAGCore
+    RegexRouter -- "General Routing" --> RAGCore
     
-    RAGEngine --> Embedder
-    Embedder --> ChromaDB
-    RAGEngine --> BM25
-    ChromaDB & BM25 --> RRF
+    RAGCore --> Embedder
+    Embedder --> Chroma
+    RAGCore --> BM25
+    Chroma & BM25 --> RRF
     RRF --> KeyRotator
     KeyRotator --> LLM
-    LLM -- "SSE Event Stream (<500ms TTFT)" --> SSEConsumer
-    SSEConsumer --> UI
+    LLM -- "Server-Sent Events (<500ms TTFT)" --> Stream
+    Stream --> CitPill
+    CitPill --> UI
+    UI --> Conv
 ```
 
-### Technical Implementation Decisions
+### Design System & Visual Standards
 
-| Component | Technology | Selection Rationale |
+| Token | Hex Value | Role & Usage |
 | :--- | :--- | :--- |
-| **Frontend Framework** | React 18 + Vite | Fast HMR build pipeline with native ES module support; lightweight rendering footprint for complex dynamic forms. |
-| **Styling & Motion** | Tailwind CSS + Framer Motion | Provides utility-first styling with micro-interactions for high visual polish and responsive layouts. |
-| **Backend Framework** | FastAPI + Uvicorn | Async Python framework featuring native support for Server-Sent Events (SSE) and fast request serialization. |
-| **LLM Engine** | Google Gemini 2.5 Flash | High context throughput with sub-second generation speed; integrated with custom thread-safe key rotation for rate-limit resilience. |
-| **Dense Vector Search** | ChromaDB + `BAAI/bge-base-en-v1.5` | Top-ranking open-weight embeddings optimized for retrieval quality across legal statutes and structured context. |
-| **Sparse Search** | `rank-bm25` | Exact keyword matching for legal terminology, section numbers, and specific act titles. |
-| **Hybrid Retrieval** | Reciprocal Rank Fusion (RRF) | Merges dense semantics and sparse terms with custom statutory metadata weights, preventing retrieval omissions. |
-| **State & Storage** | SQLite + SQLAlchemy | Lightweight persistent session storage, chat history tracking, and execution metrics without external database server overhead. |
+| `paper.DEFAULT` | `#FAF7F2` | Warm off-white paper canvas base |
+| `dark.DEFAULT` | `#121820` | Editorial navy-black ink for inverted sections |
+| `accent.DEFAULT` | `#C84B31` | Statutory rust accent for badges, rules & focus states |
+| `rule.DEFAULT` | `#E4DFD5` | Subtle warm document boundary rules |
+| `Typography` | Fraunces + Inter + JetBrains Mono | Editorial serif headings, legible body text, monospace legal data |
 
 ---
 
-## 4. Live Demo & Screenshots
+## 4. Getting Started (Local Setup)
 
-> **🌐 Hosted Application**: [https://oosc-4-0-ai-slayers.vercel.app](https://oosc-4-0-ai-slayers.vercel.app)
-
-### Demo Video
-* **Video Link**: [Watch NYAAY AI Demo Video](https://github.com/Ayushk212/OOSC_4.0-AI_SLAYERS) *(Length: < 10 minutes)*
-* **Walkthrough Highlights**: Covers RTI grievance mapping, Consumer Protection warranty notice generation, and instant legal document drafting.
-
-### Core Interface Screenshots
-
-| Civic Navigator Workflow | Single-Pass Document Draft |
-| :---: | :---: |
-| `![Civic Navigator Screenshot](SCREENSHOTS/navigator_demo.png)` | `![Document Generator Screenshot](SCREENSHOTS/draft_demo.png)` |
-| *Real-time SSE streaming dossier with evidence checklists* | *Auto-filled legal document template with schema detection* |
-
----
-
-## 5. Getting Started (Local Setup)
-
-### Quick Start
-To launch both frontend and backend on Windows in one command:
+### Quick Start (Windows PowerShell)
+To launch both frontend and backend concurrently in one command:
 ```powershell
 .\run-app.ps1
 ```
-*(Or follow the manual step-by-step setup below)*
 
 ---
 
-### Prerequisites
+### Manual Step-by-Step Setup
+
+#### Prerequisites
 - **Python**: `v3.11` or higher
 - **Node.js**: `v18.0` or higher (with `npm` v9+)
 - **Google Gemini API Key**: Obtain from [Google AI Studio](https://aistudio.google.com/)
-- **Firebase Project**: Service account credentials JSON for backend verification
+- **Firebase Project**: Service account credentials JSON for backend auth verification
 
----
-
-### Step-by-Step Setup
-
-#### 1. Clone Repository
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/Ayushk212/OOSC_4.0-AI_SLAYERS.git
 cd OOSC_4.0-AI_SLAYERS
@@ -169,9 +210,9 @@ cp .env.example .env
 
 ---
 
-### Environment Variables Configuration
+### Environment Configuration
 
-#### Backend Environment Variables (`BACKEND/.env`)
+#### Backend Environment (`BACKEND/.env`)
 ```env
 # Database Configuration
 DATABASE_URL=sqlite:///./nyaay.db
@@ -180,17 +221,17 @@ DATABASE_URL=sqlite:///./nyaay.db
 FIREBASE_PROJECT_ID=nyaay-ai
 FIREBASE_SERVICE_ACCOUNT_PATH=BACKEND/secrets/serviceAccountKey.json
 
-# Application Settings
+# Application Environment
 ENVIRONMENT=development
 
 # Gemini API Keys (Comma-separated for thread-safe rotator)
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# CORS Settings
-BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://127.0.0.1:3000","http://127.0.0.1:5173"]
+# CORS Origins
+BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://127.0.0.1:3000","http://127.0.0.1:4173"]
 ```
 
-#### Frontend Environment Variables (`FRONTEND/.env`)
+#### Frontend Environment (`FRONTEND/.env`)
 ```env
 # Firebase Client Credentials
 VITE_FIREBASE_API_KEY=your_firebase_api_key
@@ -206,80 +247,76 @@ VITE_API_BASE_URL=http://localhost:8000/api
 
 ---
 
-### 4. Running the Application
+### Running the Services
 
 ```bash
-# Terminal 1 - Run Backend (from BACKEND directory)
+# Terminal 1 — Start FastAPI Backend (from BACKEND/)
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
-# Terminal 2 - Run Frontend (from FRONTEND directory)
+# Terminal 2 — Start Vite Frontend (from FRONTEND/)
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 6. Project Structure
-
-<details>
-<summary><b>📂 Click to expand repo directory tree</b></summary>
+## 6. Repository Directory Structure
 
 ```text
 OOSC_4.0-AI_SLAYERS/
 ├── BACKEND/                     # FastAPI backend application
-│   ├── app/                     # Main backend source code
-│   │   ├── api/                 # API routers (/kanoon, /drafting, /auth)
-│   │   ├── core/                # Core config, key rotator, lifespan hooks
-│   │   ├── db/                  # SQLite database models and schemas
-│   │   ├── rag/                 # RAG orchestrator, ChromaDB, BM25, RRF logic
-│   │   └── main.py              # FastAPI application entry point
-│   ├── corpus/                  # Indexed Indian Bare Acts and statutes
-│   ├── requirements.txt         # Python dependency definitions
+│   ├── app/                     # Backend source code
+│   │   ├── api/                 # API routers (/kanoon, /drafting, /auth, /civic)
+│   │   ├── core/                # Config, key rotator, lifespan pre-warming
+│   │   ├── db/                  # SQLAlchemy models and SQLite schemas
+│   │   ├── rag/                 # RAG orchestrator, ChromaDB, BM25, RRF fusion
+│   │   └── main.py              # Application entry point & lifespan hooks
+│   ├── corpus/                  # 93 indexed Indian Bare Acts and statutes
+│   ├── requirements.txt         # Python dependencies
 │   └── .env.example             # Template for backend environment variables
-├── FRONTEND/                    # React 18 + Vite frontend application
-│   ├── public/                  # Static assets and public resources
-│   ├── src/                     # React components, routes, and SSE hooks
-│   │   ├── components/          # Reusable UI components & Navigator screens
-│   │   ├── context/             # React context state (Auth, Theme)
+├── FRONTEND/                    # React 18 + Vite SPA
+│   ├── src/                     # React application source code
+│   │   ├── components/          # Reusable UI, CitationPills, StreamingText, Nav
+│   │   ├── studio_components/   # TheConvergence, ThreeDocumentPlanes, LandingPage
+│   │   ├── pages/               # CivicNavigator, DocHub, UploadChat, Reasoning
 │   │   ├── services/            # API & SSE streaming integration helpers
-│   │   └── App.jsx              # Main React application component
-│   ├── package.json             # Node.js dependencies and scripts
-│   ├── vercel.json              # Vercel deployment & SPA rewrite routing
-│   └── .env.example             # Template for frontend environment variables
-├── ASSETS/                      # Project branding and assets
-├── DOCS/                        # Technical design documentation
-├── SCREENSHOTS/                 # UI screenshots and previews for evaluation
-├── run-app.ps1                  # Single-command PowerShell app launcher
-├── docker-compose.yml           # Optional Docker orchestration configuration
-└── README.md                    # Project submission documentation
+│   │   ├── data/                # Bare Acts catalog metadata & sample disputes
+│   │   └── App.jsx              # Routing & authentication boundaries
+│   ├── package.json             # Node dependencies and build scripts
+│   ├── tailwind.config.js       # Canonical color tokens and typography scale
+│   └── vercel.json              # Vercel SPA rewrite deployment configuration
+├── SCREENSHOTS/                 # High-resolution interface previews
+├── run-app.ps1                  # Single-command Windows launcher script
+└── README.md                    # Project submission & technical architecture
 ```
 
-</details>
+---
+
+## 7. Roadmap & Next Milestones
+
+- [x] **3D Statutory Array with Contact Shadows**: Realistic physical depth cues and RRF narrowing telemetry.
+- [x] **Interactive Section Citation Pills**: Hover popover excerpts and statute inspect triggers.
+- [x] **Two-Column Comparative Analysis**: Side-by-side Pro Se Advantage vs. Litigation Risk evaluation.
+- [ ] **Multi-Lingual Voice Navigation**: Indic voice-to-text models (Bhashini API) for audio-first guidance in regional languages.
+- [ ] **Judicial Case Law Ingestion**: Extending retrieval to include High Court and Supreme Court precedents alongside statutory enactments.
+- [ ] **Automated E-Filing Submission**: Direct API connectors to state RTI portals and consumer dispute e-daakhil systems.
 
 ---
 
-## 7. Roadmap & Future Vision
-
-- [ ] **Multi-Lingual Voice Navigation**: Integrate Indic voice-to-text models (Bhashini API) for audio-first legal guidance in regional languages.
-- [ ] **Supreme Court & High Court Case Law Ingestion**: Extend RAG retrieval to include judicial precedents alongside statutory Bare Acts.
-- [ ] **State Jurisdiction Auto-Detection**: Dynamically load state-specific amendments (e.g., Maharashtra Rent Control Act vs. Delhi Rent Control Act) based on citizen location.
-- [ ] **E-Filing Portal Integration**: Direct API connections to government filing systems for seamless RTI application submission.
-
----
-
-## 8. Team & Credits
+## 8. Team & Submission Credits
 
 * **Team Name**: AI Slayers
-* **Hackathon Track**: Problem Statement 3 — AI for Civic and Legal Empowerment
+* **Hackathon**: OOSC 4.0 (Finals)
+* **Track**: Problem Statement 3 — AI for Civic and Legal Empowerment
 
-| Member | Role | Focus Areas |
-| :--- | :--- | :--- |
-| **Ayush** | Lead Architect & Full Stack | FastAPI, Hybrid RAG Engine, Gemini Key Rotator, SSE Streaming, React |
-| **Ansh Darji** | Core Developer | Corpus indexing, ChromaDB / BM25 fusion, UI components |
+| Contributor | Core Responsibilities |
+| :--- | :--- |
+| **Ayush** | Lead Architecture, Hybrid RAG Engine, Gemini Key Rotator, SSE Streaming, React Design System |
+| **Ansh Darji** | Statutory Corpus Indexing, ChromaDB / BM25 Ingestion Pipeline, Document Schema Engineering |
 
 ---
 
 ## 9. License
 
-This project is open-source under the terms of the [MIT License](LICENSE).
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.

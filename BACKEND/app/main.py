@@ -28,7 +28,19 @@ async def lifespan(app: FastAPI):
     # Pre-warm the embedding model so TTFT isn't 40s on first request
     from app.knowledge.embeddings import embedding_service
     embedding_service.warmup()
-    logger.info("Embedding model warmed up and ready")
+    
+    # Warm up global BM25
+    from app.knowledge.bm25_manager import bm25_manager
+    bm25_manager.get_index("global")
+    
+    # Tiny end-to-end warm pass to trigger torch/thread init for reranker
+    try:
+        from app.knowledge.reranker import reranker_service
+        reranker_service.rerank("warmup", [{"document": "warmup", "metadata": {}}], top_k=1)
+    except Exception as e:
+        logger.warning(f"Reranker warmup failed: {e}")
+        
+    logger.info("All heavy models warmed up and ready")
     
     yield
     # --- Shutdown --- (nothing to clean up yet)

@@ -56,3 +56,6 @@ hard_queries_test.json
 *.log
 retrieval_test_results.json
 BACKEND/logs/
+
+# Ignore large SQLite files
+BACKEND/chroma_db_backup/chroma.sqlite3

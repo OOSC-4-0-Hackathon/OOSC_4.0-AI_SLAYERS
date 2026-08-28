@@ -5,6 +5,19 @@ import torch
 
 logger = logging.getLogger(__name__)
 
+try:
+    import spaces
+except ImportError:
+    # Dummy decorator for local dev
+    class spaces:
+        @staticmethod
+        def GPU(*args, **kwargs):
+            def decorator(func):
+                return func
+            if len(args) == 1 and callable(args[0]):
+                return args[0]
+            return decorator
+
 class EmbeddingService:
     def __init__(self):
         self.model_name = "BAAI/bge-base-en-v1.5"
@@ -21,6 +34,8 @@ class EmbeddingService:
             logger.info(f"Warming up embedding model {self.model_name} on {self.device}...")
             self.model = SentenceTransformer(self.model_name, device=self.device)
             logger.info("Embedding model warmed up successfully.")
+            
+    @spaces.GPU(duration=60)
     def embed_texts(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings for a list of texts."""
         if not texts:
@@ -31,8 +46,9 @@ class EmbeddingService:
                 logger.info(f"Loading embedding model {self.model_name} on {self.device}...")
                 self.model = SentenceTransformer(self.model_name, device=self.device)
                 if self.device == "cpu":
+                    from app.core.config import settings
                     # Optimize for Intel CPU (avoiding oversubscription of E-cores)
-                    torch.set_num_threads(8)
+                    torch.set_num_threads(getattr(settings, "TORCH_NUM_THREADS", 4))
                 logger.info("Embedding model loaded successfully.")
 
             # sentence_transformers encodes batches efficiently under the hood
@@ -45,6 +61,9 @@ class EmbeddingService:
             logger.error(f"Failed to generate embeddings: {e}")
             raise e
             
+    import functools
+    
+    @functools.lru_cache(maxsize=256)
     def embed_query(self, query: str) -> List[float]:
         """Generate embedding for a single query."""
         # BGE models use a specific prefix for queries to improve retrieval

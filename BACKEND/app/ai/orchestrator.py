@@ -16,6 +16,66 @@ from app.ai.prompt_builder import prompt_builder
 from app.core.metrics import global_metrics
 from app.ai.validator import calculate_retrieval_confidence, validate_response, extract_reasoning_confidence
 
+
+def thinking_config(level: str = "minimal"):
+    """Low-latency ThinkingConfig for the Gemini 3 flash models we use.
+
+    Thinking is on by default and dominated end-to-end latency (~7s on the
+    analysis call) while also eating the max_output_tokens budget, which
+    truncated the structured-analysis JSON.
+
+    Only `thinking_level` works here: `thinking_budget=0` and
+    `thinking_level="none"` are both rejected with HTTP 400 by
+    gemini-3.6-flash and gemini-flash-lite-latest. Supported low settings are
+    "minimal" and "low". Returns None if the installed SDK predates
+    `thinking_level`, so callers fall back to the model default rather than
+    raising.
+    """
+    try:
+        return types.ThinkingConfig(thinking_level=level)
+    except Exception:
+        return None
+
+
+# Analysis prompt, shared by the cached (no-history) and uncached paths.
+ANALYSIS_SYS_PROMPT = """You are a legal case strategist. Analyze the user's query and decompose it into a structured CASE_OBJECT.
+Return ONLY this JSON:
+{
+  "case_summary": "A clear, plain-language summary of the dispute.",
+  "legal_issues": ["Specific legal question 1", "Specific legal question 2"],
+  "material_facts": ["Fact 1", "Fact 2"],
+  "missing_facts": ["What critical information is missing? (e.g., State, Date of notice)"],
+  "sub_queries": ["Search query for issue 1", "Search query for issue 2"],
+  "domains": {"Domain Name": 0.9},
+  "explicit_sc_requested": true|false
+}
+Rules:
+- sub_queries: 1-5 concise retrieval strings optimized for a vector database.
+- domains: only Indian legal domains; confidence float (e.g. 0.9).
+- explicit_sc_requested: true only if user explicitly mentions SC/precedent/case law.
+Output ONLY the JSON. No explanation."""
+
+# Free-tier quota is enforced per-project-per-model. gemini-3.6-flash allows
+# only ~20 requests/day, so it is the FALLBACK here, not the primary: analysis
+# is a short structured extraction that flash-lite handles just as well and
+# measurably faster, and this keeps one exhausted model from adding seconds of
+# 429 round-trips to every request. Flash models only — never a pro model.
+ANALYSIS_MODELS = ("gemini-flash-lite-latest", "gemini-3.6-flash")
+
+# A model whose daily quota is exhausted stays exhausted for hours, so remember
+# it instead of paying for the 429 on every subsequent request.
+_MODEL_COOLDOWN: Dict[str, float] = {}
+_MODEL_COOLDOWN_SECONDS = 900
+
+
+def _available_models(models) -> List[str]:
+    """Models not currently known to be quota-exhausted (all of them if every
+    candidate is cooling down, so we still attempt rather than hard-fail)."""
+    now = time.time()
+    live = [m for m in models if _MODEL_COOLDOWN.get(m, 0) <= now]
+    return live or list(models)
+
+
 class RAGOrchestrator:
     def __init__(self):
         # Base client for quick tasks, but we'll use rotator for heavy gen
@@ -70,148 +130,240 @@ Output ONLY the expanded search query, nothing else."""
         signals = sum([has_sc_request, has_multi_domain, is_very_long])
         return signals >= 1
 
-    def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
-        sys_prompt = """You are a legal case strategist. Analyze the user's query and decompose it into a structured CASE_OBJECT.
-Return ONLY this JSON:
-{
-  "case_summary": "A clear, plain-language summary of the dispute.",
-  "legal_issues": ["Specific legal question 1", "Specific legal question 2"],
-  "material_facts": ["Fact 1", "Fact 2"],
-  "missing_facts": ["What critical information is missing? (e.g., State, Date of notice)"],
-  "sub_queries": ["Search query for issue 1", "Search query for issue 2"],
-  "domains": {"Domain Name": 0.9},
-  "explicit_sc_requested": true|false
-}
-Rules:
-- sub_queries: 1-5 concise retrieval strings optimized for a vector database.
-- domains: only Indian legal domains; confidence float (e.g. 0.9).
-- explicit_sc_requested: true only if user explicitly mentions SC/precedent/case law.
-Output ONLY the JSON. No explanation."""
+    import functools
+
+    @functools.lru_cache(maxsize=128)
+    def _analyze_query_cached(self, question: str) -> str:
+        """Cached wrapper. Deliberately lets failures propagate: lru_cache does
+        not memoize exceptions, so a transient quota error won't poison the
+        cache with an empty analysis for the rest of the process lifetime."""
+        return self._run_analysis_llm(question)
+
+    def _run_analysis_llm(self, question: str) -> str:
+        """Structured-analysis call with key rotation and model fallback.
+
+        Free-tier quota is enforced per-project-per-MODEL (gemini-3.6-flash
+        allows only 20 requests/day), so a 429 means "try another key, then the
+        next model" — not "give up". Previously any 429 returned "{}", which
+        silently collapsed the multi-query fan-out to a single query and tripped
+        the answer quality gate. Raises if every model/key is exhausted.
+        """
+        import time
         user_prompt = f"User Query: {question}\nJSON Output:"
-        try:
-            temp_client = genai.Client(api_key=key_rotator.get())
-            import time
-            import json
-            for attempt in range(3):
+        analysis_config = types.GenerateContentConfig(
+            system_instruction=ANALYSIS_SYS_PROMPT,
+            response_mime_type="application/json",
+            max_output_tokens=800,
+        )
+        _tc = thinking_config(getattr(settings, "ANALYSIS_THINKING_LEVEL", "minimal"))
+        if _tc is not None:
+            analysis_config.thinking_config = _tc
+
+        last_err = None
+        for model in _available_models(ANALYSIS_MODELS):
+            quota_exhausted = False
+            # Try a few distinct keys per model before falling back to the next.
+            for _ in range(max(1, min(3, key_rotator.count))):
+                key = key_rotator.get()
                 try:
-                    res = temp_client.models.generate_content(
-                        model='gemini-3.6-flash',
+                    # Keep a strong reference to the client: if it is only
+                    # reachable through `.models`, CPython can collect it
+                    # mid-call and close the underlying transport
+                    # ("Cannot send a request, as the client has been closed").
+                    client = genai.Client(api_key=key)
+                    res = client.models.generate_content(
+                        model=model,
                         contents=user_prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=sys_prompt,
-                            response_mime_type="application/json"
-                        )
+                        config=analysis_config,
                     )
-                    break
+                    return (res.text or "").strip()
                 except Exception as e:
-                    if "503" in str(e) and attempt < 2:
-                        time.sleep(2)
+                    last_err = e
+                    err = str(e)
+                    # Per-model daily cap: rotate to the next key, then the next
+                    # model. Do NOT retire the key — it may still have quota on
+                    # the other model (and for generation).
+                    if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                        quota_exhausted = True
                         continue
-                    raise e
-            return json.loads(res.text)
+                    if "503" in err:
+                        time.sleep(1)
+                        continue
+                    break  # non-retryable for this model; try the next model
+            if quota_exhausted:
+                _MODEL_COOLDOWN[model] = time.time() + _MODEL_COOLDOWN_SECONDS
+                logger.warning(f"Analysis model {model} quota-exhausted across keys; cooling down.")
+        raise last_err if last_err else RuntimeError("Structured analysis failed")
+
+    def _analyze_query_structured(self, question: str, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+        import json
+        text = "{}"
+        try:
+            # History bypasses the cache (the analysis is per-question); the
+            # prompt itself is identical in both cases.
+            if not history:
+                text = self._analyze_query_cached(question.strip().lower())
+            else:
+                text = self._run_analysis_llm(question)
         except Exception as e:
             logger.warning(f"Structured analysis failed: {e}")
+
+        try:
+            # Clean up markdown JSON block if present
+            text = text.replace("```json", "").replace("```", "").strip()
+            parsed = json.loads(text)
+            if not isinstance(parsed, dict) or not parsed:
+                raise ValueError("empty analysis object")
+            return parsed
+        except Exception as e:
+            logger.warning(f"Structured analysis unusable, falling back to raw question: {e}")
             return {"case_summary": question, "legal_issues": [], "material_facts": [], "missing_facts": [], "sub_queries": [question], "domains": {}, "explicit_sc_requested": False}
 
-    def _multi_query_retrieve(self, sub_queries: List[str], base_query_embedding: List[float], predicted_domains: Dict[str, float], doc_type_priority: str, filters: Dict[str, Any], explicit_sc_requested: bool) -> List[Dict[str, Any]]:
+    def _multi_query_retrieve(self, sub_queries: List[str], base_query_embedding: List[float], predicted_domains: Dict[str, float], doc_type_priority: str, filters: Dict[str, Any], explicit_sc_requested: bool, seed_chunks: List[Dict[str, Any]] = None, primary_query: str = None) -> List[Dict[str, Any]]:
+        """Fan out over sub-queries but rerank the deduplicated union ONCE.
+
+        Candidate generation (dense + BM25 + RRF) is cheap (~0.08s); the
+        cross-encoder rerank is ~0.1s/pair on CPU and dominates latency. The
+        old design reranked each sub-query's pool (and each SC pool) separately
+        — 3-6 reranks of ~30 candidates = 90-180 pairs = 9-19s. Here we gather
+        cheap fused candidates from every sub-query (+SC), dedupe, then rerank
+        at most RERANK_MERGED_POOL of them a single time against the user's
+        question. `seed_chunks` are already-reranked chunks (e.g. the streaming
+        provisional search) that are merged in without re-reranking.
+        """
+        from app.core.config import settings
+        sub_queries = sub_queries[:getattr(settings, 'MAX_SUB_QUERIES', 3)]
+        seed_chunks = seed_chunks or []
         if not sub_queries:
-            return []
-            
-        import concurrent.futures
-        
+            return seed_chunks
+        primary_query = primary_query or sub_queries[0]
+        n_sub = len(sub_queries)
+
+        # Batch-embed sub-queries (BGE query prefix, matches embed_query).
         prefix = "Represent this sentence for searching relevant passages: "
         try:
             embeddings = embedding_service.embed_texts([prefix + sq for sq in sub_queries])
         except Exception:
-            embeddings = [base_query_embedding] * len(sub_queries)
-                
-        all_results = []
-        
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as ex:
-            future_to_sq_idx = {}
-            for i, sq in enumerate(sub_queries):
-                f = ex.submit(
-                    hybrid_retriever.search,
-                    query=sq,
-                    query_embedding=embeddings[i],
-                    n_results=10,
-                    where=filters,
+            embeddings = [base_query_embedding] * n_sub
+
+        per_pool = getattr(settings, "RERANK_CANDIDATE_POOL", 30)
+
+        # 1. Gather CHEAP fused candidates (no rerank) from every sub-query.
+        fused_lists = []  # list of (sub_idx, [candidates ordered by rrf])
+        for i, sq in enumerate(sub_queries):
+            try:
+                cands = hybrid_retriever._fuse_candidates(
+                    sq, embeddings[i], per_pool, where=filters,
                     predicted_domains=predicted_domains,
-                    document_type_priority=doc_type_priority
+                    document_type_priority=doc_type_priority,
                 )
-                future_to_sq_idx[f] = i
-                
-            if explicit_sc_requested:
-                if hasattr(hybrid_retriever, 'search_sc_only'):
-                    for i, sq in enumerate(sub_queries):
-                        f = ex.submit(
-                            hybrid_retriever.search_sc_only,
-                            query=sq,
-                            query_embedding=embeddings[i],
-                            n_results=5,  # 5 per sub_query to prevent overloading context
-                            predicted_domains=predicted_domains
-                        )
-                        future_to_sq_idx[f] = i
-                    
-            for f in concurrent.futures.as_completed(future_to_sq_idx):
-                sq_idx = future_to_sq_idx[f]
+                fused_lists.append((i, cands))
+            except Exception as e:
+                logger.warning(f"Candidate fusion failed for sub-query {i}: {e}")
+
+        if explicit_sc_requested and hasattr(hybrid_retriever, "_fuse_sc_candidates"):
+            for i, sq in enumerate(sub_queries):
                 try:
-                    res = f.result()
-                    for r in res:
-                        if "sub_issue_ids" not in r["metadata"]:
-                            r["metadata"]["sub_issue_ids"] = set()
-                        r["metadata"]["sub_issue_ids"].add(sq_idx)
-                    all_results.extend(res)
+                    sc_cands = hybrid_retriever._fuse_sc_candidates(
+                        sq, embeddings[i], per_pool, predicted_domains)
+                    fused_lists.append((i, sc_cands))
                 except Exception as e:
-                    logger.warning(f"Parallel retrieval failed: {e}")
-                    
-        dedup_map = {}
-        for r in all_results:
-            cid = r["id"]
-            if cid not in dedup_map:
-                dedup_map[cid] = r
-            else:
-                dedup_map[cid]["metadata"]["sub_issue_ids"].update(r["metadata"]["sub_issue_ids"])
-                if r.get("metadata", {}).get("final_score", 0) > dedup_map[cid].get("metadata", {}).get("final_score", 0):
-                    # Keep the higher score, but maintain merged sub_issue_ids
-                    merged_issues = dedup_map[cid]["metadata"]["sub_issue_ids"]
-                    dedup_map[cid] = r
-                    dedup_map[cid]["metadata"]["sub_issue_ids"] = merged_issues
-                    
-        unique_results = list(dedup_map.values())
-        
-        # Fair Allocation: Pick top N per sub_issue to guarantee issue coverage
+                    logger.warning(f"SC candidate fusion failed for sub-query {i}: {e}")
+
+        # 2. Dedupe by id; union the sub-issue tags; keep the highest RRF entry.
+        seed_ids = {s["id"] for s in seed_chunks}
+        cand_map = {}
+        for sub_idx, cands in fused_lists:
+            for c in cands:
+                cid = c["id"]
+                if cid in seed_ids:
+                    continue  # already reranked in seed_chunks
+                if cid not in cand_map:
+                    c["metadata"]["sub_issue_ids"] = {sub_idx}
+                    cand_map[cid] = c
+                else:
+                    cand_map[cid]["metadata"]["sub_issue_ids"].add(sub_idx)
+                    if c["metadata"].get("rrf_score", 0) > cand_map[cid]["metadata"].get("rrf_score", 0):
+                        merged_issues = cand_map[cid]["metadata"]["sub_issue_ids"]
+                        c["metadata"]["sub_issue_ids"] = merged_issues
+                        cand_map[cid] = c
+
+        unique_candidates = sorted(
+            cand_map.values(),
+            key=lambda x: x["metadata"].get("rrf_score", 0), reverse=True)
+
+        # 3. Round-robin select the rerank pool so every sub-issue is represented
+        #    even if one sub-query's RRF scores dominate. The working set target is
+        #    RERANK_MERGED_POOL; seed_chunks are ALREADY reranked, so we only need
+        #    to rerank enough NEW candidates to top the set up — this is what makes
+        #    reusing the streaming provisional rerank an actual latency saving.
+        by_issue = {i: [] for i in range(n_sub)}
+        for c in unique_candidates:
+            for si in c["metadata"]["sub_issue_ids"]:
+                if si in by_issue:
+                    by_issue[si].append(c)
+
+        merged_cap = max(0, getattr(settings, "RERANK_MERGED_POOL", 32) - len(seed_chunks))
+        pool, pool_ids = [], set()
+        cursors = {i: 0 for i in range(n_sub)}
+        progressed = True
+        while len(pool) < merged_cap and progressed:
+            progressed = False
+            for i in range(n_sub):
+                lst = by_issue[i]
+                while cursors[i] < len(lst):
+                    c = lst[cursors[i]]
+                    cursors[i] += 1
+                    if c["id"] not in pool_ids:
+                        pool.append(c)
+                        pool_ids.add(c["id"])
+                        progressed = True
+                        break
+                if len(pool) >= merged_cap:
+                    break
+
+        # 4. Rerank the whole pool ONCE against the user's question.
+        if pool:
+            from app.knowledge.reranker import reranker_service
+            pool = reranker_service.rerank(primary_query, pool, top_k=len(pool))
+            for r in pool:
+                r["metadata"]["rrf_score"] = r["metadata"].get("final_score", r["metadata"].get("rrf_score", 0.0))
+
+        # 5. Merge with already-reranked seed chunks (all now carry final_score).
+        for s in seed_chunks:
+            s["metadata"].setdefault("sub_issue_ids", {0})
+        unique_results = pool + list(seed_chunks)
+
+        # Normalize sub_issue_ids to lists for downstream/JSON safety.
+        for r in unique_results:
+            ids = r["metadata"].get("sub_issue_ids", {0})
+            r["metadata"]["sub_issue_ids"] = list(ids) if isinstance(ids, (set, list)) else [0]
+
+        unique_results.sort(key=lambda x: x.get("metadata", {}).get("final_score", 0), reverse=True)
+
+        # 6. Fair allocation: guarantee minimum coverage per sub-issue, then fill
+        #    remaining slots with the highest overall final_score.
         final_selected = []
         selected_ids = set()
-        
-        # Round-robin selection across sub-queries
-        for r in unique_results:
-            r['metadata']['sub_issue_ids'] = list(r['metadata']['sub_issue_ids'])
-            
-        unique_results.sort(key=lambda x: x.get("metadata", {}).get("final_score", 0), reverse=True)
-        
         target_total = 20
-        per_issue_target = max(1, target_total // len(sub_queries))
-        
-        issue_counts = {i: 0 for i in range(len(sub_queries))}
-        
-        # 1. Fill minimum per issue
-        for i in range(len(sub_queries)):
+        per_issue_target = max(1, target_total // n_sub)
+        issue_counts = {i: 0 for i in range(n_sub)}
+
+        for i in range(n_sub):
             for r in unique_results:
                 if r["id"] not in selected_ids and i in r["metadata"]["sub_issue_ids"]:
                     if issue_counts[i] < per_issue_target:
                         final_selected.append(r)
                         selected_ids.add(r["id"])
                         issue_counts[i] += 1
-                        
-        # 2. Fill remaining with highest overall scores
+
         for r in unique_results:
             if len(final_selected) >= target_total:
                 break
             if r["id"] not in selected_ids:
                 final_selected.append(r)
                 selected_ids.add(r["id"])
-                
+
         return final_selected
 
     def _filter_relevant_chunks(self, question: str, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -314,7 +466,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
                     predicted_domains,
                     doc_type_priority,
                     filters,
-                    explicit_sc
+                    explicit_sc,
+                    primary_query=question,
                 )
             except Exception as e:
                 logger.error(f"Vector search failed: {e}")
@@ -365,7 +518,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         gen_start = time.time()
 
         # 5. Generation (Single LLM Call)
-        raw_answer, retry_sleep_time = self._generate_with_fallback(system_instruction, user_prompt)
+        response_mime_type = "application/json" if task_type == "REASONING" else None
+        raw_answer, retry_sleep_time = self._generate_with_fallback(system_instruction, user_prompt, response_mime_type)
         
         # 6. Deterministic Validation & Repair
         if raw_answer:
@@ -373,7 +527,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             if not is_valid:
                 logger.warning(f"Validation failed: {validated_answer}. Regenerating once.")
                 # Single Regeneration
-                raw_answer, retry_sleep_time2 = self._generate_with_fallback(system_instruction, user_prompt)
+                raw_answer, retry_sleep_time2 = self._generate_with_fallback(system_instruction, user_prompt, response_mime_type)
                 retry_sleep_time += retry_sleep_time2
                 if raw_answer:
                     is_valid, validated_answer = validate_response(raw_answer)
@@ -487,39 +641,63 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         query_analysis = {}
         
         if is_complex:
-            query_analysis = self._analyze_query_structured(question, history)
-            search_query = (query_analysis.get("sub_queries") or [question])[0]
-            predicted_domains = query_analysis.get("domains", {})
+            import concurrent.futures
             
-            # Failsafe Domain Prediction
-            if not predicted_domains:
-                from app.ai.domain_classifier import domain_classifier
-                logger.info("Structured domains empty. Falling back to domain_classifier.")
-                domain_preds = domain_classifier.predict_domain(search_query)
-                predicted_domains = domain_preds.get("domains", {})
+            def provisional_search_task():
+                q_emb = embedding_service.embed_query(question)
+                # Cheap seed only: a small rerank pool keeps this fully hidden
+                # behind the concurrent analysis LLM call. The multi-query pass
+                # reranks the merged union afterwards.
+                return q_emb, hybrid_retriever.search(
+                    question, q_emb,
+                    n_results=getattr(settings, "PROVISIONAL_N_RESULTS", 10),
+                    where=filters,
+                    predicted_domains={},
+                    candidate_pool=getattr(settings, "PROVISIONAL_CANDIDATE_POOL", 14),
+                )
                 
+            yield f"data: {json.dumps({'type': 'status', 'data': 'Analyzing intent and searching corpus...'})}\n\n"
+            emb_start = time.time()
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+                llm_future = ex.submit(self._analyze_query_structured, question, history)
+                search_future = ex.submit(provisional_search_task)
+                
+                query_analysis = llm_future.result()
+                try:
+                    query_embedding, prov_chunks = search_future.result()
+                except Exception:
+                    yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
+                    return
+                    
+            emb_latency = round(time.time() - emb_start, 2)
+            predicted_domains = query_analysis.get("domains", {})
             doc_type_priority = "any"
             explicit_sc = query_analysis.get("explicit_sc_requested", False)
             
-            yield f"data: {json.dumps({'type': 'status', 'data': 'Searching legal corpus...'})}\n\n"
-            emb_start = time.time()
             try:
-                query_embedding = embedding_service.embed_query(search_query)
-            except:
-                yield f"data: {json.dumps({'type': 'error', 'data': 'Internal error while processing your question.'})}\n\n"
-                return
-            emb_latency = round(time.time() - emb_start, 2)
-            
-            retrieval_start = time.time()
-            try:
-                chunks = self._multi_query_retrieve(
-                    (query_analysis.get("sub_queries") or [question]),
-                    query_embedding,
-                    predicted_domains,
-                    doc_type_priority,
-                    filters,
-                    explicit_sc
-                )
+                # Use provisional chunks if no subqueries, otherwise run multi-query
+                sub_queries = query_analysis.get("sub_queries") or [question]
+                # The provisional search already reranked the raw question under
+                # the SAME `filters` used below, so its chunks are safe to reuse
+                # as seeds and to return directly on the fast path — no chunk can
+                # cross a tenant/where boundary. (Previously it ran with
+                # where=None and the fast path returned those unfiltered chunks.)
+                seed = prov_chunks
+                retrieval_start = time.time()
+                if len(sub_queries) <= 1 and not explicit_sc and not predicted_domains:
+                    chunks = prov_chunks
+                else:
+                    chunks = self._multi_query_retrieve(
+                        sub_queries,
+                        query_embedding,
+                        predicted_domains,
+                        doc_type_priority,
+                        filters,
+                        explicit_sc,
+                        seed_chunks=seed,
+                        primary_query=question,
+                    )
             except Exception as e:
                 yield f"data: {json.dumps({'type': 'error', 'data': 'Failed to retrieve context.'})}\n\n"
                 return
@@ -592,13 +770,11 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             current_key = key_rotator.get()
             config = types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                max_output_tokens=2048,
+                max_output_tokens=8192,
             )
-            # Disable thinking if possible
-            try:
-                config.thinking_config = types.ThinkingConfig(disabled=True)
-            except Exception:
-                pass
+            _tc = thinking_config(getattr(settings, "GEN_THINKING_LEVEL", "low"))
+            if _tc is not None:
+                config.thinking_config = _tc
 
             import threading
             import queue
@@ -626,7 +802,8 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             while True:
                 time_left = deadline - time.time()
                 if time_left <= 0:
-                    yield f"data: {json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 25s SLA]'})}\n\n"
+                    err_json = json.dumps({'type': 'error', 'data': '\n\n[Generation timed out to meet 25s SLA]'})
+                    yield f"data: {err_json}\n\n"
                     break
                     
                 try:
@@ -729,7 +906,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
 
         yield f"data: {json.dumps({'type': 'complete', 'citations': citations, 'metrics': metrics})}\n\n"
 
-    def _generate_with_fallback(self, system_instruction: str, user_prompt: str) -> tuple[str, float]:
+    def _generate_with_fallback(self, system_instruction: str, user_prompt: str, response_mime_type: str = None) -> tuple[str, float]:
         import time
         from app.core.config import settings
         max_retries = 2
@@ -741,12 +918,20 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             try:
                 current_key = key_rotator.get()
                 temp_client = genai.Client(api_key=current_key)
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    max_output_tokens=8192,
+                )
+                if response_mime_type:
+                    config.response_mime_type = response_mime_type
+                _tc = thinking_config(getattr(settings, "GEN_THINKING_LEVEL", "low"))
+                if _tc is not None:
+                    config.thinking_config = _tc
+
                 response = temp_client.models.generate_content(
                     model=model_name,
                     contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                    ),
+                    config=config,
                 )
                 return response.text.strip(), total_sleep_time
             except Exception as e:

@@ -40,25 +40,37 @@ class LegalStructuralChunker:
             if not para:
                 continue
                 
-            # Check for structural changes
-            structure_changed = False
+            # Check for structural changes without mutating context yet
+            pending = None  # (ContextKey, value, is_section_or_article, heading_line)
             for key, pattern in self.patterns.items():
                 match = re.match(pattern, para)
                 if match:
-                    current_context[key.capitalize()] = match.group(1)
-                    if key in ["section", "article"]:
-                        # Treat the line itself or the next short lines as Heading
-                        current_context["Heading"] = para
-                    structure_changed = True
+                    pending = (key.capitalize(), match.group(1), key in ("section", "article"), para)
                     break
                     
-            if structure_changed and lines_buffer:
-                # We hit a major boundary, flush current buffer if it's substantial enough
-                # Or if we're changing Sections/Articles
-                if char_count > 200:
+            # Flush the buffer under the CURRENT (old) context on a boundary
+            if pending and lines_buffer:
+                is_section_boundary = pending[2]
+                if is_section_boundary or char_count > 200:
                     chunks.append(self._create_chunk(lines_buffer, current_context, base_metadata))
                     lines_buffer = []
                     char_count = 0
+                    
+            # Now apply the update for the NEW section and reset lower hierarchy levels
+            if pending:
+                ctx_key, ctx_val, is_heading, heading_line = pending
+                current_context[ctx_key] = ctx_val
+                if ctx_key == "Part":
+                    current_context["Chapter"] = None
+                    current_context["Section"] = None
+                    current_context["Article"] = None
+                    current_context["Heading"] = None
+                elif ctx_key == "Chapter":
+                    current_context["Section"] = None
+                    current_context["Article"] = None
+                    current_context["Heading"] = None
+                if is_heading:
+                    current_context["Heading"] = heading_line
                     
             # If line is short and uppercase, it might be a sub-heading, append it
             lines_buffer.append(para)

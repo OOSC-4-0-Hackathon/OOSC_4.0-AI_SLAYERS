@@ -8,7 +8,8 @@ export const askCivicStream = async (payload, onMessage, onComplete, onError) =>
             token = "mock-token";
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api/kanoon/query-stream`, {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const response = await fetch(`${baseUrl}/kanoon/query-stream`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

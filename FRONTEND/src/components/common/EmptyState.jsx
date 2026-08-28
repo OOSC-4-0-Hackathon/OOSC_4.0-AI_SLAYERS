@@ -25,7 +25,7 @@ export default function EmptyState({ icon, eyebrow, title, subtitle, actions = [
 
       {/* Eyebrow */}
       {eyebrow && (
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#A8A39A] mb-3 block">
+        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted mb-3 block">
           {eyebrow}
         </span>
       )}
@@ -33,7 +33,7 @@ export default function EmptyState({ icon, eyebrow, title, subtitle, actions = [
       {/* Title */}
       {title && (
         <h2
-          className="text-[22px] font-bold text-[#1A1814] mb-2 leading-tight"
+          className="text-[22px] font-bold text-ink mb-2 leading-tight"
           style={{ fontFamily: 'Newsreader, Georgia, serif' }}
         >
           {title}
@@ -42,7 +42,7 @@ export default function EmptyState({ icon, eyebrow, title, subtitle, actions = [
 
       {/* Subtitle — one-line max */}
       {subtitle && (
-        <p className="text-[13px] text-[#7A7469] mb-7 leading-relaxed">
+        <p className="text-[13px] text-ink-muted mb-7 leading-relaxed">
           {subtitle}
         </p>
       )}
@@ -54,7 +54,7 @@ export default function EmptyState({ icon, eyebrow, title, subtitle, actions = [
             <button
               key={i}
               onClick={action.onClick}
-              className="text-[13px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-2.5 rounded-[4px] text-[#7A7469] hover:text-[#1A1814] text-left transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#C8821A]"
+              className="text-[13px] bg-paper hover:bg-paper-warm border border-paper-rule px-4 py-2.5 rounded-[4px] text-ink-muted hover:text-ink text-left transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             >
               {action.label}
             </button>

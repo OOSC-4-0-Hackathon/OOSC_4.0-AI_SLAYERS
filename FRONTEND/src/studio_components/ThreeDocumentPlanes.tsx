@@ -12,6 +12,26 @@ interface ThreeDocumentPlanesProps {
   className?: string;
 }
 
+// Helper to generate soft radial contact shadow texture for paper planes
+function createContactShadowTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Soft elliptical drop shadow
+    const grad = ctx.createRadialGradient(128, 64, 4, 128, 64, 115);
+    grad.addColorStop(0, 'rgba(18, 24, 32, 0.40)');
+    grad.addColorStop(0.35, 'rgba(18, 24, 32, 0.22)');
+    grad.addColorStop(0.70, 'rgba(26, 24, 20, 0.08)');
+    grad.addColorStop(1, 'rgba(26, 24, 20, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 128);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
+}
+
 // Procedural Canvas Texture Generator for realistic documentary legal paper planes
 function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -23,12 +43,22 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
     return new THREE.CanvasTexture(canvas);
   }
 
-  // Base paper background
-  ctx.fillStyle = isActive ? '#FFFFFF' : '#FAF7F2';
+  // Directional lighting gradient on card surface from upper-left (subtle 3-5% paper catch)
+  const surfaceGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  if (isActive) {
+    surfaceGrad.addColorStop(0, '#FFFFFF');
+    surfaceGrad.addColorStop(0.65, '#FDFCF9');
+    surfaceGrad.addColorStop(1, '#F7F1E8');
+  } else {
+    surfaceGrad.addColorStop(0, '#FFFFFF');
+    surfaceGrad.addColorStop(0.40, '#FAF7F2');
+    surfaceGrad.addColorStop(1, '#EEE6D8');
+  }
+  ctx.fillStyle = surfaceGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Outer border & ruled lines
-  ctx.strokeStyle = isActive ? '#C84B31' : '#DDD6C9';
+  ctx.strokeStyle = isActive ? '#C84B31' : '#D5CEC2';
   ctx.lineWidth = isActive ? 10 : 4;
   ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
 
@@ -64,12 +94,12 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
   ctx.fillText(line, 40, y);
 
   // Metadata badge
-  ctx.fillStyle = '#5A687D';
+  ctx.fillStyle = '#556377';
   ctx.font = '16px monospace';
   ctx.fillText(`YEAR: ${act.year} • SECTIONS: ${act.sectionCount}`, 40, y + 40);
 
   // Ruled legal paper lines
-  ctx.strokeStyle = '#EAE4D8';
+  ctx.strokeStyle = '#F2EFE9';
   ctx.lineWidth = 2;
   for (let ly = y + 70; ly < canvas.height - 100; ly += 28) {
     ctx.beginPath();
@@ -91,7 +121,7 @@ function createDocumentTexture(act: BareAct, isActive: boolean): THREE.CanvasTex
     ctx.fillText('RRF GROUNDED', -70, 6);
     ctx.restore();
   } else {
-    ctx.fillStyle = '#8997AB';
+    ctx.fillStyle = '#667085';
     ctx.font = 'bold 16px monospace';
     ctx.fillText('CLICK TO INSPECT DOSSIER →', 40, canvas.height - 50);
   }
@@ -148,40 +178,65 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
       return;
     }
 
-    // Scene
+    // Scene with atmospheric depth fog
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xF9F8F5);
-    scene.fog = new THREE.FogExp2(0xF9F8F5, 0.032);
+    scene.fog = new THREE.FogExp2(0xF5EFE6, 0.038);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(44, width / height, 0.1, 100);
     camera.position.set(0, 3.2, 8.8);
     camera.lookAt(0, 0.3, 0);
 
-    // Renderer
+    // Renderer (transparent alpha to blend with paper case-file dotted texture)
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
-    // Lighting
+    // Ground Plane — subtle tabletop surface gradient with fine table edge guideline
+    const groundCanvas = document.createElement('canvas');
+    groundCanvas.width = 512;
+    groundCanvas.height = 512;
+    const gCtx = groundCanvas.getContext('2d');
+    if (gCtx) {
+      const gGrad = gCtx.createLinearGradient(0, 0, 0, 512);
+      gGrad.addColorStop(0, 'rgba(245, 239, 230, 0.15)');
+      gGrad.addColorStop(0.48, 'rgba(240, 233, 222, 0.55)');
+      gGrad.addColorStop(0.50, 'rgba(213, 206, 194, 0.40)'); // Table edge line
+      gGrad.addColorStop(0.52, 'rgba(235, 227, 215, 0.70)');
+      gGrad.addColorStop(1, 'rgba(228, 219, 206, 0.85)');
+      gCtx.fillStyle = gGrad;
+      gCtx.fillRect(0, 0, 512, 512);
+    }
+    const groundTexture = new THREE.CanvasTexture(groundCanvas);
+    const groundMat = new THREE.MeshBasicMaterial({
+      map: groundTexture,
+      transparent: true,
+      opacity: 0.85
+    });
+    const groundMesh = new THREE.Mesh(new THREE.PlaneGeometry(32, 22), groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.set(0, -0.92, 0);
+    groundMesh.raycast = () => {}; // Never swallow click raycasts
+    scene.add(groundMesh);
+
+    // Lighting (directional from upper-left matching UI shadow conventions)
     const ambientLight = new THREE.AmbientLight(0xFFFDF8, 1.6);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xFFF5EA, 2.0);
-    dirLight.position.set(6, 12, 8);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    const dirLight = new THREE.DirectionalLight(0xFFF6EC, 1.8);
+    dirLight.position.set(-5, 10, 7);
     scene.add(dirLight);
 
-    const accentLight = new THREE.PointLight(0xC84B31, 2.2, 10);
+    const accentLight = new THREE.PointLight(0xC84B31, 1.8, 10);
     accentLight.position.set(0, 1.8, 2.5);
     scene.add(accentLight);
+
+    // Shared contact shadow texture & geometry
+    const shadowTexture = createContactShadowTexture();
+    const shadowGeo = new THREE.PlaneGeometry(1.6, 0.8);
 
     // Group for planes
     const planeGroup = new THREE.Group();
@@ -198,6 +253,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
     const planes: {
       mesh: THREE.Mesh;
       border: THREE.LineSegments;
+      shadowMesh: THREE.Mesh;
       act: BareAct;
       targetPos: THREE.Vector3;
       targetRot: THREE.Euler;
@@ -215,14 +271,14 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
 
       const mat = new THREE.MeshStandardMaterial({
         map: isActive ? activeTex : normalTex,
-        roughness: 0.75,
-        metalness: 0.05,
+        roughness: 0.72,
+        metalness: 0.04,
+        transparent: true,
+        opacity: isActive ? 1.0 : 0.85,
         side: THREE.DoubleSide
       });
 
       const mesh = new THREE.Mesh(planeGeo, mat);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
 
       const borderMat = new THREE.LineBasicMaterial({
         color: isActive ? 0xC84B31 : 0x8896A6,
@@ -233,6 +289,19 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
       const border = new THREE.LineSegments(edgesGeo, borderMat);
       border.raycast = () => {}; // Prevent line from swallowing raycast
       mesh.add(border);
+
+      // Contact shadow mesh for this card on the tabletop
+      const shadowMat = new THREE.MeshBasicMaterial({
+        map: shadowTexture,
+        transparent: true,
+        opacity: isActive ? 0.22 : 0.14,
+        depthWrite: false
+      });
+      const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+      shadowMesh.rotation.x = -Math.PI / 2;
+      shadowMesh.position.y = -0.90;
+      shadowMesh.raycast = () => {};
+      scene.add(shadowMesh);
 
       // Distribute in a balanced fan arc
       const angle = ((idx - (total - 1) / 2) / total) * (Math.PI * 0.9);
@@ -252,7 +321,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
       let targetRot = originalRot.clone();
 
       if (isActive) {
-        targetPos = new THREE.Vector3(0, 0.4, 3.4);
+        targetPos = new THREE.Vector3(0, 0.48, 3.55);
         targetRot = new THREE.Euler(0, 0, 0);
       } else {
         const spreadFactor = 1.35;
@@ -265,6 +334,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
       planes.push({
         mesh,
         border,
+        shadowMesh,
         act,
         targetPos,
         targetRot,
@@ -331,7 +401,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
       isPointerDown = false;
       renderer.domElement.style.cursor = 'grab';
 
-      // Check if it was a distinct click (distance moved < 6px)
+      // Check if it was a distinct click (distance moved < 8px)
       const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
       if (dist < 8) {
         const clickedAct = getRaycastHit(e.clientX, e.clientY);
@@ -392,7 +462,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
         let targetR: THREE.Euler;
 
         if (isActive) {
-          targetP = new THREE.Vector3(0, 0.45, 3.5);
+          targetP = new THREE.Vector3(0, 0.48, 3.55);
           targetR = new THREE.Euler(0, 0, 0);
           (p.border.material as THREE.LineBasicMaterial).color.setHex(0xC84B31);
           (p.border.material as THREE.LineBasicMaterial).opacity = 1.0;
@@ -422,6 +492,41 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           p.mesh.position.y += Math.sin(elapsedTime * 2.2) * 0.04;
         } else if (isHovered) {
           p.mesh.position.y += Math.sin(elapsedTime * 3.0) * 0.03;
+        }
+
+        // Active card physical emphasis (scale-up 4.5% for active, 2% for hover)
+        const targetScale = isActive ? 1.045 : (isHovered ? 1.02 : 1.0);
+        p.mesh.scale.setScalar(THREE.MathUtils.lerp(p.mesh.scale.x, targetScale, 0.1));
+
+        // Depth-based opacity and atmospheric fog fade
+        if (!isActive) {
+          const depthFactor = THREE.MathUtils.clamp((p.mesh.position.z + 1.8) / 3.6, 0.45, 1.0);
+          p.mat.opacity = THREE.MathUtils.lerp(p.mat.opacity, 0.72 + 0.28 * depthFactor, 0.1);
+          (p.border.material as THREE.LineBasicMaterial).opacity = THREE.MathUtils.lerp(
+            (p.border.material as THREE.LineBasicMaterial).opacity,
+            (isHovered ? 0.9 : 0.25 * depthFactor + 0.15),
+            0.1
+          );
+        } else {
+          p.mat.opacity = 1.0;
+        }
+
+        // Contact shadow tracking card dynamic position & yaw
+        p.shadowMesh.position.x = THREE.MathUtils.lerp(p.shadowMesh.position.x, p.mesh.position.x, 0.1);
+        p.shadowMesh.position.z = THREE.MathUtils.lerp(p.shadowMesh.position.z, p.mesh.position.z, 0.1);
+        p.shadowMesh.rotation.z = -p.mesh.rotation.y;
+
+        // Shadow scale and opacity based on lift height
+        if (isActive) {
+          p.shadowMesh.scale.set(1.45, 1.35, 1);
+          (p.shadowMesh.material as THREE.MeshBasicMaterial).opacity = 0.22;
+        } else if (isHovered) {
+          p.shadowMesh.scale.set(1.22, 1.15, 1);
+          (p.shadowMesh.material as THREE.MeshBasicMaterial).opacity = 0.18;
+        } else {
+          const depthFactor = THREE.MathUtils.clamp((p.mesh.position.z + 2.0) / 4.0, 0.35, 1.0);
+          p.shadowMesh.scale.set(1.0, 0.95, 1);
+          (p.shadowMesh.material as THREE.MeshBasicMaterial).opacity = 0.13 * depthFactor;
         }
       });
 
@@ -456,7 +561,11 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
         p.texture.dispose();
         p.activeTexture.dispose();
         p.mat.dispose();
+        (p.shadowMesh.material as THREE.Material).dispose();
       });
+      shadowTexture.dispose();
+      groundTexture.dispose();
+      groundMat.dispose();
       renderer.dispose();
     };
   }, [selectedActState, isConverging, onSelectAct, onInspectAct, prefersReducedMotion, force2DMode]);
@@ -466,39 +575,42 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   // 2D Ledger Fallback View
   if (prefersReducedMotion || !isWebGlSupported || force2DMode) {
     return (
-      <div className={`relative border border-[#E4DFD5] bg-[#FAF7F2] p-5 rounded-[2px] ${className}`}>
-        <div className="flex flex-wrap items-center justify-between border-b border-[#E4DFD5] pb-3 mb-4 gap-2">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-[#C84B31]"></span>
-            <span className="font-mono text-xs text-[#121820] font-bold tracking-wider uppercase">
-              STATUTORY RETRIEVAL ARRAY // 93 BARE ACTS LEDGER
-            </span>
+      <div className={`relative border border-rule bg-paper p-4 sm:p-5 rounded-[2px] flex flex-col justify-between overflow-hidden ${className}`}>
+        <div>
+          <div className="flex flex-wrap items-center justify-between border-b border-rule pb-3 mb-3 gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-accent"></span>
+              <span className="text-xs text-ink font-bold tracking-wider uppercase">
+                STATUTORY RETRIEVAL ARRAY // 93 BARE ACTS LEDGER
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setForce2DMode(false)}
+                className="px-2.5 py-1 text-xs border border-dark bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
+              >
+                SWITCH TO 3D VIEW
+              </button>
+              <span className="text-[12px] text-ink-muted">HIGH PERFORMANCE</span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setForce2DMode(false)}
-              className="px-2.5 py-1 text-xs font-mono border border-[#121820] bg-white hover:bg-[#F2EFE9] text-[#121820] rounded-[2px] transition-colors cursor-pointer"
-            >
-              SWITCH TO 3D VIEW
-            </button>
-            <span className="text-[11px] font-mono text-[#7A8699]">HIGH PERFORMANCE</span>
+          {/* 93 -> 34 -> 1 Narrowing Counter */}
+          <div className="mb-3 p-2.5 bg-white border border-rule rounded-[2px] flex items-center justify-between text-xs">
+            <span className="text-ink-muted">RRF CONVERGENCE:</span>
+            <div className="flex items-center space-x-2">
+              <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
+              <span>→</span>
+              <span className="bg-dark text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
+              <span>→</span>
+              <span className="bg-accent text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
+            </div>
           </div>
         </div>
 
-        {/* 93 -> 34 -> 1 Narrowing Counter */}
-        <div className="mb-4 p-3 bg-white border border-[#E4DFD5] rounded-[2px] flex items-center justify-between text-xs font-mono">
-          <span className="text-[#7A8699]">RRF CONVERGENCE:</span>
-          <div className="flex items-center space-x-2">
-            <span className="bg-[#121820] text-white px-2 py-0.5 rounded-[2px]">93 CORPUS</span>
-            <span>→</span>
-            <span className="bg-[#121820] text-white px-2 py-0.5 rounded-[2px]">34 BM25</span>
-            <span>→</span>
-            <span className="bg-[#C84B31] text-white px-2 py-0.5 rounded-[2px] font-bold">1 ACTIVE</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+        {/* Scrollable Card Grid fully contained inside box boundary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 flex-1 min-h-0 overflow-y-auto pr-1 pb-1">
           {BARE_ACTS_CATALOG.map((act) => {
             const isMatch = act.id === selectedActState;
             return (
@@ -509,18 +621,18 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
                   if (onSelectAct) onSelectAct(act.id);
                   if (onInspectAct) onInspectAct(act);
                 }}
-                className={`text-left p-3 border transition-all text-xs rounded-[2px] group focus-visible:ring-2 focus-visible:ring-[#C84B31] focus-visible:outline-none cursor-pointer ${
+                className={`text-left p-3 border transition-all text-xs rounded-[2px] group focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none cursor-pointer ${
                   isMatch
-                    ? 'border-[#C84B31] bg-white shadow-xs ring-1 ring-[#C84B31]/30 font-medium'
-                    : 'border-[#E4DFD5] bg-[#F2EFE9]/70 hover:bg-white hover:border-[#121820]'
+                    ? 'border-accent bg-white shadow-xs ring-1 ring-accent/30 font-medium'
+                    : 'border-rule bg-paper-sunken/70 hover:bg-white hover:border-dark'
                 }`}
               >
-                <div className="flex items-center justify-between font-mono text-[10px] text-[#7A8699]">
+                <div className="flex items-center justify-between text-[12px] text-ink-muted">
                   <span>{act.actCode}</span>
-                  <span className="text-[#C84B31] font-bold group-hover:underline">INSPECT ACT →</span>
+                  <span className="text-accent font-bold group-hover:underline">INSPECT ACT →</span>
                 </div>
-                <div className="font-serif font-bold text-sm text-[#121820] mt-0.5 line-clamp-1">{act.title}</div>
-                <div className="text-[11px] text-[#5A687D] mt-1 line-clamp-1">{act.summary}</div>
+                <div className="font-serif font-bold text-sm text-ink mt-0.5 line-clamp-1">{act.title}</div>
+                <div className="text-[12px] text-ink-tertiary mt-1 line-clamp-1">{act.summary}</div>
               </button>
             );
           })}
@@ -530,28 +642,34 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
   }
 
   return (
-    <div className={`relative overflow-hidden border border-[#E4DFD5] bg-[#F9F8F5] rounded-[2px] ${className}`}>
+    <div className={`relative overflow-hidden border border-rule bg-paper bg-[radial-gradient(#D5CEC2_1px,transparent_1px)] [background-size:16px_16px] rounded-[2px] flex flex-col ${className}`}>
+      {/* Subtle tabletop warm horizon gradient overlay */}
+      <div 
+        aria-hidden="true" 
+        className="absolute inset-0 pointer-events-none bg-gradient-to-b from-paper/40 via-transparent to-paper-sunken/70 z-0" 
+      />
+
       {/* Top Technical Metadata Bar & 93 -> 34 -> 1 Live Counter */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-[#FAF7F2]/95 backdrop-blur-xs border-b border-[#E4DFD5]">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-paper/95 backdrop-blur-xs border-b border-rule">
         <div className="flex items-center space-x-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#C84B31] animate-pulse"></span>
-          <span className="font-mono text-[11px] font-bold text-[#121820] tracking-wider uppercase hidden sm:inline">
+          <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+          <span className="text-[12px] font-bold text-ink tracking-wider uppercase hidden sm:inline">
             3D STATUTORY ARRAY
           </span>
-          <span className="font-mono text-[10px] bg-[#121820] text-white px-2 py-0.5 rounded-[2px] font-bold">
+          <span className="text-[12px] bg-dark text-white px-2 py-0.5 rounded-[2px] font-bold">
             93 → 34 → 1 CONVERGENCE
           </span>
         </div>
 
-        <div className="flex items-center space-x-2 text-[11px] font-mono text-[#7A8699]">
+        <div className="flex items-center space-x-2 text-[12px] text-ink-muted">
           <button
             onClick={() => setForce2DMode(true)}
-            className="px-2 py-0.5 border border-[#E4DFD5] bg-white hover:bg-[#F2EFE9] text-[#121820] rounded-[2px] transition-colors cursor-pointer"
+            className="px-2 py-0.5 border border-rule bg-white hover:bg-paper-sunken text-ink rounded-[2px] transition-colors cursor-pointer"
             title="Switch to 2D ledger view for low-power devices"
           >
             2D LEDGER
           </button>
-          <span className="text-[#121820] font-bold hidden md:inline">
+          <span className="text-ink font-bold hidden md:inline">
             ACTIVE: {selectedActState.toUpperCase()}
           </span>
         </div>
@@ -574,10 +692,10 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
               if (onSelectAct) onSelectAct(act.id);
               if (onInspectAct) onInspectAct(act);
             }}
-            className={`px-2.5 py-1 text-[10px] font-mono rounded-[2px] border shrink-0 transition-all cursor-pointer ${
+            className={`px-2.5 py-1 text-[12px] rounded-[2px] border shrink-0 transition-all cursor-pointer ${
               act.id === selectedActState
-                ? 'bg-[#C84B31] text-white border-[#C84B31] font-bold shadow-xs'
-                : 'bg-white/90 hover:bg-white text-[#121820] border-[#DDD6C9]'
+                ? 'bg-accent text-white border-accent font-bold shadow-xs'
+                : 'bg-white/90 hover:bg-white text-ink border-rule-strong'
             }`}
           >
             {act.actCode}
@@ -591,15 +709,15 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="bg-[#121820] hover:bg-[#242F3E] text-[#FAF7F2] px-3.5 py-2 rounded-[2px] text-xs font-mono shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-[#2B3542] group"
+          className="bg-dark hover:bg-dark-rule text-paper px-3.5 py-2 rounded-[2px] text-xs shadow-md flex items-center space-x-2.5 pointer-events-auto cursor-pointer transition-colors border border-rule-dark group"
           title="Click to inspect this Act's full statutory text"
         >
-          <span className="w-2 h-2 rounded-full bg-[#C84B31] group-hover:scale-125 transition-transform"></span>
-          <span className="text-[#C84B31] font-bold uppercase tracking-wider">INSPECT:</span>
-          <span className="line-clamp-1 font-serif text-sm text-white font-bold group-hover:text-[#FAF7F2]">
+          <span className="w-2 h-2 rounded-full bg-accent group-hover:scale-125 transition-transform"></span>
+          <span className="text-accent font-bold uppercase tracking-wider">INSPECT:</span>
+          <span className="line-clamp-1 font-serif text-sm text-white font-bold group-hover:text-paper">
             {currentAct.title}
           </span>
-          <span className="text-[10px] text-[#A2B1C6] hidden sm:inline underline font-mono">
+          <span className="text-[12px] text-slate hidden sm:inline underline">
             [OPEN DOSSIER]
           </span>
         </div>
@@ -608,7 +726,7 @@ const ThreeDocumentPlanesComponent: React.FC<ThreeDocumentPlanesProps> = ({
           onClick={() => {
             if (onInspectAct) onInspectAct(currentAct);
           }}
-          className="pointer-events-auto text-[11px] font-mono font-bold text-white bg-[#C84B31] hover:bg-[#B33D24] px-4 py-2 border border-[#B33D24] rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
+          className="pointer-events-auto text-[12px] font-bold text-white bg-accent hover:bg-accent-hover px-4 py-2 border border-accent-hover rounded-[2px] shadow-sm flex items-center space-x-1.5 transition-all cursor-pointer active:translate-y-0.5"
         >
           <Eye className="w-3.5 h-3.5 text-white" />
           <span>INSPECT STATUTE SECTIONS</span>

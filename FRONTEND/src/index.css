@@ -1,42 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Fonts are loaded from index.html via <link rel="preload">, NOT with an
+ * @import here. An @import at the top of this file blocks the entire
+ * stylesheet behind three font downloads. Do not move them back.
+ */
+
 @layer base {
   :root {
-    --ink: #1A1814;
-    --paper: #FFFFFF;
-    --paper-warm: #F9F8F5;
-    --paper-rule: #E4DFD5;
-    --amber: #C8821A;
-    --amber-light: #F9EDD5;
-    
-    /* Studio specific tokens */
-    --paper-base: #F9F8F5;
-    --paper-surface: #FFFFFF;
-    --paper-muted: #F2EFE9;
+    /* ---- canonical palette (mirrors tailwind.config.js) ---- */
+    --paper: #FAF7F2;
+    --paper-raised: #FFFFFF;
+    --paper-sunken: #F2EFE9;
+
+    --dark: #121820;
+    --dark-raised: #1A222D;
+    --dark-rule: #2B3542;
+
     --ink-primary: #121820;
     --ink-secondary: #475467;
-    --ink-muted: #7A8699;
-    --stamp-accent: #C84B31;
-    --stamp-ochre: #B85020;
-    --docket-border: #E4DFD5;
-    --docket-border-dark: #2B3542;
+    --ink-tertiary: #556377;
+    --ink-muted: #667085;        /* was #7A8699 — failed AA at 3.45:1 */
 
-    /* === DESIGN SYSTEM CANONICAL TOKENS === */
-    --accent: #C84B31;
-    --accent-hover: #A83C25;
-    --accent-light: #FAEAE7;
-    --bg-dark: #121820;
-    --bg-light: #F9F8F5;
-    --bg-warm: #F2EFE9;
-    --border-subtle: #E4DFD5;
-    --border-mid: #C8C3B8;
+    --slate-on-dark: #A2B1C6;
+    --slate-on-dark-muted: #7A8699;
+
+    --accent: #C84B31;           /* icons / >=18px / bold only — 4.4:1 */
+    --accent-text: #A83C25;      /* accent copy under 18px — 5.9:1 */
+    --accent-deep: #8C271E;
+    --accent-wash: #FAEAE7;
+
+    --rule: #E4DFD5;
+    --rule-strong: #D5CEC2;
+
+    --success: #027A48;
+    --warning: #B54708;
+    --error: #B42318;
+
     --font-display: 'Newsreader', Georgia, serif;
     --font-body: 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', Menlo, monospace;
+
+    /* ---- legacy aliases, retargeted ---- */
+    --ink: var(--ink-primary);
+    --paper-warm: var(--paper-sunken);
+    --paper-base: var(--paper);
+    --paper-surface: var(--paper-raised);
+    --paper-muted: var(--paper-sunken);
+    --paper-rule: var(--rule);
+    --amber: var(--accent);
+    --amber-light: var(--accent-wash);
+    --stamp-accent: var(--accent);
+    --stamp-ochre: var(--accent-deep);
+    --docket-border: var(--rule);
+    --docket-border-dark: var(--dark-rule);
+    --bg-dark: var(--dark);
+    --bg-light: var(--paper);
+    --bg-warm: var(--paper-sunken);
+    --border-subtle: var(--rule);
+    --border-mid: var(--rule-strong);
+    --accent-hover: var(--accent-text);
+    --accent-light: var(--accent-wash);
   }
 
   html {
@@ -45,24 +71,40 @@
     scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
   }
-  
+
   body {
     background-color: var(--paper);
-    color: var(--ink);
+    color: var(--ink-primary);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
   }
 
+  /*
+   * Every family this app loads tops out at 700 — Newsreader 400-700,
+   * Inter 400-700, JetBrains Mono 400/500/700 — and the fallbacks are
+   * worse (Georgia ships 400/700 only). Asking for 800 or 900 therefore
+   * bought nothing but browser-synthesised glyphs: real 700 outlines
+   * smeared wider, which at display sizes reads as a rendering fault.
+   *
+   * Synthesis is off globally rather than on .font-serif alone, because
+   * every family here has a real 700 to reach for and none needs faking.
+   * The markup no longer asks for 800/900 either — `font-black` and
+   * `font-extrabold` are gone, so what the class says is what renders.
+   */
+  html {
+    font-synthesis-weight: none;
+  }
+
   ::selection {
-    background-color: #F9EDD5;
-    color: #C8821A;
+    background-color: var(--accent-wash);
+    color: var(--accent-deep);
   }
 
   /* Hairline scrollbar — legal paper margin style */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #D4CFC4; border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #C8C3B8; }
+  ::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
 }
 
 @layer utilities {
@@ -75,19 +117,20 @@
     will-change: transform;
   }
 
-  /* Case file label treatment */
+  /* Case file label treatment. 12px floor — 10px uppercase tracked text
+     at these contrast ratios is not legible on a phone. */
   .label-stamp {
     font-family: 'Inter', sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-muted, #7A7469);
+    color: var(--ink-muted);
   }
 
   /* Ruled line — legal paper margin */
   .rule-line {
-    border-top: 1px solid var(--paper-rule, #D4CFC4);
+    border-top: 1px solid var(--rule);
   }
 
   /* Stamped motion — sharp arrival, no bounce */
@@ -100,12 +143,12 @@
     100% { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* Amber streaming cursor */
+  /* Streaming cursor */
   .cursor-amber {
     display: inline-block;
     width: 2px;
     height: 1.1em;
-    background-color: var(--amber);
+    background-color: var(--accent);
     margin-left: 2px;
     vertical-align: text-bottom;
     animation: cursorPulse 900ms ease-in-out infinite;
@@ -115,14 +158,31 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
-}
 
-/* Reduced-motion: disable all animations */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  /* Loading skeletons — paper-toned, not the usual grey pulse */
+  .skeleton {
+    background-color: var(--paper-sunken);
+    border-radius: 2px;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  .skeleton-dark {
+    background-color: var(--dark-raised);
+    border-radius: 2px;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 0.85; }
+  }
+
+  /* Hide scrollbar but keep scrolling (carousels) */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -131,9 +191,9 @@
 /* Legal Ledger Background Grid & Ruled Margin */
 .ledger-grid {
   background-size: 32px 32px;
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(200, 75, 49, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(20, 26, 34, 0.035) 1px, transparent 1px);
+    linear-gradient(to bottom, rgba(18, 24, 32, 0.035) 1px, transparent 1px);
 }
 
 .ledger-ruled-margin {
@@ -152,11 +212,14 @@
 
 /* Stamped Status Badge effect */
 .stamp-badge {
-  border: 1.5px solid var(--stamp-accent);
-  color: var(--stamp-accent);
+  border: 1.5px solid var(--accent);
+  color: var(--accent-text);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
+  /* Was unset, so all eight call sites hand-supplied `text-[10px]`. Uppercase
+     at 0.08em tracking needs the same 12px floor as .label-stamp. */
+  font-size: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -166,11 +229,11 @@
 }
 
 .stamp-verified {
-  border: 1.5px solid #15803D;
-  color: #15803D;
+  border: 1.5px solid var(--success);
+  color: var(--success);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   border-radius: 2px;
 }
@@ -182,7 +245,7 @@
   transition: all 180ms ease;
 }
 .docket-tab.active {
-  border-bottom-color: var(--stamp-accent);
+  border-bottom-color: var(--accent);
   color: var(--ink-primary);
   font-weight: 600;
 }
@@ -202,6 +265,15 @@
   animation: stampHit 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Reduced-motion: disable all animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Print Styles for Legal Document Generator */
 @media print {
   body {
@@ -215,5 +287,3 @@
     display: block !important;
   }
 }
-
-
