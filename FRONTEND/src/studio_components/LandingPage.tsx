@@ -261,75 +261,81 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </button>
                 </div>
               </div>
+            </div>
 
-              {/*
-                This strip was three tiles reading CLASSIFIER / 0ms Latency /
-                Deterministic Regex, RETRIEVAL / RRF Fusion / Chroma + BM25, and
-                OUTPUT SHAPE / 5-Part Dossier / Single-Pass Draft.
+            {/* Right: Interactive 3D Document Planes Visual */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="border border-rule bg-white p-2 rounded-[2px] shadow-sm overflow-hidden h-[460px] flex flex-col">
+                <React.Suspense fallback={<ThreePlaneFallback />}>
+                  <ThreeDocumentPlanes
+                    activeActId={selectedDemoAct}
+                    isConverging={true}
+                    onSelectAct={(actId) => setSelectedDemoAct(actId)}
+                    onInspectAct={(act) => setInspectingAct(act)}
+                    className="w-full h-full flex-1"
+                  />
+                </React.Suspense>
+              </div>
+              <div className="flex items-center justify-between text-[12px] text-ink-tertiary px-1">
+                <span>{t('landing.hero.planes.caption1', 'Statutes ranked against your problem')}</span>
+                <span className="text-accent-text font-semibold">{t('landing.hero.planes.caption2', 'Click any plane to inspect')}</span>
+              </div>
+            </div>
+          </div>
 
-                Every value a visitor could read was an implementation detail. A
-                citizen learns nothing from "Chroma + BM25", and a judge assessing
-                civic impact learns nothing either. Each tile now leads with what
-                the visitor gets and keeps the mechanism as the supporting line,
-                so the engineering is still on the page — one level down, where
-                supporting detail belongs.
-              */}
-              <div className="pt-6 border-t border-rule grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile1.title', 'Free, and no lawyer needed to start')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile1.desc', 'Describe the problem in plain Hindi or English.')}</div>
+          {/* Unified 5-Card Feature Row — All 5 cards equidistant in one continuous row */}
+          <div className="pt-8 mt-8 border-t border-rule grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile1.title', 'Free, and no lawyer needed to start')}
                 </div>
-
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile2.title', 'Every claim traced to a statute')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile2.desc', 'Hybrid retrieval across 93 Acts — meaning and keyword search, fused.')}</div>
-                </div>
-
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">{t('landing.hero.tile3.title', 'You leave with a filled-in draft')}</div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">{t('landing.hero.tile3.desc', 'Notice, RTI or appeal — ready to print and post.')}</div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile1.desc', 'Describe the problem in plain Hindi or English.')}
                 </div>
               </div>
             </div>
 
-            {/* Right: Interactive 3D Document Planes Visual */}
-            <div className="lg:col-span-5 space-y-3 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="border border-rule bg-white p-2 rounded-[2px] shadow-sm overflow-hidden h-[460px] flex flex-col">
-                  <React.Suspense fallback={<ThreePlaneFallback />}>
-                    <ThreeDocumentPlanes
-                      activeActId={selectedDemoAct}
-                      isConverging={true}
-                      onSelectAct={(actId) => setSelectedDemoAct(actId)}
-                      onInspectAct={(act) => setInspectingAct(act)}
-                      className="w-full h-full flex-1"
-                    />
-                  </React.Suspense>
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile2.title', 'Every claim traced to a statute')}
                 </div>
-                <div className="flex items-center justify-between text-[12px] text-ink-tertiary px-1">
-                  <span>{t('landing.hero.planes.caption1', 'Statutes ranked against your problem')}</span>
-                  <span className="text-accent-text font-semibold">{t('landing.hero.planes.caption2', 'Click any plane to inspect')}</span>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile2.desc', 'Hybrid retrieval across 93 Acts — meaning and keyword search, fused.')}
                 </div>
               </div>
+            </div>
 
-              {/* Supporting Cards beneath 3D widget — 2-column grid balancing left column */}
-              <div className="pt-6 border-t border-rule grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">
-                    {t('landing.hero.tile4.title', 'Dense + sparse hybrid search')}
-                  </div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">
-                    {t('landing.hero.tile4.desc', 'Chroma vectors fused with BM25 keyword matching across 93 Bare Acts.')}
-                  </div>
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile3.title', 'You leave with a filled-in draft')}
                 </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile3.desc', 'Notice, RTI or appeal — ready to print and post.')}
+                </div>
+              </div>
+            </div>
 
-                <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px]">
-                  <div className="font-serif font-bold text-[17px] text-ink leading-snug">
-                    {t('landing.hero.tile5.title', 'Zero hallucinated citations')}
-                  </div>
-                  <div className="text-[13px] text-ink-tertiary mt-1.5 leading-relaxed">
-                    {t('landing.hero.tile5.desc', 'Every legal claim is traced to an exact Section of an Act — verifiable before filing.')}
-                  </div>
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile4.title', 'Dense + sparse hybrid search')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile4.desc', 'Chroma vectors fused with BM25 keyword matching across 93 Bare Acts.')}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FFFFFF] border border-rule rounded-[2px] flex flex-col justify-between">
+              <div>
+                <div className="font-serif font-bold text-[16px] text-ink leading-snug">
+                  {t('landing.hero.tile5.title', 'Zero hallucinated citations')}
+                </div>
+                <div className="text-[12.5px] text-ink-tertiary mt-1.5 leading-relaxed">
+                  {t('landing.hero.tile5.desc', 'Every legal claim is traced to an exact Section of an Act — verifiable before filing.')}
                 </div>
               </div>
             </div>
