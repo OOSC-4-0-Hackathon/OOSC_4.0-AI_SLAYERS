@@ -312,8 +312,8 @@ OOSC_4.0-AI_SLAYERS/
 
 | Contributor | Core Responsibilities |
 | :--- | :--- |
-| **Ayush** | Lead Architecture, Hybrid RAG Engine, Gemini Key Rotator, SSE Streaming, React Design System |
-| **Ansh Darji** | Statutory Corpus Indexing, ChromaDB / BM25 Ingestion Pipeline, Document Schema Engineering |
+| **Ayush** | Architect, Gemini Key Rotator, SSE Streaming, React Design System , Deployment , User Experience|
+| **Ansh Darji** | Hybrid RAG Engine , Statutory Corpus Indexing, ChromaDB / BM25 Ingestion Pipeline, Document Schema Engineering |
 
 ---
 
