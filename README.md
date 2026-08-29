@@ -58,12 +58,12 @@ NYAAY AI is built on one foundational principle: **It never hallucinates law.** 
 ## 2. Signature Capabilities & Engineering Differentiators
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                      CIVIC LEGAL OS // 5-STEP JOURNEY                            │
-│                                                                                  │
-│   [01 INTAKE]  →  [02 RESEARCH]  →  [03 DRAFTING]  →  [04 ANALYSIS]  →  [05 STRATEGY]   │
-│  Civic Navigator    Kanoon Q&A      Legal Drafting     Document Chat    Legal Reasoning │
-└──────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                CIVIC LEGAL OS // 5-STEP JOURNEY                               │
+│                                                                                               │
+│   [01 INTAKE]   →   [02 RESEARCH]   →   [03 DRAFTING]   →   [04 ANALYSIS]   →   [05 STRATEGY] │
+│ Civic Navigator       Kanoon Q&A        Legal Drafting      Document Chat     Legal Reasoning │
+└───────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1. 🧭 Civic Navigator & The Convergence (93 → 34 → 1 RAG Narrowing)
@@ -126,6 +126,11 @@ flowchart TD
         AuthMid["Firebase Admin SDK Middleware"]
         Router["Async FastAPI Routers"]
         
+        subgraph TranslationLayer ["Multilingual Engine"]
+            DetectTrans["Groq Qwen Detect & Translate-In"]
+            GeminiTrans["Gemini Native Translate-Out"]
+        end
+        
         subgraph RoutingEngine ["Classification & Ingestion"]
             RegexRouter{"0ms Deterministic Regex Classifier"}
         end
@@ -144,7 +149,8 @@ flowchart TD
     UI --> FAuth
     UI -- "Authenticated SSE Request" --> AuthMid
     AuthMid --> Router
-    Router --> RegexRouter
+    Router --> DetectTrans
+    DetectTrans --> RegexRouter
     
     RegexRouter -- "0ms Domain Match" --> RAGCore
     RegexRouter -- "General Routing" --> RAGCore
@@ -189,6 +195,7 @@ To launch both frontend and backend concurrently in one command:
 - **Python**: `v3.11` or higher
 - **Node.js**: `v18.0` or higher (with `npm` v9+)
 - **Google Gemini API Key**: Obtain from [Google AI Studio](https://aistudio.google.com/)
+- **Groq API Key**: Obtain from [Groq Console](https://console.groq.com/keys) (Required for ultra-low latency language detection)
 - **Firebase Project**: Service account credentials JSON for backend auth verification
 
 #### 1. Clone the Repository
@@ -234,8 +241,9 @@ FIREBASE_SERVICE_ACCOUNT_PATH=BACKEND/secrets/serviceAccountKey.json
 # Application Environment
 ENVIRONMENT=development
 
-# Gemini API Keys (Comma-separated for thread-safe rotator)
+# LLM API Keys (Gemini for reasoning/RAG, Groq for language detection)
 GEMINI_API_KEY=your_gemini_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
 
 # CORS Origins
 BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://127.0.0.1:3000","http://127.0.0.1:4173"]
@@ -277,13 +285,17 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 OOSC_4.0-AI_SLAYERS/
 ├── BACKEND/                     # FastAPI backend application
 │   ├── app/                     # Backend source code
-│   │   ├── api/                 # API routers (/kanoon, /drafting, /auth, /civic)
-│   │   ├── core/                # Config, key rotator, lifespan pre-warming
-│   │   ├── db/                  # SQLAlchemy models and SQLite schemas
-│   │   ├── rag/                 # RAG orchestrator, ChromaDB, BM25, RRF fusion
-│   │   └── main.py              # Application entry point & lifespan hooks
+│   │   ├── routes/              # API endpoints (/kanoon, /drafting, /auth, /civic)
+│   │   ├── core/                # Config, key rotator, translation engine, lifespan
+│   │   ├── database/            # SQLAlchemy database connection and sessions
+│   │   ├── models/              # SQLAlchemy ORM models
+│   │   ├── schemas/             # Pydantic validation schemas
+│   │   ├── services/            # Core business logic (Kanoon service, RAG orchestration)
+│   │   ├── ai/                  # LLM integrations (Gemini, Groq)
+│   │   ├── knowledge/           # ChromaDB, BM25, RRF fusion implementation
+│   │   └── main.py              # Application entry point & middleware setup
 │   ├── corpus/                  # Indexed Bare Acts, SC Judgments, and Government Schemes
-│   ├── requirements.txt         # Python dependencies
+│   ├── requirements.txt         # Python dependencies (includes google-genai, groq)
 │   └── .env.example             # Template for backend environment variables
 ├── FRONTEND/                    # React 18 + Vite SPA
 │   ├── src/                     # React application source code
@@ -291,6 +303,7 @@ OOSC_4.0-AI_SLAYERS/
 │   │   ├── studio_components/   # TheConvergence, ThreeDocumentPlanes, LandingPage
 │   │   ├── pages/               # CivicNavigator, DocHub, UploadChat, Reasoning
 │   │   ├── services/            # API & SSE streaming integration helpers
+│   │   ├── locales/             # i18n translation dictionaries (en, hi, ta, bn)
 │   │   ├── data/                # Bare Acts catalog metadata & sample disputes
 │   │   └── App.jsx              # Routing & authentication boundaries
 │   ├── package.json             # Node dependencies and build scripts
