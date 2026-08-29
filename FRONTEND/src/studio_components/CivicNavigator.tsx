@@ -101,7 +101,7 @@ export const CivicNavigator: React.FC<CivicNavigatorProps> = ({
 
     try {
       await askCivicStream(
-        { question: text },
+        { question: text, language },
         (msg: any) => {
           if (msg.type === 'status') {
             setStreamProgress(2);

@@ -89,7 +89,8 @@ class ReasoningService:
             question=query_for_rag,
             filters=filters,
             history=formatted_history,
-            task_type="REASONING"
+            task_type="REASONING",
+            language=language
         )
         
         assistant_content = response.get("answer", "Failed to generate analysis.")

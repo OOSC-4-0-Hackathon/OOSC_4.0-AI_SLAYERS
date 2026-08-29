@@ -86,7 +86,8 @@ class UploadChatService:
         response_data = rag_orchestrator.trigger_pipeline(
             question=query_for_rag,
             filters=filters,
-            history=formatted_history
+            history=formatted_history,
+            language=language
         )
         
         # Merge summary logic for backwards compatibility with the UI
