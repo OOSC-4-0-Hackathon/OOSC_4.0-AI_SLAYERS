@@ -131,6 +131,8 @@ class KanoonService:
             search_query,
             filters,
             formatted_history,
+            "QA",
+            language,
         )
 
         citations = response_data.get("citations", [])
@@ -152,16 +154,6 @@ class KanoonService:
                 paragraphs = [p.strip() for p in raw_answer.split('\n')
                               if p.strip() and not p.strip().startswith(('#', '{', '}'))]
                 dynamic_summary = paragraphs[0][:247] + "..." if paragraphs and len(paragraphs[0]) > 247 else (paragraphs[0] if paragraphs else dynamic_summary)
-
-        # ── Translate output if needed ─────────────────────────────────────────
-        translation_notice = None
-        if language != "en":
-            from app.core.translate import translate_out
-            # Run both translate calls concurrently (answer + summary)
-            (raw_answer, translation_notice), (dynamic_summary, _) = await asyncio.gather(
-                translate_out(raw_answer, language),
-                translate_out(dynamic_summary, language),
-            )
 
         final_json = {
             "answer": raw_answer,
@@ -278,57 +270,23 @@ class KanoonService:
 
                 yield f"data: {json.dumps({'type': 'metadata', 'conversation_id': _conv.id})}\n\n"
 
-                if _language == "en":
-                    # ── ENGLISH PATH: true token streaming ──────────────────────
-                    for event in rag_orchestrator.trigger_pipeline_stream(
-                        _search_query, filters, _formatted_history, task_type="CIVIC"
-                    ):
-                        if event.startswith("data: "):
-                            try:
-                                data = json.loads(event[6:])
-                                if data['type'] == 'chunk':
-                                    full_content += data['data']
-                                elif data['type'] == 'complete':
-                                    citations_data = data.get('citations', [])
-                            except Exception:
-                                pass
-                        yield event
-
-                else:
-                    # ── NON-ENGLISH PATH: buffer → translate_out once ────────────
-                    for event in rag_orchestrator.trigger_pipeline_stream(
-                        _search_query, filters, _formatted_history, task_type="CIVIC"
-                    ):
-                        if event.startswith("data: "):
-                            try:
-                                data = json.loads(event[6:])
-                                if data['type'] == 'chunk':
-                                    full_content += data['data']
-                                elif data['type'] == 'complete':
-                                    citations_data = data.get('citations', [])
-                                elif data['type'] in ('status', 'metadata'):
-                                    yield event
-                                elif data['type'] == 'error':
-                                    from app.core.translate import translate_out
-                                    translated_error, _ = await translate_out(data['data'], _language)
-                                    yield f"data: {json.dumps({'type': 'error', 'data': translated_error})}\n\n"
-                            except Exception:
-                                pass
-                        elif not event.startswith("data: "):
-                            yield event
-
-                    if full_content.strip():
-                        yield f"data: {json.dumps({'type': 'status', 'data': 'Translating response...'})}\n\n"
-                        from app.core.translate import translate_out
-                        translated_text, translation_notice = await translate_out(full_content, _language)
-                        yield f"data: {json.dumps({'type': 'translated', 'data': translated_text})}\n\n"
-                    else:
-                        translation_notice = None
-
-                    complete_payload = {"type": "complete", "citations": citations_data}
-                    if translation_notice:
-                        complete_payload["translation_notice"] = translation_notice
-                    yield f"data: {json.dumps(complete_payload)}\n\n"
+                # ── UNIFIED STREAMING PATH ────────────────────────────────────
+                # Gemini now generates the correct language natively via prompting,
+                # so we can stream tokens directly to the frontend regardless of language!
+                for event in rag_orchestrator.trigger_pipeline_stream(
+                    _search_query, filters, _formatted_history, task_type="CIVIC", language=_language
+                ):
+                    if event.startswith("data: "):
+                        try:
+                            data = json.loads(event[6:])
+                            if data['type'] == 'chunk':
+                                full_content += data['data']
+                            elif data['type'] == 'complete':
+                                citations_data = data.get('citations', [])
+                            # Errors will just pass through in English for now, which is fine
+                        except Exception:
+                            pass
+                    yield event
 
                 # ── Save to DB ────────────────────────────────────────────────
                 raw_answer = full_content

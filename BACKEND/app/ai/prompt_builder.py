@@ -282,13 +282,36 @@ When making any claim, argument, or referencing a law, append the citation marke
         compressed.sort(key=lambda x: x[0])
         return compressed
 
-    def construct_prompt(self, question: str, chunks: List[Dict[str, Any]], history: List[Dict[str, Any]] = None, task_type: str = "QA", query_analysis: Dict[str, Any] = None) -> tuple[str, str]:
+    # Human-readable language names for the prompt instruction
+    _LANG_NAMES = {
+        "hi": "Hindi",
+        "bn": "Bengali",
+        "ta": "Tamil",
+        "en": "English",
+    }
+
+    def construct_prompt(self, question: str, chunks: List[Dict[str, Any]], history: List[Dict[str, Any]] = None, task_type: str = "QA", query_analysis: Dict[str, Any] = None, language: str = "en") -> tuple[str, str]:
         """
         Constructs the final prompt.
         Returns (system_instruction, user_prompt)
         """
         system_instruction = self.system_instructions.get(task_type, self.system_instructions["QA"])
-        
+
+        # ── Language instruction ──────────────────────────────────────────────
+        # Injected ONLY for non-English responses. Gemini already knows all these
+        # languages natively — this is zero-latency compared to a Groq translate call.
+        if language and language != "en":
+            lang_name = self._LANG_NAMES.get(language, language)
+            lang_instruction = (
+                f"\n\nLANGUAGE REQUIREMENT (MANDATORY): You MUST write your ENTIRE response in {lang_name}. "
+                f"Every word of your answer must be in {lang_name}. "
+                f"EXCEPTIONS — keep these in English exactly as-is: "
+                f"citation markers like [1] or [2], Act names (e.g. Indian Penal Code), "
+                f"section numbers (e.g. Section 498A), and court names. "
+                f"All explanations, reasoning, headings, bullet points, and conclusions MUST be in {lang_name}."
+            )
+            system_instruction = system_instruction + lang_instruction
+
         context_str = "CONTEXT CHUNKS:\n\n"
         
         if task_type == "CIVIC":

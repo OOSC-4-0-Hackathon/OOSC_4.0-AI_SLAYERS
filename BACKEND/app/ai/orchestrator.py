@@ -425,9 +425,10 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         except Exception as e:
             logger.warning(f"Relevance filtering failed: {e}")
             return chunks
-    def trigger_pipeline(self, question: str, filters: Dict[str, Any] = None, history: List[Dict[str, Any]] = None, task_type: str = "QA") -> Dict[str, Any]:
+    def trigger_pipeline(self, question: str, filters: Dict[str, Any] = None, history: List[Dict[str, Any]] = None, task_type: str = "QA", language: str = "en") -> Dict[str, Any]:
         """
         Executes the full RAG pipeline for a given question.
+        Returns a dict matching the KanoonResponse schema.
         """
         import time
         overall_start = time.time()
@@ -516,7 +517,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
 
         # 4. Prompt Construction
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None)
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None, language=language)
         pc_latency = round(time.time() - pc_start, 2)
         
         gen_start = time.time()
@@ -624,7 +625,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
             "metrics": metrics
         }
 
-    def trigger_pipeline_stream(self, question: str, filters: Dict[str, Any] = None, history: List[Dict[str, Any]] = None, task_type: str = "QA"):
+    def trigger_pipeline_stream(self, question: str, filters: Dict[str, Any] = None, history: List[Dict[str, Any]] = None, task_type: str = "QA", language: str = "en"):
         import time
         import re
         import random
@@ -760,7 +761,7 @@ Respond with a valid JSON array of objects, where each object has 'id' (the chun
         yield f"data: {json.dumps({'type': 'metadata', 'data': metadata_payload})}\n\n"
 
         pc_start = time.time()
-        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None)
+        system_instruction, user_prompt = prompt_builder.construct_prompt(question, chunks, history, task_type=task_type, query_analysis=query_analysis if is_complex else None, language=language)
         pc_latency = round(time.time() - pc_start, 2)
         
         yield f"data: {json.dumps({'type': 'status', 'data': 'Generating response...'})}\n\n"
