@@ -309,7 +309,6 @@ OOSC_4.0-AI_SLAYERS/
 │   ├── package.json             # Node dependencies and build scripts
 │   ├── tailwind.config.js       # Canonical color tokens and typography scale
 │   └── vercel.json              # Vercel SPA rewrite deployment configuration
-├── SCREENSHOTS/                 # High-resolution interface previews
 ├── run-app.ps1                  # Single-command Windows launcher script
 └── README.md                    # Project submission & technical architecture
 ```
