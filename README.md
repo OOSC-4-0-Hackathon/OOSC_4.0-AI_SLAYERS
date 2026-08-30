@@ -136,6 +136,7 @@ flowchart TD
         end
         
         subgraph RAGCore ["Hybrid RAG Engine (Statutes, Judgments, Schemes)"]
+            QueryProc["Query Processor"]
             Embedder["Pre-Warmed BAAI/bge-base-en-v1.5"]
             Chroma[("ChromaDB Vector Store (93 Bare Acts)")]
             BM25[("BM25 Keyword Index")]
@@ -152,12 +153,12 @@ flowchart TD
     Router --> DetectTrans
     DetectTrans --> RegexRouter
     
-    RegexRouter -- "0ms Domain Match" --> RAGCore
-    RegexRouter -- "General Routing" --> RAGCore
+    RegexRouter -- "0ms Domain Match" --> QueryProc
+    RegexRouter -- "General Routing" --> QueryProc
     
-    RAGCore --> Embedder
+    QueryProc --> Embedder
     Embedder --> Chroma
-    RAGCore --> BM25
+    QueryProc --> BM25
     Chroma & BM25 --> RRF
     RRF --> KeyRotator
     KeyRotator --> LLM
